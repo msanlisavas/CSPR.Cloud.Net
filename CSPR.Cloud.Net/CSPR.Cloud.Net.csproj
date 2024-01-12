@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Folder Include="Icon\" />
+    <Folder Include="Parameters\Filtering\" />
   </ItemGroup>
 
   <ItemGroup>

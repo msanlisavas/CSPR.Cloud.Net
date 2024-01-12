@@ -1,4 +1,6 @@
-﻿namespace CSPR.Cloud.Net.Clients.Api
+﻿using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
+
+namespace CSPR.Cloud.Net.Clients.Api
 {
     public class EndpointBuilder
     {
@@ -12,6 +14,10 @@
         public string GetAccount(string publicKey)
         {
             return Endpoints.Account.GetAccount(_baseUrl, publicKey);
+        }
+        public string GetAccounts(AccountsRequestParameters parameters)
+        {
+            return Endpoints.Account.GetAccounts(_baseUrl, parameters);
         }
     }
 }

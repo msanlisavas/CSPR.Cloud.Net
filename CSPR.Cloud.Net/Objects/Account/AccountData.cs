@@ -8,12 +8,22 @@ namespace CSPR.Cloud.Net.Objects.Account
         public string AccountHash { get; set; }
 
         [JsonProperty("balance")]
-        public long Balance { get; set; }
+        public ulong? Balance { get; set; }
 
         [JsonProperty("main_purse_uref")]
         public string MainPurseUref { get; set; }
 
         [JsonProperty("public_key")]
         public string PublicKey { get; set; }
+
+        [JsonProperty("auction_status")]
+        public string AuctionStatus { get; set; }
+
+        [JsonProperty("delegated_balance")]
+        public ulong? DelegatedBalance { get; set; }
+
+        [JsonProperty("undelegated_balance")]
+        public ulong? UndelegatedBalance { get; set; }
+
     }
 }

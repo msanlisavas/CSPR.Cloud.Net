@@ -1,13 +1,15 @@
 ﻿using CSPR.Cloud.Net.Clients.Api;
-using CSPR.Cloud.Net.Enums;
 using CSPR.Cloud.Net.Errors;
 using CSPR.Cloud.Net.Interfaces.Clients;
 using CSPR.Cloud.Net.Objects.Abstract;
 using CSPR.Cloud.Net.Objects.Account;
 using CSPR.Cloud.Net.Objects.Config;
+using CSPR.Cloud.Net.Parameters.OptionalParameters;
+using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -80,9 +82,13 @@ namespace CSPR.Cloud.Net.Clients
             {
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Mainnet);
             }
-            public Task<AccountData> GetAccountAsync(string publicKey, AuctionStatus auctionStatus = AuctionStatus.Empty)
+            public Task<AccountData> GetAccountAsync(string publicKey, bool auctionStatus = false)
             {
                 return _commonEndpoint.GetAccountAsync(publicKey, auctionStatus);
+            }
+            public Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters)
+            {
+                return _commonEndpoint.GetAccountsAsync(parameters);
             }
 
         }
@@ -95,9 +101,13 @@ namespace CSPR.Cloud.Net.Clients
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Testnet);
             }
 
-            public Task<AccountData> GetAccountAsync(string publicKey, AuctionStatus auctionStatus = AuctionStatus.Empty)
+            public Task<AccountData> GetAccountAsync(string publicKey, bool auctionStatus = false)
             {
                 return _commonEndpoint.GetAccountAsync(publicKey, auctionStatus);
+            }
+            public Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters)
+            {
+                return _commonEndpoint.GetAccountsAsync(parameters);
             }
         }
 
@@ -112,11 +122,25 @@ namespace CSPR.Cloud.Net.Clients
                 _baseUrl = baseUrl;
             }
 
-            public async Task<AccountData> GetAccountAsync(string publicKey, AuctionStatus auctionStatus = AuctionStatus.Empty)
+            public async Task<AccountData> GetAccountAsync(string publicKey, bool auctionStatus = false)
             {
-                string endpoint = Endpoints.Account.GetAccount(_baseUrl, publicKey, auctionStatus);
+                var includes = new List<string>();
+
+                // Add auction status to includes if it's not empty
+                if (auctionStatus)
+                {
+                    includes.Add(OptParameters.AuctionStatus);
+                }
+
+                string endpoint = Endpoints.Account.GetAccount(_baseUrl, publicKey, includes);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<AccountData>>(endpoint);
                 return response.Data;
+            }
+            public async Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters)
+            {
+
+                string endpoint = Endpoints.Account.GetAccounts(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<AccountData>>(endpoint);
             }
 
         }
