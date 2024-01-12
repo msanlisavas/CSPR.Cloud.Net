@@ -9,7 +9,7 @@
             _baseUrl = baseUrl;
         }
 
-        public string GetAccountInfo(string publicKey)
+        public string GetAccount(string publicKey)
         {
             return Endpoints.Account.GetAccount(_baseUrl, publicKey);
         }
