@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSPR.Cloud.Net", "CSPR.Cloud.Net\CSPR.Cloud.Net.csproj", "{B791CD12-1106-466B-A4CE-2B56CDBEABD8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B791CD12-1106-466B-A4CE-2B56CDBEABD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B791CD12-1106-466B-A4CE-2B56CDBEABD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B791CD12-1106-466B-A4CE-2B56CDBEABD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B791CD12-1106-466B-A4CE-2B56CDBEABD8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EBF5A16E-0293-49F0-BDA1-451D3DBF02DA}
+	EndGlobalSection
+EndGlobal
