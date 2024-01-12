@@ -2,6 +2,7 @@
 using CSPR.Cloud.Net.Enums;
 using CSPR.Cloud.Net.Errors;
 using CSPR.Cloud.Net.Interfaces.Clients;
+using CSPR.Cloud.Net.Objects.Abstract;
 using CSPR.Cloud.Net.Objects.Account;
 using CSPR.Cloud.Net.Objects.Config;
 using Microsoft.Extensions.Logging;
@@ -114,7 +115,8 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<AccountData> GetAccountAsync(string publicKey, AuctionStatus auctionStatus = AuctionStatus.Empty)
             {
                 string endpoint = Endpoints.Account.GetAccount(_baseUrl, publicKey, auctionStatus);
-                return await _casperCloudRestClient.GetDataAsync<AccountData>(endpoint);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<AccountData>>(endpoint);
+                return response.Data;
             }
 
         }

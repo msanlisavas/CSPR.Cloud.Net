@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSPR.Cloud.Net", "CSPR.Cloud.Net\CSPR.Cloud.Net.csproj", "{B791CD12-1106-466B-A4CE-2B56CDBEABD8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSPR.Cloud.Net.Tests", "CSPR.Cloud.Net.Tests\CSPR.Cloud.Net.Tests.csproj", "{A2D4A4BD-CBAD-44BE-85B4-FB4F6C001801}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B791CD12-1106-466B-A4CE-2B56CDBEABD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B791CD12-1106-466B-A4CE-2B56CDBEABD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B791CD12-1106-466B-A4CE-2B56CDBEABD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2D4A4BD-CBAD-44BE-85B4-FB4F6C001801}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2D4A4BD-CBAD-44BE-85B4-FB4F6C001801}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2D4A4BD-CBAD-44BE-85B4-FB4F6C001801}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2D4A4BD-CBAD-44BE-85B4-FB4F6C001801}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CSPR.Cloud.Net.Clients
+﻿namespace CSPR.Cloud.Net.Clients
 {
-    internal class CasperCloudSocketClient
+    public class CasperCloudSocketClient
     {
     }
 }
