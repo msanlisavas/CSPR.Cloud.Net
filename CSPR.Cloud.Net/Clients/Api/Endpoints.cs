@@ -1,10 +1,7 @@
-﻿using CSPR.Cloud.Net.Extensions;
-using CSPR.Cloud.Net.Helpers;
+﻿using CSPR.Cloud.Net.Helpers;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace CSPR.Cloud.Net.Clients.Api
 {
@@ -41,46 +38,36 @@ namespace CSPR.Cloud.Net.Clients.Api
 
                 return url;
             }
-            public static string GetAccounts(string baseUrl, AccountsRequestParameters requestParams)
+            public static string GetAccounts(string baseUrl, AccountsRequestParameters requestParams = null)
             {
-                var parameters = new Dictionary<string, string>();
-
-                // Handle Account Hashes
-                if (requestParams.QueryParameters?.AccountHashes != null && requestParams.QueryParameters.AccountHashes.Any())
+                var url = $"{baseUrl}accounts";
+                if (requestParams != null)
                 {
-                    string hashes = string.Join(",", requestParams.QueryParameters.AccountHashes);
-                    parameters.Add("account_hash", hashes);
-                }
-
-                // Handle Sorting
-                if (requestParams.Sorting != null)
-                {
-                    // Validate OrderBy fields
-                    var validSortingFields = new HashSet<string> { "balance", "total_balance" };
-                    foreach (var field in requestParams.Sorting.OrderBy)
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.QueryParameters);
+                    if (requestParams.Sorting.OrderByBalance && requestParams.Sorting.OrderByTotalBalance)
                     {
-                        if (!validSortingFields.Contains(field))
-                        {
-                            throw new ArgumentException($"Invalid sorting field: {field}. Only 'balance' and 'total_balance' are allowed.");
-                        }
+                        throw new InvalidOperationException("Both OrderByBalance and OrderByTotalBalance cannot be true at the same time. Choose only one to sort.");
                     }
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.Sorting);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
 
-                    if (requestParams.Sorting.OrderBy.Any())
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                            optionalParameters: optionalParameters,
+                            sortingParameters: sortingParameters,
+                            filteringCriteria: filterParameters,
+                            paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
                     {
-                        string orderByString = requestParams.Sorting.OrderBy.Any()
-                                               ? string.Join(",", requestParams.Sorting.OrderBy)
-                                               : "total_balance";
-                        parameters.Add("order_by", orderByString);
-                        parameters.Add("order_direction", requestParams.Sorting.SortType.GetEnumMemberValue());
+                        url = $"{url}?{queryString}";
                     }
                 }
 
-                // Handle Optional Parameters
-                //var optParameters = CasperHelpers.AppendOptionalQueryParameters(requestParams.OptionalParameters);
 
-                //parameters = CasperHelpers.Merge(parameters, optParameters);
 
-                return CasperHelpers.AppendQueryParameters(baseUrl + "accounts", parameters);
+                return url;
             }
 
 

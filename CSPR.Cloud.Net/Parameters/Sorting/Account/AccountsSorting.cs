@@ -1,11 +1,18 @@
 ﻿using CSPR.Cloud.Net.Enums;
-using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Parameters.Sorting.Account
 {
     public class AccountsSorting
     {
-        public List<string> OrderBy { get; set; } = new List<string>();
+        [JsonProperty("balance")]
+        public bool OrderByBalance { get; set; } = false;
+
+        [JsonProperty("total_balance")]
+        public bool OrderByTotalBalance { get; set; } = false;
+
+
+        [JsonProperty("sort_type")]
         public SortType SortType { get; set; } = SortType.Descending;
     }
 }
