@@ -79,9 +79,6 @@ namespace CSPR.Cloud.Net.Helpers
 
             return queryString;
         }
-
-
-
         public static string GenerateSortingQueryString(List<SortingParameter> sortingParameters)
         {
             if (sortingParameters == null || !sortingParameters.Any())
