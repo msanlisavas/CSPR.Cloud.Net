@@ -8,29 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace CSPR.Cloud.Net.Helpers
 {
     public static class CasperHelpers
     {
-        public static string AppendQueryParameters(string baseUrl, Dictionary<string, string> parameters)
-        {
-            var url = new StringBuilder(baseUrl);
-
-            foreach (var param in parameters)
-            {
-                if (string.IsNullOrEmpty(param.Value))
-                {
-                    continue;
-                }
-
-                url.Append(url.ToString().Contains("?") ? "&" : "?");
-                url.Append($"{param.Key}={Uri.EscapeDataString(param.Value)}");
-            }
-
-            return url.ToString();
-        }
         public static string BuildQueryString
             (
             List<OptionalInclusion> optionalParameters = null,
@@ -220,10 +202,6 @@ namespace CSPR.Cloud.Net.Helpers
                 PageSize = pageSize
             };
         }
-
-
-
-
         public static Dictionary<TKey, TValue> Merge<TKey, TValue>(params Dictionary<TKey, TValue>[] dictionaries)
         {
             var result = new Dictionary<TKey, TValue>();
