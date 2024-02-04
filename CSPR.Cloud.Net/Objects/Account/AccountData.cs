@@ -24,6 +24,8 @@ namespace CSPR.Cloud.Net.Objects.Account
 
         [JsonProperty("undelegated_balance")]
         public ulong? UndelegatedBalance { get; set; }
+        [JsonProperty("staked_balance")]
+        public ulong? StakedBalance { get; set; }
 
     }
 }

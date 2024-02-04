@@ -1,6 +1,6 @@
 ﻿using CSPR.Cloud.Net.Extensions;
 using CSPR.Cloud.Net.Helpers;
-using CSPR.Cloud.Net.Parameters.OptionalParameters;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using System;
 using System.Collections.Generic;
@@ -17,15 +17,27 @@ namespace CSPR.Cloud.Net.Clients.Api
         }
         public static class Account
         {
-            public static string GetAccount(string baseUrl, string publicKey, List<string>? includes = null)
+            public static string GetAccount(string baseUrl, string publicKey, AccountsOptionalParameters optParameters = null)
             {
                 var url = $"{baseUrl}accounts/{publicKey}";
 
-                if (includes != null && includes.Any())
+                if (optParameters != null)
                 {
-                    string includesQuery = string.Join(",", includes.Select(Uri.EscapeDataString));
-                    url += $"?includes={includesQuery}";
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(optParameters);
+                    // Assuming BuildQueryString is adapted to handle nulls or empty dictionaries
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                         optionalParameters: optionalParameters
+                        );
+
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
                 }
+
+
+
 
                 return url;
             }
@@ -64,15 +76,9 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
 
                 // Handle Optional Parameters
-                var includes = new List<string>();
-                if (requestParams.OptionalParameters?.AuctionStatus ?? false) includes.Add(OptParameters.AuctionStatus);
-                if (requestParams.OptionalParameters?.DelegatedBalance ?? false) includes.Add(OptParameters.DelegatedBalance);
-                if (requestParams.OptionalParameters?.UndelegatingBalance ?? false) includes.Add(OptParameters.UndelegatingBalance);
+                //var optParameters = CasperHelpers.AppendOptionalQueryParameters(requestParams.OptionalParameters);
 
-                if (includes.Any())
-                {
-                    parameters.Add("includes", string.Join(",", includes));
-                }
+                //parameters = CasperHelpers.Merge(parameters, optParameters);
 
                 return CasperHelpers.AppendQueryParameters(baseUrl + "accounts", parameters);
             }

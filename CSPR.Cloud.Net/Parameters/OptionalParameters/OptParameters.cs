@@ -5,5 +5,6 @@
         public static string AuctionStatus = "auction_status";
         public static string DelegatedBalance = "delegated_balance";
         public static string UndelegatingBalance = "undelegated_balance";
+        public static string StakedBalance = "staked_balance";
     }
 }

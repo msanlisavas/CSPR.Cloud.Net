@@ -28,10 +28,27 @@ namespace CSPR.Cloud.Net.Tests
             Assert.Equal(_testPublicKey, result.PublicKey);
         }
         [Fact]
-        public async Task GetAccountAsync_ReturnsExpectedDataWithOptionalParameter()
+        public async Task GetAccountAsync_ReturnsExpectedDataWithOptionalParameterAuctionStatusTrue()
         {
-            var result = await _restClient.Testnet.GetAccountAsync(_testPublicKey, auctionStatus: true);
+            var parameters = new AccountsOptionalParameters
+            {
+                AuctionStatus = true,
+            };
+            var result = await _restClient.Testnet.GetAccountAsync(_testPublicKey, parameters);
+
             Assert.Equal(AuctionStatus.ActiveValidator.GetEnumMemberValue(), result.AuctionStatus);
+            Assert.True(result.StakedBalance == null && result.AuctionStatus != null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
+        }
+        [Fact]
+        public async Task GetAccountAsync_ReturnsExpectedDataWithOptionalParameterStakedBalanceTrue()
+        {
+            var parameters = new AccountsOptionalParameters
+            {
+                StakedBalance = true,
+            };
+            var result = await _restClient.Testnet.GetAccountAsync(_testPublicKey, parameters);
+
+            Assert.True(result.StakedBalance > 0 && result.AuctionStatus == null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
         }
         [Fact]
         public async Task GetAccountsAsync_ReturnsOptionalParametersData()
