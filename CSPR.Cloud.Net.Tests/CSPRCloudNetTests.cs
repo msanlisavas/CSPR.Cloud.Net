@@ -82,7 +82,7 @@ namespace CSPR.Cloud.Net.Tests
                     UndelegatingBalance = true
 
                 },
-                Sorting = new AccountsSorting
+                Sorting = new AccountsSortingParameters
                 {
 
                     OrderByTotalBalance = true,
@@ -104,7 +104,7 @@ namespace CSPR.Cloud.Net.Tests
                     UndelegatingBalance = true
 
                 },
-                Sorting = new AccountsSorting
+                Sorting = new AccountsSortingParameters
                 {
                     OrderByBalance = true,
                     SortType = SortType.Ascending
@@ -118,7 +118,7 @@ namespace CSPR.Cloud.Net.Tests
         {
             var parameters = new AccountsRequestParameters
             {
-                QueryParameters = new AccountsQueryParameters
+                QueryParameters = new AccountsFilterParameters
                 {
                     AccountHashes = new List<string>
                     {
@@ -134,7 +134,7 @@ namespace CSPR.Cloud.Net.Tests
         {
             var parameters = new AccountsRequestParameters
             {
-                QueryParameters = new AccountsQueryParameters
+                QueryParameters = new AccountsFilterParameters
                 {
                     AccountHashes = new List<string>
                     {
@@ -142,7 +142,7 @@ namespace CSPR.Cloud.Net.Tests
                         _test2AccountHash
                     }
                 },
-                Sorting = new AccountsSorting
+                Sorting = new AccountsSortingParameters
                 {
                     OrderByBalance = true,
                     OrderByTotalBalance = false,

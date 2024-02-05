@@ -15,6 +15,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccount { get; } = "/accounts/";
             public static string GetAccounts { get; } = "/accounts";
             public static string GetBlock { get; } = "/blocks/";
+            public static string GetBlocks { get; } = "/blocks";
         }
         public static class Account
         {

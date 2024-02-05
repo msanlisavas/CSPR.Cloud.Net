@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Parameters.Sorting.Account
 {
-    public class AccountsSorting
+    public class AccountsSortingParameters
     {
         [JsonProperty("balance")]
         public bool OrderByBalance { get; set; } = false;
