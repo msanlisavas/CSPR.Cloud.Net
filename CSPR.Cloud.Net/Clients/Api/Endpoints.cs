@@ -1,5 +1,6 @@
 ﻿using CSPR.Cloud.Net.Helpers;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using System;
 
@@ -76,6 +77,24 @@ namespace CSPR.Cloud.Net.Clients.Api
 
 
         }
+        public static class Block
+        {
+            public static string GetBlock(string baseUrl, string blockIdentifier, BlockOptionalParameters parameters = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetBlock}{blockIdentifier}";
+                if (parameters != null)
+                {
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(parameters);
+                    var queryString = CasperHelpers.BuildQueryString(optionalParameters: optionalParameters);
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
 
+                }
+                return url;
+            }
+
+        }
     }
 }
