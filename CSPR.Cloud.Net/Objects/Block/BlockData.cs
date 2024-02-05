@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using Newtonsoft.Json;
 using System;
 
 namespace CSPR.Cloud.Net.Objects.Block
@@ -34,5 +35,7 @@ namespace CSPR.Cloud.Net.Objects.Block
 
         [JsonProperty("timestamp")]
         public DateTime? Timestamp { get; set; }
+        [JsonProperty("proposer_account_info")]
+        public AccountInfoData ProposerAccountInfo { get; set; }
     }
 }

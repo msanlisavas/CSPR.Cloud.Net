@@ -146,7 +146,8 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<BlockData> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
             {
                 string endpoint = Endpoints.Block.GetBlock(_baseUrl, blockHash, parameters);
-                return await _casperCloudRestClient.GetDataAsync<BlockData>(endpoint);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<BlockData>>(endpoint);
+                return response.Data;
             }
 
         }
