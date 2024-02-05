@@ -11,12 +11,14 @@ namespace CSPR.Cloud.Net.Clients.Api
         {
             public static string Mainnet { get; } = "https://api.mainnet.cspr.cloud/";
             public static string Testnet { get; } = "https://api.testnet.cspr.cloud/";
+            public static string GetAccount { get; } = "accounts/";
+            public static string GetAccounts { get; } = "accounts";
         }
         public static class Account
         {
             public static string GetAccount(string baseUrl, string publicKey, AccountsOptionalParameters optParameters = null)
             {
-                var url = $"{baseUrl}accounts/{publicKey}";
+                var url = $"{baseUrl}{BaseUrls.GetAccount}{publicKey}";
 
                 if (optParameters != null)
                 {
@@ -40,7 +42,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             }
             public static string GetAccounts(string baseUrl, AccountsRequestParameters requestParams = null)
             {
-                var url = $"{baseUrl}accounts";
+                var url = $"{baseUrl}{BaseUrls.GetAccounts}";
                 if (requestParams != null)
                 {
                     var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.QueryParameters);
