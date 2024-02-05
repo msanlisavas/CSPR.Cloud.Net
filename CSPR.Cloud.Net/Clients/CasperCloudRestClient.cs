@@ -8,6 +8,7 @@ using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
+using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -95,6 +96,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetBlockAsync(blockHash, parameters);
             }
+            public Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetBlocksAsync(parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -117,6 +122,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<BlockData> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
             {
                 return _commonEndpoint.GetBlockAsync(blockHash, parameters);
+            }
+            public Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetBlocksAsync(parameters);
             }
         }
 
@@ -148,6 +157,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Block.GetBlock(_baseUrl, blockHash, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<BlockData>>(endpoint);
                 return response.Data;
+            }
+            public async Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters)
+            {
+                string endpoint = Endpoints.Block.GetBlocks(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BlockData>>(endpoint);
             }
 
         }

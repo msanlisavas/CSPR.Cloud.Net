@@ -145,13 +145,21 @@ namespace CSPR.Cloud.Net.Helpers
                     string fieldName = jsonAttribute.PropertyName;
                     var propValue = prop.GetValue(parameters);
 
-                    // Convert the property value to a list of strings
-                    if (propValue is IEnumerable<string> values)
+                    // Check if the property value is a string and directly add it
+                    if (propValue is string singleValue)
+                    {
+                        var filteringCriterion = new FilteringCriterion(fieldName);
+                        filteringCriterion.Values.Add(singleValue);
+                        filteringParams.Add(filteringCriterion);
+                    }
+                    // Check if the property value is a list of strings and add them
+                    else if (propValue is IEnumerable<string> values)
                     {
                         var filteringCriterion = new FilteringCriterion(fieldName);
                         filteringCriterion.Values.AddRange(values);
                         filteringParams.Add(filteringCriterion);
                     }
+                    // Optionally handle other types as needed
                 }
             }
 

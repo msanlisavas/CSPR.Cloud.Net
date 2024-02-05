@@ -2,6 +2,7 @@
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
+using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -92,6 +93,32 @@ namespace CSPR.Cloud.Net.Clients.Api
                         url = $"{url}?{queryString}";
                     }
 
+                }
+                return url;
+            }
+            public static string GetBlocks(string baseUrl, BlockRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetBlocks}";
+
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.Sorting);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                         optionalParameters: optionalParameters,
+                         sortingParameters: sortingParameters,
+                         filteringCriteria: filterParameters,
+                         paginationParameters: paginationParameters
+                        );
+
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
                 }
                 return url;
             }

@@ -2,10 +2,14 @@ using CSPR.Cloud.Net.Clients;
 using CSPR.Cloud.Net.Enums;
 using CSPR.Cloud.Net.Extensions;
 using CSPR.Cloud.Net.Objects.Config;
+using CSPR.Cloud.Net.Parameters.Filtering.Account;
+using CSPR.Cloud.Net.Parameters.Filtering.Block;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
+using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
+using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 
 namespace CSPR.Cloud.Net.Tests
 {
@@ -188,6 +192,88 @@ namespace CSPR.Cloud.Net.Tests
             };
             var result = await _restClient.Testnet.GetBlockAsync(_testBlockHash, parameters);
             Assert.True(result.ProposerAccountInfo == null);
+
+        }
+        [Fact]
+        public async Task GetBlocksAsync_ReturnsExpectedData()
+        {
+
+            var result = await _restClient.Testnet.GetBlocksAsync();
+            Assert.True(result.ItemCount > 0);
+
+        }
+        [Fact]
+        public async Task GetBlocksAsync_ReturnsExpectedDataOrderByBlockHeightAsc()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                Sorting = new BlockSortingParameters
+                {
+                    OrderByBlockHeight = true,
+                    SortType = SortType.Ascending
+                },
+                //FilterParameters = new BlockFilterParameters
+                //{
+                //    ProposerPublicKey = ""
+                //},
+                //OptionalParameters = new BlockOptionalParameters
+                //{
+                //    ProposerAccountInfo = true
+                //},
+                //PageNumber = 1,
+                //PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            Assert.True(result.Data[0].BlockHeight < result.Data[1].BlockHeight);
+
+        }
+        [Fact]
+        public async Task GetBlocksAsync_ReturnsExpectedDataOrderByTimestampAsc()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                Sorting = new BlockSortingParameters
+                {
+                    OrderByBlockHeight = false,
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+                //FilterParameters = new BlockFilterParameters
+                //{
+                //    ProposerPublicKey = ""
+                //},
+                //OptionalParameters = new BlockOptionalParameters
+                //{
+                //    ProposerAccountInfo = true
+                //},
+                //PageNumber = 1,
+                //PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            Assert.True(result.Data[0].Timestamp < result.Data[1].Timestamp);
+
+        }
+        [Fact]
+        public async Task GetBlocksAsync_ReturnsExpectedDataWithProposerPublicKey()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                FilterParameters = new BlockFilterParameters
+                {
+                    ProposerPublicKey = _testPublicKey
+                },
+                //OptionalParameters = new BlockOptionalParameters
+                //{
+                //    ProposerAccountInfo = true
+                //},
+                //PageNumber = 1,
+                //PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            Assert.True(result.Data[0].ProposerPublicKey == _testPublicKey);
 
         }
     }
