@@ -276,5 +276,35 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[0].ProposerPublicKey == _testPublicKey);
 
         }
+        [Fact]
+        public async Task GetBlocksAsync_ReturnsExpectedDataWithProposerAccountInfo()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                OptionalParameters = new BlockOptionalParameters
+                {
+                    ProposerAccountInfo = true
+                },
+                //PageNumber = 1,
+                //PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            Assert.True(result.Data[0].ProposerAccountInfo != null);
+
+        }
+        [Fact]
+        public async Task GetBlocksAsync_ReturnsExpectedDataWithPaginatedInfo()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                PageNumber = 1,
+                PageSize = 250
+
+            };
+            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            Assert.True(result.Data.Count == 250);
+
+        }
     }
 }
