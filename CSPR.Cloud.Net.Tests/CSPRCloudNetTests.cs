@@ -306,5 +306,98 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data.Count == 250);
 
         }
+
+        [Fact]
+        public async Task GetValidatorBlocksAsync_ReturnsExpectedData()
+        {
+
+            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey);
+            Assert.True(result.ItemCount > 0);
+
+        }
+        [Fact]
+        public async Task GetValidatorBlocksAsync_ReturnsExpectedDataOrderByBlockHeightAsc()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                Sorting = new BlockSortingParameters
+                {
+                    OrderByBlockHeight = true,
+                    SortType = SortType.Ascending
+                },
+                //FilterParameters = new BlockFilterParameters
+                //{
+                //    ProposerPublicKey = ""
+                //},
+                //OptionalParameters = new BlockOptionalParameters
+                //{
+                //    ProposerAccountInfo = true
+                //},
+                //PageNumber = 1,
+                //PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            Assert.True(result.Data[0].BlockHeight < result.Data[1].BlockHeight && result.Data[0].ProposerPublicKey == _testPublicKey);
+
+        }
+        [Fact]
+        public async Task GetValidatorBlocksAsync_ReturnsExpectedDataOrderByTimestampAsc()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                Sorting = new BlockSortingParameters
+                {
+                    OrderByBlockHeight = false,
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+                //FilterParameters = new BlockFilterParameters
+                //{
+                //    ProposerPublicKey = ""
+                //},
+                //OptionalParameters = new BlockOptionalParameters
+                //{
+                //    ProposerAccountInfo = true
+                //},
+                //PageNumber = 1,
+                //PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            Assert.True(result.Data[0].Timestamp < result.Data[1].Timestamp && result.Data[0].ProposerPublicKey == _testPublicKey);
+
+        }
+
+        [Fact]
+        public async Task GetValidatorBlocksAsync_ReturnsExpectedDataWithProposerAccountInfo()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                OptionalParameters = new BlockOptionalParameters
+                {
+                    ProposerAccountInfo = true
+                },
+                //PageNumber = 1,
+                //PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            Assert.True(result.Data[0].ProposerAccountInfo != null);
+
+        }
+        [Fact]
+        public async Task GetValidatorBlocksAsync_ReturnsExpectedDataWithPaginatedInfo()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                PageNumber = 1,
+                PageSize = 250
+
+            };
+            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            Assert.True(result.Data.Count == 250 && result.Data[0].ProposerPublicKey == _testPublicKey);
+
+        }
     }
 }

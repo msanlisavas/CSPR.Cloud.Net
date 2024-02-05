@@ -100,6 +100,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetBlocksAsync(parameters);
             }
+            public Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -127,6 +131,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetBlocksAsync(parameters);
             }
+            public Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
+            }
+
         }
 
         public class CommonEndpoint
@@ -161,6 +170,11 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters)
             {
                 string endpoint = Endpoints.Block.GetBlocks(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BlockData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters)
+            {
+                string endpoint = Endpoints.Block.GetValidatorBlocks(_baseUrl, validatorPublicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BlockData>>(endpoint);
             }
 
