@@ -2,6 +2,7 @@
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
+using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using System;
 
@@ -18,6 +19,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetBlock { get; } = "/blocks/";
             public static string GetBlocks { get; } = "/blocks";
             public static string GetValidatorBlocks { get; } = "/validators/{0}/blocks";
+            public static string GetBidder { get; } = "/bidders/";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -153,6 +155,29 @@ namespace CSPR.Cloud.Net.Clients.Api
                 return url;
             }
 
+        }
+        public static class Bidder
+        {
+
+            public static string GetBidder(string baseUrl, string publicKey, BidderRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetBidder}{publicKey}";
+                if (requestParams != null)
+                {
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
         }
     }
 }
