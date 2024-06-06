@@ -6,6 +6,7 @@ using CSPR.Cloud.Net.Parameters.Filtering.Account;
 using CSPR.Cloud.Net.Parameters.Filtering.Bidder;
 using CSPR.Cloud.Net.Parameters.Filtering.Block;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
@@ -415,6 +416,57 @@ namespace CSPR.Cloud.Net.Tests
             };
             var result = await _restClient.Testnet.GetBidderAsync(_testBidderPublicKey, parameters);
             Assert.Equal(_testBidderPublicKey, result.PublicKey);
+        }
+        [Fact]
+        public async Task GetBidderAsync_ReturnsExpectedDataWithFilterParameters()
+        {
+            var parameters = new BidderRequestParameters
+            {
+                FilterParameters = new BidderFilterParameters
+                {
+                    EraId = "10935"
+                }
+            };
+            var result = await _restClient.Testnet.GetBidderAsync(_testBidderPublicKey, parameters);
+            Assert.Equal(_testBidderPublicKey, result.PublicKey);
+        }
+        [Fact]
+        public async Task GetBidderAsync_ReturnsExpectedDataWithOptionalParameters()
+        {
+            var parameters = new BidderRequestParameters
+            {
+                FilterParameters = new BidderFilterParameters
+                {
+                    EraId = "10935"
+                },
+                OptionalParameters = new BidderOptionalParameters
+                {
+                    AccountInfo = true,
+                    AveragePerformance = true,
+                    CentralizedAccountInfo = true,
+                }
+            };
+            var result = await _restClient.Testnet.GetBidderAsync(_testBidderPublicKey, parameters);
+
+        }
+        // Get BiddersAsync tests
+        [Fact]
+        public async Task GetBiddersAsync_ReturnsExpectedData()
+        {
+            var parameters = new BiddersRequestParameters
+            {
+                FilterParameters = new BiddersFilterParameters
+                {
+                    EraId = "10935",
+                    IsActive = true,
+                    PublicKey = new List<string>
+                    {
+                        _testBidderPublicKey
+                    }
+                }
+            };
+            var result = await _restClient.Testnet.GetBiddersAsync(parameters);
+            Assert.True(result.ItemCount > 0);
         }
     }
 }

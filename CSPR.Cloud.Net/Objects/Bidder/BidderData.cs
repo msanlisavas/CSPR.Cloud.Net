@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.Validator;
+using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Objects.Bidder
 {
@@ -28,5 +30,11 @@ namespace CSPR.Cloud.Net.Objects.Bidder
 
         [JsonProperty("total_stake")]
         public ulong TotalStake { get; set; }
+        [JsonProperty("account_info")]
+        public AccountInfoData AccountInfo { get; set; }
+        [JsonProperty("average_performance")]
+        public ValidatorPerformanceData AveragePerformance { get; set; }
+        [JsonProperty("centralized_account_info")]
+        public CentralizedAccountInfo CentralizedAccountInfo { get; set; }
     }
 }

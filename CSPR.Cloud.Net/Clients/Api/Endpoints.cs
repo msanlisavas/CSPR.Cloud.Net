@@ -20,6 +20,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetBlocks { get; } = "/blocks";
             public static string GetValidatorBlocks { get; } = "/validators/{0}/blocks";
             public static string GetBidder { get; } = "/bidders/";
+            public static string GetBidders { get; } = "/bidders";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -168,6 +169,29 @@ namespace CSPR.Cloud.Net.Clients.Api
                         (
                         optionalParameters: optionalParameters,
                         filteringCriteria: filterParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetBidders(string baseUrl, BiddersRequestParameters requestParams)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetBidders}";
+                if (requestParams != null)
+                {
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters,
+                        paginationParameters: paginationParameters,
+                        sortingParameters: sortingParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))
                     {

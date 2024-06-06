@@ -110,6 +110,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetBidderAsync(publicKey, parameters);
             }
+            public Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
+            {
+                return _commonEndpoint.GetBiddersAsync(parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -144,6 +148,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
             {
                 return _commonEndpoint.GetBidderAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
+            {
+                return _commonEndpoint.GetBiddersAsync(parameters);
             }
 
         }
@@ -192,6 +200,12 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Bidder.GetBidder(_baseUrl, publicKey, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<BidderData>>(endpoint);
                 return response.Data;
+            }
+            public async Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
+            {
+                string endpoint = Endpoints.Bidder.GetBidders(_baseUrl, parameters);
+                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BidderData>>(endpoint);
+                return response;
             }
 
 
