@@ -3,12 +3,14 @@ using CSPR.Cloud.Net.Enums;
 using CSPR.Cloud.Net.Extensions;
 using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Parameters.Filtering.Account;
+using CSPR.Cloud.Net.Parameters.Filtering.Bidder;
 using CSPR.Cloud.Net.Parameters.Filtering.Block;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
+using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 
 namespace CSPR.Cloud.Net.Tests
@@ -22,6 +24,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _test2AccountHash = "68bae9382be8706fa9533f33562eb1d58a879e42ccd1e8daf7368b17850304dc";
         private readonly string _testBlockHash = "bc1a9a481fa3f8b9e83c7cfa0ea87906c214345e20a5d76a5305dfb033d0510e";
         private readonly ulong _testBlockHeight = 2550824;
+        private readonly string _testBidderPublicKey = "017d9aa0b86413d7ff9a9169182c53f0bacaa80d34c211adab007ed4876af17077";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -398,6 +401,20 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
             Assert.True(result.Data.Count == 250 && result.Data[0].ProposerPublicKey == _testPublicKey);
 
+        }
+        // GetBidderAsync tests
+        [Fact]
+        public async Task GetBidderAsync_ReturnsExpectedData()
+        {
+            var parameters = new BidderRequestParameters
+            {
+                FilterParameters = new BidderFilterParameters
+                {
+                    EraId = "10935"
+                }
+            };
+            var result = await _restClient.Testnet.GetBidderAsync(_testBidderPublicKey, parameters);
+            Assert.Equal(_testBidderPublicKey, result.PublicKey);
         }
     }
 }

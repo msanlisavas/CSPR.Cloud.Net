@@ -157,8 +157,7 @@ namespace CSPR.Cloud.Net.Clients.Api
         }
         public static class Bidder
         {
-
-            public static string GetBidder(string baseUrl, string publicKey, BidderRequestParameters requestParams = null)
+            public static string GetBidder(string baseUrl, string publicKey, BidderRequestParameters requestParams)
             {
                 var url = $"{baseUrl}{BaseUrls.GetBidder}{publicKey}";
                 if (requestParams != null)

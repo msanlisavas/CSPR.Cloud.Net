@@ -9,6 +9,7 @@ using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
+using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -105,6 +106,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
             }
+            public Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
+            {
+                return _commonEndpoint.GetBidderAsync(publicKey, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -135,6 +140,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
+            }
+            public Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
+            {
+                return _commonEndpoint.GetBidderAsync(publicKey, parameters);
             }
 
         }
@@ -178,9 +187,9 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Block.GetValidatorBlocks(_baseUrl, validatorPublicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BlockData>>(endpoint);
             }
-            public async Task<BidderData> GetBidderAsync(string publicKey)
+            public async Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
             {
-                string endpoint = Endpoints.Bidder.GetBidder(_baseUrl, publicKey);
+                string endpoint = Endpoints.Bidder.GetBidder(_baseUrl, publicKey, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<BidderData>>(endpoint);
                 return response.Data;
             }

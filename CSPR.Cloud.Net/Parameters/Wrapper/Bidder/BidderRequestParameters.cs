@@ -7,5 +7,10 @@ namespace CSPR.Cloud.Net.Parameters.Wrapper.Bidder
     {
         public BidderFilterParameters FilterParameters { get; set; }
         public BidderOptionalParameters OptionalParameters { get; set; }
+        public BidderRequestParameters()
+        {
+            OptionalParameters = new BidderOptionalParameters();
+            FilterParameters = new BidderFilterParameters();
+        }
     }
 }
