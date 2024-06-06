@@ -7,12 +7,14 @@ using CSPR.Cloud.Net.Objects.Bidder;
 using CSPR.Cloud.Net.Objects.Block;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Config;
+using CSPR.Cloud.Net.Objects.Contract;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
+using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -124,6 +126,14 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetCentralizedAccountInfosAsync(parameters);
             }
+            public Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractAsync(contractHash, parameters);
+            }
+            public Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractsAsync(parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -170,6 +180,14 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<CentralizedAccountInfoData>> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
             {
                 return _commonEndpoint.GetCentralizedAccountInfosAsync(parameters);
+            }
+            public Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractAsync(contractHash, parameters);
+            }
+            public Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractsAsync(parameters);
             }
 
         }
@@ -235,6 +253,18 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.CentralizedAccountInfo.GetCentralizedInfos(_baseUrl, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<CentralizedAccountInfoData>>(endpoint);
+                return response;
+            }
+            public async Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Contract.GetContract(_baseUrl, contractHash, parameters);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<ContractData>>(endpoint);
+                return response.Data;
+            }
+            public async Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters)
+            {
+                string endpoint = Endpoints.Contract.GetContracts(_baseUrl, parameters);
+                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractData>>(endpoint);
                 return response;
             }
         }

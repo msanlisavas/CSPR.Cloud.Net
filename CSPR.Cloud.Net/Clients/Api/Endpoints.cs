@@ -5,6 +5,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
+using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -24,6 +25,8 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetBidders { get; } = "/bidders";
             public static string GetCentralizedAccountInfo { get; } = "/centralized-account-info/";
             public static string GetCentralizedAccounts { get; } = "/centralized-account-info";
+            public static string GetContract { get; } = "/contracts/";
+            public static string GetContracts { get; } = "/contracts";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -222,6 +225,49 @@ namespace CSPR.Cloud.Net.Clients.Api
                         (
                         filteringCriteria: filterParameters,
                         sortingParameters: sortingParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+        }
+        public static class Contract
+        {
+            public static string GetContract(string baseUrl, string contractHash, ContractRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetContract}{contractHash}";
+                if (requestParams != null)
+                {
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetContracts(string baseUrl, ContractsRequestParameters requestParams)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetContracts}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))
                     {

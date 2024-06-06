@@ -6,16 +6,20 @@ using CSPR.Cloud.Net.Parameters.Filtering.Account;
 using CSPR.Cloud.Net.Parameters.Filtering.Bidder;
 using CSPR.Cloud.Net.Parameters.Filtering.Block;
 using CSPR.Cloud.Net.Parameters.Filtering.CentralizedAccountInfo;
+using CSPR.Cloud.Net.Parameters.Filtering.Contract;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Contract;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
+using CSPR.Cloud.Net.Parameters.Sorting.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
+using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 
 namespace CSPR.Cloud.Net.Tests
 {
@@ -30,6 +34,9 @@ namespace CSPR.Cloud.Net.Tests
         private readonly ulong _testBlockHeight = 2550824;
         private readonly string _testBidderPublicKey = "017d9aa0b86413d7ff9a9169182c53f0bacaa80d34c211adab007ed4876af17077";
         private readonly string _testCentralizedAccountHash = "fa12d2dd5547714f8c2754d418aa8c9d59dc88780350cb4254d622e2d4ef7e69";
+        private readonly string _testContractHash = "d950b6fb1e487e054dff551ad1acd0106802bb482bf1e88630b6a1eec2de8ed9";
+        private readonly string _testContractPackageHash = "dbb3284da4e20be62aeb332c653bfa715c7fa1ef6a73393cd36804b382f10d4e";
+        private readonly string _testContractDeployHash = "94f35bd289abca1f91f34b56b101852d3dffc1f50567d9062a7df4d176070f0f";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -500,6 +507,94 @@ namespace CSPR.Cloud.Net.Tests
             };
             var result = await _restClient.Testnet.GetCentralizedAccountInfosAsync(parameters);
             Assert.True(result.ItemCount > 0);
+        }
+        // Get ContractAsync Tests
+        [Fact]
+        public async Task GetContractAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractAsync(_testContractHash);
+            Assert.True(result.ContractHash == _testContractHash);
+        }
+        [Fact]
+        public async Task GetContractAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new ContractRequestParameters
+            {
+                OptionalParameters = new ContractOptionalParameters
+                {
+                    ContractPackage = true
+                }
+            };
+            var result = await _restClient.Testnet.GetContractAsync(_testContractHash, parameters);
+            Assert.True(result.ContractPackage != null);
+        }
+        [Fact]
+        public async Task GetContractsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractsAsync();
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetContractsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new ContractsRequestParameters
+            {
+                OptionalParameters = new ContractOptionalParameters
+                {
+                    ContractPackage = true
+                }
+            };
+            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].ContractPackage != null);
+        }
+        [Fact]
+        public async Task GetContractsAsync_WithFilterParametersContractPackageHash_ReturnsExpectedData()
+        {
+            var parameters = new ContractsRequestParameters
+            {
+                FilterParameters = new ContractsFilterParameters
+                {
+                    ContractPackageHash = _testContractPackageHash
+                }
+            };
+            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].ContractPackageHash == _testContractPackageHash);
+        }
+        [Fact]
+        public async Task GetContractsAsync_WithFilterParametersDeployHash_ReturnsExpectedData()
+        {
+            var parameters = new ContractsRequestParameters
+            {
+                FilterParameters = new ContractsFilterParameters
+                {
+                    DeployHash = _testContractDeployHash
+                }
+            };
+            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].DeployHash == _testContractDeployHash);
+        }
+        [Fact]
+        public async Task GetContractsAsync_WithSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new ContractsRequestParameters
+            {
+                SortingParameters = new ContractsSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+                PageNumber = 1,
+                PageSize = 100
+
+            };
+            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp < result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp < result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp < result.Data[3].Timestamp);
         }
     }
 }
