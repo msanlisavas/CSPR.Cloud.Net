@@ -5,14 +5,17 @@ using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Parameters.Filtering.Account;
 using CSPR.Cloud.Net.Parameters.Filtering.Bidder;
 using CSPR.Cloud.Net.Parameters.Filtering.Block;
+using CSPR.Cloud.Net.Parameters.Filtering.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
+using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
+using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 
 namespace CSPR.Cloud.Net.Tests
 {
@@ -26,6 +29,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testBlockHash = "bc1a9a481fa3f8b9e83c7cfa0ea87906c214345e20a5d76a5305dfb033d0510e";
         private readonly ulong _testBlockHeight = 2550824;
         private readonly string _testBidderPublicKey = "017d9aa0b86413d7ff9a9169182c53f0bacaa80d34c211adab007ed4876af17077";
+        private readonly string _testCentralizedAccountHash = "fa12d2dd5547714f8c2754d418aa8c9d59dc88780350cb4254d622e2d4ef7e69";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -466,6 +470,35 @@ namespace CSPR.Cloud.Net.Tests
                 }
             };
             var result = await _restClient.Testnet.GetBiddersAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+        }
+        // Get CentralizedAccountInfoAsync Tests
+        [Fact]
+        public async Task GetCentralizedAccountInfoAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetCentralizedAccountInfoAsync(_testCentralizedAccountHash);
+            Assert.Equal(_testCentralizedAccountHash, result.AccountHash);
+        }
+        [Fact]
+        public async Task GetCentralizedAccountInfosAsync_ReturnsExpectedData()
+        {
+            var parameters = new CentralizedAccountInfoRequestParameters
+            {
+                FilterParameters = new CentralizedAccountInfoFilterParameters
+                {
+                    AccountHashes = new List<string>
+                    {
+                        _testCentralizedAccountHash
+                    }
+
+                },
+                SortingParameters = new CentralizedAccountInfoSortingParameters
+                {
+                    OrderByAccountHash = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.GetCentralizedAccountInfosAsync(parameters);
             Assert.True(result.ItemCount > 0);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Validator;
 using Newtonsoft.Json;
 
@@ -35,6 +36,6 @@ namespace CSPR.Cloud.Net.Objects.Bidder
         [JsonProperty("average_performance")]
         public ValidatorPerformanceData AveragePerformance { get; set; }
         [JsonProperty("centralized_account_info")]
-        public CentralizedAccountInfo CentralizedAccountInfo { get; set; }
+        public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
     }
 }

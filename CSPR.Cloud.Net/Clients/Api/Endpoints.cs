@@ -4,6 +4,7 @@ using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
+using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -21,6 +22,8 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetValidatorBlocks { get; } = "/validators/{0}/blocks";
             public static string GetBidder { get; } = "/bidders/";
             public static string GetBidders { get; } = "/bidders";
+            public static string GetCentralizedAccountInfo { get; } = "/centralized-account-info/";
+            public static string GetCentralizedAccounts { get; } = "/centralized-account-info";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -191,6 +194,33 @@ namespace CSPR.Cloud.Net.Clients.Api
                         optionalParameters: optionalParameters,
                         filteringCriteria: filterParameters,
                         paginationParameters: paginationParameters,
+                        sortingParameters: sortingParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+        }
+        public static class CentralizedAccountInfo
+        {
+            public static string GetCentralizedAccountInfo(string baseUrl, string accountHash)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetCentralizedAccountInfo}{accountHash}";
+                return url;
+            }
+            public static string GetCentralizedInfos(string baseUrl, CentralizedAccountInfoRequestParameters requestParams)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetCentralizedAccountInfo}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
                         sortingParameters: sortingParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))

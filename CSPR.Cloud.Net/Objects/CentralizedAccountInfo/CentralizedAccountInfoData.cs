@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace CSPR.Cloud.Net.Objects.AccountInfo
+namespace CSPR.Cloud.Net.Objects.CentralizedAccountInfo
 {
-    public class CentralizedAccountInfo
+    public class CentralizedAccountInfoData
     {
         [JsonProperty("account_hash")]
         public string AccountHash { get; set; }
