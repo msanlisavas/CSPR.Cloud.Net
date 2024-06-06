@@ -36,7 +36,6 @@ namespace CSPR.Cloud.Net.Clients.Api
                 if (optParameters != null)
                 {
                     var optionalParameters = CasperHelpers.CreateOptionalParameters(optParameters);
-                    // Assuming BuildQueryString is adapted to handle nulls or empty dictionaries
                     var queryString = CasperHelpers.BuildQueryString
                         (
                          optionalParameters: optionalParameters
