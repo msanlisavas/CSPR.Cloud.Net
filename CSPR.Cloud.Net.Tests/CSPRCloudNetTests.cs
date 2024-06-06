@@ -596,5 +596,13 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[1].Timestamp < result.Data[2].Timestamp);
             Assert.True(result.Data[2].Timestamp < result.Data[3].Timestamp);
         }
+        // Get ContractPackageAsync Tests
+        [Fact]
+        public async Task GetContractPackageAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractsByContractPackageAsync(_testContractPackageHash);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].ContractPackageHash == _testContractPackageHash);
+        }
     }
 }
