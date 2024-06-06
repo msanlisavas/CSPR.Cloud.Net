@@ -3,6 +3,7 @@ using CSPR.Cloud.Net.Errors;
 using CSPR.Cloud.Net.Interfaces.Clients;
 using CSPR.Cloud.Net.Objects.Abstract;
 using CSPR.Cloud.Net.Objects.Account;
+using CSPR.Cloud.Net.Objects.Bidder;
 using CSPR.Cloud.Net.Objects.Block;
 using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
@@ -177,6 +178,13 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Block.GetValidatorBlocks(_baseUrl, validatorPublicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BlockData>>(endpoint);
             }
+            public async Task<BidderData> GetBidderAsync(string publicKey)
+            {
+                string endpoint = Endpoints.Bidder.GetBidder(_baseUrl, publicKey);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<BidderData>>(endpoint);
+                return response.Data;
+            }
+
 
         }
     }
