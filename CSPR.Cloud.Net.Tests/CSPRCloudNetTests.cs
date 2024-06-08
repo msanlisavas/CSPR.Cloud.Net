@@ -37,6 +37,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testContractHash = "d950b6fb1e487e054dff551ad1acd0106802bb482bf1e88630b6a1eec2de8ed9";
         private readonly string _testContractPackageHash = "dbb3284da4e20be62aeb332c653bfa715c7fa1ef6a73393cd36804b382f10d4e";
         private readonly string _testContractDeployHash = "94f35bd289abca1f91f34b56b101852d3dffc1f50567d9062a7df4d176070f0f";
+        private readonly string _testOwnerPublicKey = "01dfe2a285f7841e4dc7fb65e960bfcbee6be271e8f32dfd90ee545de5e43384fb";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -634,6 +635,83 @@ namespace CSPR.Cloud.Net.Tests
         {
             var result = await _restClient.Testnet.GetContractPackageAsync(_testContractPackageHash);
             Assert.True(result.Data.ContractPackageHash == _testContractPackageHash);
+        }
+        // GetContractPackagesAsync Tests
+        [Fact]
+        public async Task GetContractPackagesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackagesAsync();
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetContractPackagesAsync_WithFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new ContractPackageRequestParameters
+            {
+                FilterParameters = new ContractPackageFilterParameters
+                {
+                    OwnerPublicKey = _testOwnerPublicKey
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackagesAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].OwnerPublicKey == _testOwnerPublicKey);
+        }
+        [Fact]
+        public async Task GetContractPackagesAsync_WithSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new ContractPackageRequestParameters
+            {
+                SortingParameters = new ContractPackageSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+                PageNumber = 1,
+                PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetContractPackagesAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp < result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp < result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp < result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp < result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp < result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp < result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp < result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp < result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp < result.Data[9].Timestamp);
+
+
+        }
+        [Fact]
+        public async Task GetContractPackagesAsync_WithDeploysNumber_ReturnsExpectedData()
+        {
+            var parameters = new ContractPackageRequestParameters
+            {
+                PageNumber = 1,
+                PageSize = 10,
+                OptionalParameters = new ContractPackageOptionalParameters
+                {
+                    DeploysNumber = 63
+                }
+
+            };
+            var result = await _restClient.Testnet.GetContractPackagesAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            var isDeployNumbersLowerThan = result.Data.Where(x => x.DeploysNumber < 63).Count();
+            Assert.True(isDeployNumbersLowerThan == 0);
+        }
+        // GetAccountContractPackagesAsync Tests
+        [Fact]
+        public async Task GetAccountContractPackagesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetAccountContractPackagesAsync(_testOwnerPublicKey);
+            Assert.True(result.ItemCount > 0);
+            var count = result.Data.Count();
+            var equalCount = result.Data.Where(x => x.OwnerPublicKey == _testOwnerPublicKey).Count();
+            Assert.True(count == equalCount);
         }
     }
 }

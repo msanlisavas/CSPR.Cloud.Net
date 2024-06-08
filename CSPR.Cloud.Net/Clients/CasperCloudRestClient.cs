@@ -155,6 +155,14 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
             }
+            public Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackagesAsync(parameters);
+            }
+            public Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -229,6 +237,14 @@ namespace CSPR.Cloud.Net.Clients
             public Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
             {
                 return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
+            }
+            public Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackagesAsync(parameters);
+            }
+            public Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
             }
 
         }
@@ -336,7 +352,16 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Contract.GetContractPackage(_baseUrl, contractPackageHash);
                 return await _casperCloudRestClient.GetDataAsync<ContractResponse<ContractPackageData>>(endpoint);
             }
-
+            public async Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Contract.GetContractPackages(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractPackageData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Contract.GetAccountContractPackages(_baseUrl, publicKey, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractPackageData>>(endpoint);
+            }
         }
 
 

@@ -117,17 +117,21 @@ namespace CSPR.Cloud.Net.Helpers
                     string propertyName = jsonAttribute.PropertyName;
                     object propValue = prop.GetValue(parameters);
 
-                    // Exclude boolean properties with a value of false
-                    if (propValue is bool boolValue && !boolValue)
+                    // Handle boolean properties
+                    if (propValue is bool boolValue && boolValue)
                     {
-                        continue;
+                        var optionalInclusion = new OptionalInclusion(propertyName);
+                        optionalParams.Add(optionalInclusion);
                     }
-
-                    // Create an OptionalInclusion object with the JSON property name
-                    var optionalInclusion = new OptionalInclusion(propertyName);
-
-
-                    optionalParams.Add(optionalInclusion);
+                    // Handle integer properties
+                    else if (propValue is int intValue && intValue > 0)
+                    {
+                        var optionalInclusion = new OptionalInclusion(propertyName)
+                        {
+                            FunctionParameters = { intValue }
+                        };
+                        optionalParams.Add(optionalInclusion);
+                    }
                 }
             }
 

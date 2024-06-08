@@ -32,6 +32,8 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractEntryPoints { get; } = "/contracts/{0}/entry-points";
             public static string GetContractEntryPointCosts { get; } = "/contracts/{0}/entry-points/{1}/costs";
             public static string GetContractPackage { get; } = "/contract-packages/";
+            public static string GetContractPackages { get; } = "/contract-packages";
+            public static string GetAccountContractPackages { get; } = "/accounts/{0}/contract-packages";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -322,6 +324,50 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackage(string baseUrl, string contractPackageHash)
             {
                 var url = $"{baseUrl}{BaseUrls.GetContractPackage}{contractPackageHash}";
+                return url;
+            }
+            public static string GetContractPackages(string baseUrl, ContractPackageRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetContractPackages}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetAccountContractPackages(string baseUrl, string publicKey, AccountContractPackageRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountContractPackages, publicKey);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
                 return url;
             }
         }
