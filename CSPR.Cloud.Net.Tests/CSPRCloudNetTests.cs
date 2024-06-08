@@ -604,5 +604,12 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].ContractPackageHash == _testContractPackageHash);
         }
+        // Get ContractTypesAsync Tests
+        [Fact]
+        public async Task GetContractTypesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractTypesAsync();
+            Assert.True(result.Count > 0);
+        }
     }
 }

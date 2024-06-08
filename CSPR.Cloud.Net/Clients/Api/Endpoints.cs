@@ -28,6 +28,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContract { get; } = "/contracts/";
             public static string GetContracts { get; } = "/contracts";
             public static string GetContractsByContractPackage { get; } = "/contract-packages/{0}/contracts";
+            public static string GetContractTypes { get; } = "/contract-types";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -298,6 +299,11 @@ namespace CSPR.Cloud.Net.Clients.Api
                         url = $"{url}?{queryString}";
                     }
                 }
+                return url;
+            }
+            public static string GetContractTypes(string baseUrl)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetContractTypes}";
                 return url;
             }
         }

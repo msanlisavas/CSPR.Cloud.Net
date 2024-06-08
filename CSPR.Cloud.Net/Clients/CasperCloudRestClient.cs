@@ -18,6 +18,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -138,6 +139,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetContractsByContractPackageAsync(contractPackageHash, parameters);
             }
+            public Task<List<ContractTypeData>> GetContractTypesAsync()
+            {
+                return _commonEndpoint.GetContractTypesAsync();
+            }
 
         }
         public class TestnetEndpoint
@@ -196,6 +201,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<ContractData>> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractsByContractPackageAsync(contractPackageHash, parameters);
+            }
+            public Task<List<ContractTypeData>> GetContractTypesAsync()
+            {
+                return _commonEndpoint.GetContractTypesAsync();
             }
 
         }
@@ -280,6 +289,12 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Contract.GetContractsByContractPackage(_baseUrl, contractPackageHash, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractData>>(endpoint);
                 return response;
+            }
+            public async Task<List<ContractTypeData>> GetContractTypesAsync()
+            {
+                string endpoint = Endpoints.Contract.GetContractTypes(_baseUrl);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<List<ContractTypeData>>>(endpoint);
+                return response.Data;
             }
         }
 
