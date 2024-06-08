@@ -143,6 +143,18 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetContractTypesAsync();
             }
+            public Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
+            {
+                return _commonEndpoint.GetContractEntryPointsAsync(contractHash);
+            }
+            public Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
+            {
+                return _commonEndpoint.GetContractEntryPointCostsAsync(contractHash, entryPointName);
+            }
+            public Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
+            {
+                return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
+            }
 
         }
         public class TestnetEndpoint
@@ -205,6 +217,18 @@ namespace CSPR.Cloud.Net.Clients
             public Task<List<ContractTypeData>> GetContractTypesAsync()
             {
                 return _commonEndpoint.GetContractTypesAsync();
+            }
+            public Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
+            {
+                return _commonEndpoint.GetContractEntryPointsAsync(contractHash);
+            }
+            public Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
+            {
+                return _commonEndpoint.GetContractEntryPointCostsAsync(contractHash, entryPointName);
+            }
+            public Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
+            {
+                return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
             }
 
         }
@@ -296,6 +320,23 @@ namespace CSPR.Cloud.Net.Clients
                 var response = await _casperCloudRestClient.GetDataAsync<Response<List<ContractTypeData>>>(endpoint);
                 return response.Data;
             }
+            public async Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
+            {
+                string endpoint = Endpoints.Contract.GetContractEntryPoints(_baseUrl, contractHash);
+                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<EntryPointData>>(endpoint);
+                return response;
+            }
+            public async Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
+            {
+                string endpoint = Endpoints.Contract.GetContractEntryPointCosts(_baseUrl, contractHash, entryPointName);
+                return await _casperCloudRestClient.GetDataAsync<Response<EntryPointCostData>>(endpoint);
+            }
+            public async Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
+            {
+                string endpoint = Endpoints.Contract.GetContractPackage(_baseUrl, contractPackageHash);
+                return await _casperCloudRestClient.GetDataAsync<ContractResponse<ContractPackageData>>(endpoint);
+            }
+
         }
 
 

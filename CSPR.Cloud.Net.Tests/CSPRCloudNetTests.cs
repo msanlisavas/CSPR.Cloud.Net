@@ -598,7 +598,7 @@ namespace CSPR.Cloud.Net.Tests
         }
         // Get ContractPackageAsync Tests
         [Fact]
-        public async Task GetContractPackageAsync_ReturnsExpectedData()
+        public async Task GetContractByContractPackageAsync_ReturnsExpectedData()
         {
             var result = await _restClient.Testnet.GetContractsByContractPackageAsync(_testContractPackageHash);
             Assert.True(result.ItemCount > 0);
@@ -610,6 +610,30 @@ namespace CSPR.Cloud.Net.Tests
         {
             var result = await _restClient.Testnet.GetContractTypesAsync();
             Assert.True(result.Count > 0);
+        }
+        // GetContractEntryPointsAsync Tests
+        [Fact]
+        public async Task GetContractEntryPointsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractEntryPointsAsync(_testContractHash);
+            Assert.True(result.ItemCount > 0);
+            var count = result.Data.Count();
+            var equalCount = result.Data.Where(x => x.ContractHash == _testContractHash).Count();
+            Assert.True(count == equalCount);
+        }
+        // GetContractEntryPointCostsAsync Tests
+        [Fact]
+        public async Task GetContractEntryPointCostsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractEntryPointCostsAsync(_testContractHash, "activate_bid");
+            Assert.True(result != null);
+        }
+        // GetContractPackageAsync Tests
+        [Fact]
+        public async Task GetContractPackageAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackageAsync(_testContractPackageHash);
+            Assert.True(result.Data.ContractPackageHash == _testContractPackageHash);
         }
     }
 }
