@@ -8,6 +8,7 @@ using CSPR.Cloud.Net.Objects.Block;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Objects.Contract;
+using CSPR.Cloud.Net.Objects.Delegate;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -15,6 +16,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
+using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -163,6 +165,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
             }
+            public Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -245,6 +251,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
             }
 
         }
@@ -361,6 +371,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.Contract.GetAccountContractPackages(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractPackageData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Delegate.GetAccountDelegations(_baseUrl, publicKey, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
             }
         }
 

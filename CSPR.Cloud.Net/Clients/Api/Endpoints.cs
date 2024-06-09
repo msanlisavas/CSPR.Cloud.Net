@@ -6,6 +6,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
+using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -34,6 +35,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackage { get; } = "/contract-packages/";
             public static string GetContractPackages { get; } = "/contract-packages";
             public static string GetAccountContractPackages { get; } = "/accounts/{0}/contract-packages";
+            public static string GetAccountDelegations { get; } = "/accounts/{0}/delegations";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -352,6 +354,31 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountContractPackages(string baseUrl, string publicKey, AccountContractPackageRequestParameters requestParams = null)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountContractPackages, publicKey);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+
+        }
+        public static class Delegate
+        {
+            public static string GetAccountDelegations(string baseUrl, string publicKey, DelegationRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountDelegations, publicKey);
                 if (requestParams != null)
                 {
                     var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);

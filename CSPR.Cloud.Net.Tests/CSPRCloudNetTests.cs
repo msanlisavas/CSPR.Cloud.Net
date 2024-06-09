@@ -38,6 +38,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testContractPackageHash = "dbb3284da4e20be62aeb332c653bfa715c7fa1ef6a73393cd36804b382f10d4e";
         private readonly string _testContractDeployHash = "94f35bd289abca1f91f34b56b101852d3dffc1f50567d9062a7df4d176070f0f";
         private readonly string _testOwnerPublicKey = "01dfe2a285f7841e4dc7fb65e960bfcbee6be271e8f32dfd90ee545de5e43384fb";
+        private readonly string _testDelegatorPublicKey = "018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -712,6 +713,15 @@ namespace CSPR.Cloud.Net.Tests
             var count = result.Data.Count();
             var equalCount = result.Data.Where(x => x.OwnerPublicKey == _testOwnerPublicKey).Count();
             Assert.True(count == equalCount);
+        }
+        // GetAccountDelegationsAsync Tests
+        [Fact]
+        public async Task GetAccountDelegationsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetAccountDelegationsAsync(_testDelegatorPublicKey);
+            Assert.True(result.ItemCount > 0);
+            var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.PublicKey == _testDelegatorPublicKey).Count() == 10;
+            Assert.True(IsAllDelegatorPublicKeyEqual);
         }
     }
 }
