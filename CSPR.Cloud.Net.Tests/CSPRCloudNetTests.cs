@@ -723,5 +723,15 @@ namespace CSPR.Cloud.Net.Tests
             var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.PublicKey == _testDelegatorPublicKey).Count() == 10;
             Assert.True(IsAllDelegatorPublicKeyEqual);
         }
+
+        // GetValidatorDelegationsAsync Tests
+        [Fact]
+        public async Task GetValidatorDelegationsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetValidatorDelegationsAsync(_test2PublicKey);
+            Assert.True(result.ItemCount > 0);
+            var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.ValidatorPublicKey == _test2PublicKey).Count() == 10;
+            Assert.True(IsAllDelegatorPublicKeyEqual);
+        }
     }
 }

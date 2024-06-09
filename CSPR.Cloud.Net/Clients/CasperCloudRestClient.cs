@@ -169,6 +169,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
             }
+            public Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetValidatorDelegationsAsync(publicKey, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -255,6 +259,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetValidatorDelegationsAsync(publicKey, parameters);
             }
 
         }
@@ -375,6 +383,11 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetAccountDelegations(_baseUrl, publicKey, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Delegate.GetValidatorDelegations(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
             }
         }
