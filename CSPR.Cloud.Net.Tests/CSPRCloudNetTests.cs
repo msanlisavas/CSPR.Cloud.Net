@@ -813,5 +813,12 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Rate != null);
         }
+        // GetTotalAccountDelegatorRewardsAsync Tests
+        [Fact]
+        public async Task GetTotalAccountDelegatorRewardsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetTotalAccountDelegationRewards(_testDelegatorPublicKey);
+            Assert.True(result > 0);
+        }
     }
 }
