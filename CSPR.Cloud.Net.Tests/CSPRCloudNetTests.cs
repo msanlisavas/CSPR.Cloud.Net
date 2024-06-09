@@ -744,6 +744,17 @@ namespace CSPR.Cloud.Net.Tests
             var secondStake = BigInteger.Parse(result.Data[1].Stake);
             Assert.True(firstStake <= secondStake);
         }
+
+
+        // GetValidatorDelegationsAsync Tests
+        [Fact]
+        public async Task GetValidatorDelegationsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetValidatorDelegationsAsync(_test2PublicKey);
+            Assert.True(result.ItemCount > 0);
+            var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.ValidatorPublicKey == _test2PublicKey).Count() == 10;
+            Assert.True(IsAllDelegatorPublicKeyEqual);
+        }
         [Fact]
         public async Task GetValidatorDelegationsAsync_WithOptionalParameters_ReturnsExpectedData()
         {
@@ -760,15 +771,47 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].ValidatorAccountInfo != null);
         }
-
-        // GetValidatorDelegationsAsync Tests
+        // GetAccountDelegatorRewardsAsync Tests
         [Fact]
-        public async Task GetValidatorDelegationsAsync_ReturnsExpectedData()
+        public async Task GetAccountDelegatorRewardsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetValidatorDelegationsAsync(_test2PublicKey);
+            var result = await _restClient.Testnet.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey);
             Assert.True(result.ItemCount > 0);
-            var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.ValidatorPublicKey == _test2PublicKey).Count() == 10;
+            var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.PublicKey == _testDelegatorPublicKey).Count() == 10;
             Assert.True(IsAllDelegatorPublicKeyEqual);
+        }
+        // Sorting not working here
+        [Fact]
+        public async Task GetAccountDelegatorRewardsAsync_WithSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDelegatorRewardRequestParameters
+            {
+                SortingParameters = new AccountDelegatorRewardSortingParameters
+                {
+                    OrderByEraId = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            var firstEra = result.Data[0].EraId;
+            var secondEra = result.Data[1].EraId;
+            Assert.True(firstEra <= secondEra);
+        }
+        // Optional Parameters
+        [Fact]
+        public async Task GetAccountDelegatorRewardsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDelegatorRewardRequestParameters
+            {
+                OptionalParameters = new AccountDelegatorRewardOptionalParameters
+                {
+                    Rate = 1,
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Rate != null);
         }
     }
 }

@@ -37,6 +37,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountContractPackages { get; } = "/accounts/{0}/contract-packages";
             public static string GetAccountDelegations { get; } = "/accounts/{0}/delegations";
             public static string GetValidatorDelegations { get; } = "/validators/{0}/delegations";
+            public static string GetAccountDelegatorRewards { get; } = "/accounts/{0}/delegation-rewards";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -419,7 +420,31 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
+            public static string GetAccountDelegatorRewards(string baseUrl, string publicKey, AccountDelegatorRewardRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountDelegatorRewards, publicKey);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
         }
+
 
     }
 }
