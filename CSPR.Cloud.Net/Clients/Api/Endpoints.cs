@@ -39,6 +39,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetValidatorDelegations { get; } = "/validators/{0}/delegations";
             public static string GetAccountDelegatorRewards { get; } = "/accounts/{0}/delegation-rewards";
             public static string GetTotalAccountDelegationRewards { get; } = "/accounts/{0}/total-delegation-rewards";
+            public static string GetTotalValidatorDelegatorsRewards { get; } = "/validators/{0}/total-delegator-rewards";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -449,9 +450,14 @@ namespace CSPR.Cloud.Net.Clients.Api
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetTotalAccountDelegationRewards, publicKey);
                 return url;
             }
+            public static string GetTotalValidatorDelegatorsRewards(string baseUrl, string publicKey)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetTotalValidatorDelegatorsRewards, publicKey);
+                return url;
+            }
         }
+
+
     }
-
-
 }
 

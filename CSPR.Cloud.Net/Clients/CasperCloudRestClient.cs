@@ -181,6 +181,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetTotalAccountDelegationRewards(publicKey);
             }
+            public Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
+            {
+                return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
+            }
 
         }
         public class TestnetEndpoint
@@ -279,6 +283,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<ulong> GetTotalAccountDelegationRewards(string publicKey)
             {
                 return _commonEndpoint.GetTotalAccountDelegationRewards(publicKey);
+            }
+            public Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
+            {
+                return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
             }
 
         }
@@ -414,6 +422,12 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<ulong> GetTotalAccountDelegationRewards(string publicKey)
             {
                 string endpoint = Endpoints.Delegate.GetTotalAccountDelegationRewards(_baseUrl, publicKey);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
+                return response.Data;
+            }
+            public async Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
+            {
+                string endpoint = Endpoints.Delegate.GetTotalValidatorDelegatorsRewards(_baseUrl, publicKey);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
                 return response.Data;
             }
