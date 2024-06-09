@@ -820,9 +820,9 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetTotalAccountDelegationRewards(_testDelegatorPublicKey);
             Assert.True(result > 0);
         }
-        // GetTotalValidatorRewardsAsync Tests
+        // GetTotalValidatorDelegationRewards Tests
         [Fact]
-        public async Task GetTotalValidatorRewardsAsync_ReturnsExpectedData()
+        public async Task GetTotalValidatorDelegationRewardsAsync_ReturnsExpectedData()
         {
             var result = await _restClient.Testnet.GetTotalValidatorDelegationRewards(_test2PublicKey);
             Assert.True(result > 0);
