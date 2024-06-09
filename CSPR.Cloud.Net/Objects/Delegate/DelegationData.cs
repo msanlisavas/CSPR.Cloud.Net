@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
+using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Objects.Delegate
 {
@@ -12,5 +14,12 @@ namespace CSPR.Cloud.Net.Objects.Delegate
         public string Stake { get; set; }
         [JsonProperty("bonding_purse")]
         public string BondingPurse { get; set; }
+        [JsonProperty("account_info")]
+        public AccountInfoData AccountInfo { get; set; }
+        [JsonProperty("validator_account_info")]
+        public AccountInfoData ValidatorAccountInfo { get; set; }
+        [JsonProperty("centralized_account_info")]
+        public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
+
     }
 }

@@ -11,15 +11,19 @@ using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Contract;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Delegate;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Sorting.Contract;
+using CSPR.Cloud.Net.Parameters.Sorting.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
+using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
+using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
 {
@@ -722,6 +726,39 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.PublicKey == _testDelegatorPublicKey).Count() == 10;
             Assert.True(IsAllDelegatorPublicKeyEqual);
+        }
+        [Fact]
+        public async Task GetAccountDelegationsAsync_WithSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new DelegationRequestParameters
+            {
+                SortingParameters = new DelegationSortingParameters
+                {
+                    OrderByStake = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountDelegationsAsync(_testDelegatorPublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            var firstStake = BigInteger.Parse(result.Data[0].Stake);
+            var secondStake = BigInteger.Parse(result.Data[1].Stake);
+            Assert.True(firstStake <= secondStake);
+        }
+        [Fact]
+        public async Task GetValidatorDelegationsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new DelegationRequestParameters
+            {
+                OptionalParameters = new DelegationOptionalParameters
+                {
+                    AccountInfo = true,
+                    ValidatorAccountInfo = true,
+                    CentralizedAccountInfo = true
+                }
+            };
+            var result = await _restClient.Testnet.GetValidatorDelegationsAsync(_test2PublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].ValidatorAccountInfo != null);
         }
 
         // GetValidatorDelegationsAsync Tests

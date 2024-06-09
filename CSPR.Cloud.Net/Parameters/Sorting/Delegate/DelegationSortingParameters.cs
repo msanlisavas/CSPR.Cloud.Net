@@ -6,7 +6,7 @@ namespace CSPR.Cloud.Net.Parameters.Sorting.Delegate
     public class DelegationSortingParameters
     {
         [JsonProperty("stake")]
-        public bool Stake { get; set; } = false;
+        public bool OrderByStake { get; set; } = false;
 
 
         [JsonProperty("sort_type")]
