@@ -7,6 +7,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -40,6 +41,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountDelegatorRewards { get; } = "/accounts/{0}/delegation-rewards";
             public static string GetTotalAccountDelegationRewards { get; } = "/accounts/{0}/total-delegation-rewards";
             public static string GetTotalValidatorDelegatorsRewards { get; } = "/validators/{0}/total-delegator-rewards";
+            public static string GetDeploy { get; } = "/deploys/{0}";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -453,6 +455,26 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetTotalValidatorDelegatorsRewards(string baseUrl, string publicKey)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetTotalValidatorDelegatorsRewards, publicKey);
+                return url;
+            }
+        }
+        public static class Deploy
+        {
+            public static string GetDeploy(string baseUrl, string deployHash, DeployRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetDeploy, deployHash);
+                if (requestParams != null)
+                {
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
                 return url;
             }
         }

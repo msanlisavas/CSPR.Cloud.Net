@@ -9,6 +9,7 @@ using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Objects.Contract;
 using CSPR.Cloud.Net.Objects.Delegate;
+using CSPR.Cloud.Net.Objects.Deploy;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -17,6 +18,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -185,6 +187,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
             }
+            public Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetDeployAsync(deployHash, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -287,6 +293,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
             {
                 return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
+            }
+            public Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetDeployAsync(deployHash, parameters);
             }
 
         }
@@ -430,6 +440,12 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Delegate.GetTotalValidatorDelegatorsRewards(_baseUrl, publicKey);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
                 return response.Data;
+            }
+            public async Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Deploy.GetDeploy(_baseUrl, deployHash, parameters);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<DeployData>>(endpoint);
+                return response;
             }
         }
 

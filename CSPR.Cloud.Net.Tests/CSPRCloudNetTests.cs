@@ -43,6 +43,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testContractDeployHash = "94f35bd289abca1f91f34b56b101852d3dffc1f50567d9062a7df4d176070f0f";
         private readonly string _testOwnerPublicKey = "01dfe2a285f7841e4dc7fb65e960bfcbee6be271e8f32dfd90ee545de5e43384fb";
         private readonly string _testDelegatorPublicKey = "018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02";
+        private readonly string _testDeployHash = "88461218a5e972fcda1d764d7cc4edb2e0c3a538123b97890d484f43c55935f5";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -826,6 +827,13 @@ namespace CSPR.Cloud.Net.Tests
         {
             var result = await _restClient.Testnet.GetTotalValidatorDelegationRewards(_test2PublicKey);
             Assert.True(result > 0);
+        }
+        // GetDeployAsync Tests
+        [Fact]
+        public async Task GetDeployAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetDeployAsync(_testDeployHash);
+            Assert.True(result.Data.DeployHash == _testDeployHash);
         }
     }
 }
