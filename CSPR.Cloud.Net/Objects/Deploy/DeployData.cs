@@ -1,6 +1,12 @@
-﻿using CSPR.Cloud.Net.Objects.Args;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.Args;
+using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
+using CSPR.Cloud.Net.Objects.Contract;
+using CSPR.Cloud.Net.Objects.Nft;
+using CSPR.Cloud.Net.Objects.Transfer;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace CSPR.Cloud.Net.Objects.Deploy
 {
@@ -47,5 +53,24 @@ namespace CSPR.Cloud.Net.Objects.Deploy
 
         [JsonProperty("timestamp")]
         public DateTime? Timestamp { get; set; }
+        [JsonProperty("account_info")]
+        public AccountInfoData AccountInfo { get; set; }
+        [JsonProperty("centralized_account_info")]
+        public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
+        [JsonProperty("contract_package")]
+        public ContractPackageData ContractPackage { get; set; }
+        [JsonProperty("contract")]
+        public ContractData Contract { get; set; }
+        [JsonProperty("contract_entrypoint")]
+        public EntryPointData ContractEntrypoint { get; set; }
+        [JsonProperty("rate")]
+        public float? Rate { get; set; }
+        [JsonProperty("transfers")]
+        public List<TransferData> Transfers { get; set; }
+        [JsonProperty("nft_token_actions")]
+        public List<NFTTokenActionData> NFTTokenAction { get; set; }
+        [JsonProperty("ft_token_actions")]
+        public List<FTTokenActionData> FTTokenAction { get; set; }
+
     }
 }

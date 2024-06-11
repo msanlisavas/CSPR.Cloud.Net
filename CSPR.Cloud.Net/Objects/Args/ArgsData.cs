@@ -1,16 +1,12 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace CSPR.Cloud.Net.Objects.Args
 {
     public class ArgsData
     {
-        [JsonProperty("amount")]
-        public AmountData Amount { get; set; }
-
-        [JsonProperty("id")]
-        public IdData Id { get; set; }
-
-        [JsonProperty("target")]
-        public TargetData Target { get; set; }
+        [JsonExtensionData]
+        public Dictionary<string, JToken> Properties { get; set; }
     }
 }

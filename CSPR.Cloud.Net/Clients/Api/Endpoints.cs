@@ -42,6 +42,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetTotalAccountDelegationRewards { get; } = "/accounts/{0}/total-delegation-rewards";
             public static string GetTotalValidatorDelegatorsRewards { get; } = "/validators/{0}/total-delegator-rewards";
             public static string GetDeploy { get; } = "/deploys/{0}";
+            public static string GetDeploys { get; } = "/deploys";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -477,9 +478,31 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
+            public static string GetDeploys(string baseUrl, DeploysRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetDeploys}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+
+
         }
-
-
     }
 }
-

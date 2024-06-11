@@ -12,6 +12,7 @@ using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Contract;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Delegate;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Deploy;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
@@ -23,6 +24,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
@@ -44,6 +46,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testOwnerPublicKey = "01dfe2a285f7841e4dc7fb65e960bfcbee6be271e8f32dfd90ee545de5e43384fb";
         private readonly string _testDelegatorPublicKey = "018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02";
         private readonly string _testDeployHash = "88461218a5e972fcda1d764d7cc4edb2e0c3a538123b97890d484f43c55935f5";
+        private readonly string _testDeployHash2 = "ffeee7e097a17702b11a68a870b5c0e7b0d3a2207228a5316dfaf2b4896dbca9";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -834,6 +837,67 @@ namespace CSPR.Cloud.Net.Tests
         {
             var result = await _restClient.Testnet.GetDeployAsync(_testDeployHash);
             Assert.True(result.Data.DeployHash == _testDeployHash);
+        }
+        [Fact]
+        public async Task GetDeployAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new DeployRequestParameters
+            {
+                OptionalParameters = new DeployOptionalParameters
+                {
+                    AccountInfo = true,
+                    CentralizedAccountInfo = true,
+                    ContractPackage = true,
+                    Contract = true,
+                    ContractEntrypoint = true,
+                    Rate = 1,
+                    Transfers = true,
+                    NFTTokenActions = true,
+                    FTTokenActions = true
+                }
+            };
+            var result = await _restClient.Testnet.GetDeployAsync(_testDeployHash2, parameters);
+            Assert.True(result.Data.DeployHash == _testDeployHash2);
+            Assert.True(result.Data.Contract != null);
+            Assert.True(result.Data.ContractEntrypoint != null);
+            Assert.True(result.Data.ContractPackage != null);
+            Assert.True(result.Data.Rate != null);
+            Assert.True(result.Data.NFTTokenAction.Count > 0);
+
+        }
+        // GetDeploysAsync Tests
+        [Fact]
+        public async Task GetDeploysAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetDeploysAsync();
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetDeploysAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new DeploysRequestParameters
+            {
+                OptionalParameters = new DeployOptionalParameters
+                {
+                    AccountInfo = true,
+                    CentralizedAccountInfo = true,
+                    ContractPackage = true,
+                    Contract = true,
+                    ContractEntrypoint = true,
+                    Rate = 1,
+                    Transfers = true,
+                    NFTTokenActions = true,
+                    FTTokenActions = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Contract != null);
+            Assert.Contains(result.Data, value => value.ContractEntrypoint != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+            Assert.Contains(result.Data, value => value.Rate != null);
+
         }
     }
 }
