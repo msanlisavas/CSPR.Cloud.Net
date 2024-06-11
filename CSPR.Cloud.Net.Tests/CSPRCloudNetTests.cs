@@ -985,5 +985,95 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight <= 3218428).Count() == result.Data.Count);
         }
+        // GetAccountDeploysAsync Tests
+        [Fact]
+        public async Task GetAccountDeploysAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetAccountDeploysAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDeploysRequestParameters
+            {
+                OptionalParameters = new DeployOptionalParameters
+                {
+                    AccountInfo = true,
+                    CentralizedAccountInfo = true,
+                    ContractPackage = true,
+                    Contract = true,
+                    ContractEntrypoint = true,
+                    Rate = 1,
+                    Transfers = true,
+                    NFTTokenActions = true,
+                    FTTokenActions = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetAccountDeploysAsync("01cde2af414349be59d01206e3ffd6b9f1f49a4292b2c219f8d7d53f55d5e39b17", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Contract != null);
+            Assert.Contains(result.Data, value => value.ContractEntrypoint != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+            Assert.Contains(result.Data, value => value.Rate != null);
+
+        }
+        [Fact]
+        public async Task GetAccountDeploysAsync_WithContractHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDeploysRequestParameters
+            {
+                FilterParameters = new AccountDeploysFilterParameters
+                {
+                    ContractHash = "d950b6fb1e487e054dff551ad1acd0106802bb482bf1e88630b6a1eec2de8ed9"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountDeploysAsync("01a35887f3962a6a232e8e11fa7d4567b6866d68850974aad7289ef287676825f6", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ContractHash == "d950b6fb1e487e054dff551ad1acd0106802bb482bf1e88630b6a1eec2de8ed9");
+        }
+        [Fact]
+        public async Task GetAccountDeploysAsync_WithContractPackageHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDeploysRequestParameters
+            {
+                FilterParameters = new AccountDeploysFilterParameters
+                {
+                    ContractPackageHash = "dbb3284da4e20be62aeb332c653bfa715c7fa1ef6a73393cd36804b382f10d4e"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountDeploysAsync("01a35887f3962a6a232e8e11fa7d4567b6866d68850974aad7289ef287676825f6", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ContractPackageHash == _testContractPackageHash);
+        }
+        [Fact]
+        public async Task GetAccountDeploysAsync_WithFromBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDeploysRequestParameters
+            {
+                FilterParameters = new AccountDeploysFilterParameters
+                {
+                    FromBlockHeight = "3218428"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Where(x => x.BlockHeight >= 3218428 && x.CallerPublicKey == _callerPublicKey).Count() == result.Data.Count);
+        }
+        [Fact]
+        public async Task GetAccountDeploysAsync_WithToBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDeploysRequestParameters
+            {
+                FilterParameters = new AccountDeploysFilterParameters
+                {
+                    ToBlockHeight = "3218428"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Where(x => x.BlockHeight <= 3218428 && x.CallerPublicKey == _callerPublicKey).Count() == result.Data.Count);
+        }
     }
 }
