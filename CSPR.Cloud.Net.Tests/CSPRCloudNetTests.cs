@@ -19,6 +19,7 @@ using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Sorting.Contract;
 using CSPR.Cloud.Net.Parameters.Sorting.Delegate;
+using CSPR.Cloud.Net.Parameters.Sorting.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
@@ -985,6 +986,60 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight <= 3218428).Count() == result.Data.Count);
         }
+        [Fact]
+        public async Task GetDeploysAsync_WithASCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new DeploysRequestParameters
+            {
+                SortingParameters = new DeploysSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+                PageNumber = 1,
+                PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp <= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp <= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp <= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp <= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp <= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp <= result.Data[9].Timestamp);
+
+        }
+        [Fact]
+        public async Task GetDeploysAsync_WithDESCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new DeploysRequestParameters
+            {
+                SortingParameters = new DeploysSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                },
+                PageNumber = 1,
+                PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp >= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp >= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp >= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp >= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp >= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp >= result.Data[9].Timestamp);
+
+        }
         // GetAccountDeploysAsync Tests
         [Fact]
         public async Task GetAccountDeploysAsync_ReturnsExpectedData()
@@ -1074,6 +1129,60 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight <= 3218428 && x.CallerPublicKey == _callerPublicKey).Count() == result.Data.Count);
+        }
+        [Fact]
+        public async Task GetAccountDeploysAsync_WithASCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDeploysRequestParameters
+            {
+                SortingParameters = new DeploysSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+                PageNumber = 1,
+                PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp <= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp <= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp <= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp <= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp <= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp <= result.Data[9].Timestamp);
+
+        }
+        [Fact]
+        public async Task GetAccountDeploysAsync_WithDESCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new AccountDeploysRequestParameters
+            {
+                SortingParameters = new DeploysSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                },
+                PageNumber = 1,
+                PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp >= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp >= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp >= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp >= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp >= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp >= result.Data[9].Timestamp);
+
         }
     }
 }
