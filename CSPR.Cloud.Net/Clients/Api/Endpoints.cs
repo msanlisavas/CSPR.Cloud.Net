@@ -46,6 +46,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountDeploys { get; } = "/accounts/{0}/deploys";
             public static string GetBlockDeploys { get; } = "/blocks/{0}/deploys";
             public static string GetDeployExecutionTypes { get; } = "/deploy-execution-types";
+            public static string GetFungibleTokenActions { get; } = "/ft-token-actions";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -559,5 +560,30 @@ namespace CSPR.Cloud.Net.Clients.Api
                 return url;
             }
         }
+        public static class FungibleToken
+        {
+            public static string GetFungibleTokenActions(string baseUrl, FTActionsRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetFungibleTokenActions}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+        }
     }
-}

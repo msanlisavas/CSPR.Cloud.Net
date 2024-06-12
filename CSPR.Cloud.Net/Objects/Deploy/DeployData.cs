@@ -2,6 +2,7 @@
 using CSPR.Cloud.Net.Objects.Args;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Contract;
+using CSPR.Cloud.Net.Objects.Ft;
 using CSPR.Cloud.Net.Objects.Nft;
 using CSPR.Cloud.Net.Objects.Transfer;
 using Newtonsoft.Json;
