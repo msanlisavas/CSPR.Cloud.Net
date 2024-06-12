@@ -1302,5 +1302,12 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
 
         }
+        // GetDeployExecutionTypesAsync Tests
+        [Fact]
+        public async Task GetDeployExecutionTypesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetDeployExecutionTypesAsync();
+            Assert.True(result.Data.Count > 0);
+        }
     }
 }

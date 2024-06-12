@@ -45,6 +45,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetDeploys { get; } = "/deploys";
             public static string GetAccountDeploys { get; } = "/accounts/{0}/deploys";
             public static string GetBlockDeploys { get; } = "/blocks/{0}/deploys";
+            public static string GetDeployExecutionTypes { get; } = "/deploy-execution-types";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -551,6 +552,11 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
 
+            }
+            public static string GetDeployExecutionTypes(string baseUrl)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetDeployExecutionTypes}";
+                return url;
             }
         }
     }
