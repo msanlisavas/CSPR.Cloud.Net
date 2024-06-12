@@ -2,7 +2,7 @@
 
 namespace CSPR.Cloud.Net.Parameters.Sorting.Ft
 {
-    public class FTActionsSortingParameters : TimestampSortingParameters
+    public class FTActionSortingParameters : TimestampSortingParameters
     {
     }
 }

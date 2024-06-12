@@ -8,12 +8,14 @@ using CSPR.Cloud.Net.Parameters.Filtering.Block;
 using CSPR.Cloud.Net.Parameters.Filtering.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Filtering.Contract;
 using CSPR.Cloud.Net.Parameters.Filtering.Deploy;
+using CSPR.Cloud.Net.Parameters.Filtering.Ft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Contract;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Delegate;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Deploy;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Ft;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
@@ -27,6 +29,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
+using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
@@ -1307,5 +1310,59 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetDeployExecutionTypesAsync();
             Assert.True(result.Data.Count > 0);
         }
+        // GetFungibleTokenActions Tests
+        [Fact]
+        public async Task GetFungibleTokenActionsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync();
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetFungibleTokenActionsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTActionRequestParameters
+            {
+                OptionalParameters = new FTActionOptionalParameters
+                {
+                    ContractPackage = true,
+                    Deploy = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Deploy != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+
+        }
+        [Fact]
+        public async Task GetFungibleTokenActionsAsync_WithContractPackageHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTActionRequestParameters
+            {
+                FilterParameters = new FTActionFilterParameters
+                {
+                    ContractPackageHash = "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069"
+                }
+            };
+            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ContractPackageHash == "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069");
+        }
+        [Fact]
+        public async Task GetFungibleTokenActionsAsync_WithAccountHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTActionRequestParameters
+            {
+                FilterParameters = new FTActionFilterParameters
+                {
+                    AccountHash = "0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2"
+                }
+            };
+            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ToHash == "0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2");
+        }
+
     }
 }

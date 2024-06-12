@@ -10,6 +10,7 @@ using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Objects.Contract;
 using CSPR.Cloud.Net.Objects.Delegate;
 using CSPR.Cloud.Net.Objects.Deploy;
+using CSPR.Cloud.Net.Objects.Ft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -19,6 +20,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
+using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -207,6 +209,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetDeployExecutionTypesAsync();
             }
+            public Task<PaginatedResponse<FTTokenActionData>> GetFungibleTokenActionsAsync(FTActionRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetFungibleTokenActionsAsync(parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -329,6 +335,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<Response<List<DeployExecutionTypesData>>> GetDeployExecutionTypesAsync()
             {
                 return _commonEndpoint.GetDeployExecutionTypesAsync();
+            }
+            public Task<PaginatedResponse<FTTokenActionData>> GetFungibleTokenActionsAsync(FTActionRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetFungibleTokenActionsAsync(parameters);
             }
 
 
@@ -500,6 +510,12 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.Deploy.GetDeployExecutionTypes(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<Response<List<DeployExecutionTypesData>>>(endpoint);
+            }
+            public async Task<PaginatedResponse<FTTokenActionData>> GetFungibleTokenActionsAsync(FTActionRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.FungibleToken.GetFungibleTokenActions(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTTokenActionData>>(endpoint);
+
             }
         }
 

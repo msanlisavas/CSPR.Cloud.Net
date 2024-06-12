@@ -8,6 +8,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
+using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -562,7 +563,29 @@ namespace CSPR.Cloud.Net.Clients.Api
         }
         public static class FungibleToken
         {
-
+            public static string GetFungibleTokenActions(string baseUrl, FTActionRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetFungibleTokenActions}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
         }
     }
 }
