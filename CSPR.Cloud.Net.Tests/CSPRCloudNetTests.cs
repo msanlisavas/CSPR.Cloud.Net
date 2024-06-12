@@ -54,6 +54,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testDeployHash = "88461218a5e972fcda1d764d7cc4edb2e0c3a538123b97890d484f43c55935f5";
         private readonly string _testDeployHash2 = "ffeee7e097a17702b11a68a870b5c0e7b0d3a2207228a5316dfaf2b4896dbca9";
         private readonly string _callerPublicKey = "018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02";
+        private readonly string _testFtTokenContractPackageHash = "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -1458,6 +1459,106 @@ namespace CSPR.Cloud.Net.Tests
                 }
             };
             var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("ddfc69e06130a5cb1aaf51254cf913a0ab0c60922f4c33261bbcdbdc8156421a", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+        }
+        // GetContractPackageFungibleTokenActions Tests
+        [Fact]
+        public async Task GetContractPackageFungibleTokenActionsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenActionsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageActionRequestParameters
+            {
+                OptionalParameters = new FTActionOptionalParameters
+                {
+                    ContractPackage = true,
+                    Deploy = true,
+                    FromPublicKey = true,
+                    ToPublicKey = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Deploy != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenActionsAsync_WithContractPackageHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageActionRequestParameters
+            {
+                FilterParameters = new FTContractPackageActionFilterParameters
+                {
+                    FromBlockHeight = "3212781"
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ContractPackageHash == _testFtTokenContractPackageHash);
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenActionsAsync_WithFromBlockHeightFilterParameters_ShouldntReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageActionRequestParameters
+            {
+                FilterParameters = new FTContractPackageActionFilterParameters
+                {
+                    FromBlockHeight = "3212783"
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount == 0);
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenActionsAsync_WithToBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageActionRequestParameters
+            {
+                FilterParameters = new FTContractPackageActionFilterParameters
+                {
+                    ToBlockHeight = "3224327"
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ToHash == "0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2");
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenActionsAsync_WithASCSortParameters_ShouldntReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageActionRequestParameters
+            {
+                SortingParameters = new FTContractPackageActionSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenActionsAsync_WithDESCSortParameters_ShouldntReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageActionRequestParameters
+            {
+                SortingParameters = new FTContractPackageActionSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);

@@ -217,6 +217,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountFungibleTokenActionsAsync(accountIdentifier, parameters);
             }
+            public Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -347,6 +351,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<FTTokenActionData>> GetAccountFungibleTokenActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountFungibleTokenActionsAsync(accountIdentifier, parameters);
+            }
+            public Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
             }
 
 
@@ -528,6 +536,12 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<PaginatedResponse<FTTokenActionData>> GetAccountFungibleTokenActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FungibleToken.GetAccountFungibleTokenActions(_baseUrl, accountIdentifier, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTTokenActionData>>(endpoint);
+
+            }
+            public async Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.FungibleToken.GetContractPackageFungibleTokenActions(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTTokenActionData>>(endpoint);
 
             }
