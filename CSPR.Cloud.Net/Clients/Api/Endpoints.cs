@@ -48,6 +48,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetBlockDeploys { get; } = "/blocks/{0}/deploys";
             public static string GetDeployExecutionTypes { get; } = "/deploy-execution-types";
             public static string GetFungibleTokenActions { get; } = "/ft-token-actions";
+            public static string GetAccountFungibleTokenActions { get; } = "/accounts/{0}/ft-token-actions";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -566,6 +567,29 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetFungibleTokenActions(string baseUrl, FTActionRequestParameters requestParams = null)
             {
                 var url = $"{baseUrl}{BaseUrls.GetFungibleTokenActions}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetAccountFungibleTokenActions(string baseUrl, string accountIdentifier, FTAccountActionRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountFungibleTokenActions, accountIdentifier);
                 if (requestParams != null)
                 {
                     var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
