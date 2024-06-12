@@ -1,15 +1,11 @@
-﻿using CSPR.Cloud.Net.Enums;
+﻿using CSPR.Cloud.Net.Parameters.Sorting.Abstract;
 using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo
 {
-    public class CentralizedAccountInfoSortingParameters
+    public class CentralizedAccountInfoSortingParameters : BaseSortingParameters
     {
         [JsonProperty("account_hash")]
         public bool OrderByAccountHash { get; set; } = false;
-
-
-        [JsonProperty("sort_type")]
-        public SortType SortType { get; set; } = SortType.Descending;
     }
 }

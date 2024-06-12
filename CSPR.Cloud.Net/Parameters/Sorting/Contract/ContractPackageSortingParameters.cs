@@ -1,16 +1,13 @@
-﻿using CSPR.Cloud.Net.Enums;
+﻿using CSPR.Cloud.Net.Parameters.Sorting.Abstract;
 using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Parameters.Sorting.Contract
 {
-    public class ContractPackageSortingParameters
+    public class ContractPackageSortingParameters : BaseSortingParameters
     {
 
         [JsonProperty("timestamp")]
         public bool OrderByTimestamp { get; set; } = false;
 
-
-        [JsonProperty("sort_type")]
-        public SortType SortType { get; set; } = SortType.Descending;
     }
 }

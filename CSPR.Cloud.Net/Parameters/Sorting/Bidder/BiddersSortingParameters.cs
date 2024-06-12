@@ -1,9 +1,9 @@
-﻿using CSPR.Cloud.Net.Enums;
+﻿using CSPR.Cloud.Net.Parameters.Sorting.Abstract;
 using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Parameters.Sorting.Bidder
 {
-    public class BiddersSortingParameters
+    public class BiddersSortingParameters : BaseSortingParameters
     {
         [JsonProperty("rank")]
         public bool OrderByRank { get; set; } = false;
@@ -20,7 +20,5 @@ namespace CSPR.Cloud.Net.Parameters.Sorting.Bidder
         public bool OrderByNetworkShare { get; set; } = false;
 
 
-        [JsonProperty("sort_type")]
-        public SortType SortType { get; set; } = SortType.Descending;
     }
 }
