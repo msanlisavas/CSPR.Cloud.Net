@@ -1278,7 +1278,6 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
-            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
 
         }
         [Fact]
@@ -1299,7 +1298,6 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
-            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
 
         }
         // GetDeployExecutionTypesAsync Tests

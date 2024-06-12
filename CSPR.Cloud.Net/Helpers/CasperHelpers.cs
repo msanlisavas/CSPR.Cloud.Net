@@ -172,6 +172,14 @@ namespace CSPR.Cloud.Net.Helpers
         public static List<SortingParameter> CreateSortingParameters<T>(T parameters)
         {
             var sortingParams = new List<SortingParameter>();
+            var sortType = Enums.SortType.Ascending; // Default value
+
+            // Extract the SortType property value from the parameters
+            var sortTypeProperty = typeof(T).GetProperty("SortType");
+            if (sortTypeProperty != null && sortTypeProperty.PropertyType == typeof(Enums.SortType))
+            {
+                sortType = (Enums.SortType)sortTypeProperty.GetValue(parameters);
+            }
 
             foreach (var prop in typeof(T).GetProperties())
             {
@@ -184,7 +192,7 @@ namespace CSPR.Cloud.Net.Helpers
                         if (jsonAttribute != null)
                         {
                             string fieldName = jsonAttribute.PropertyName;
-                            sortingParams.Add(new SortingParameter(fieldName, Enums.SortType.Ascending)); // You can set the direction here
+                            sortingParams.Add(new SortingParameter(fieldName, sortType));
                         }
                     }
                 }
@@ -192,6 +200,7 @@ namespace CSPR.Cloud.Net.Helpers
 
             return sortingParams;
         }
+
 
         public static PaginationParameters CreatePaginationParameters(int page, int pageSize)
         {
