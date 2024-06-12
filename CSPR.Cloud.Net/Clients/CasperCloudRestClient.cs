@@ -199,6 +199,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountDeploysAsync(publicKey, parameters);
             }
+            public Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetBlockDeploysAsync(blockIdentifier, parameters);
+            }
 
         }
         public class TestnetEndpoint
@@ -314,6 +318,12 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountDeploysAsync(publicKey, parameters);
             }
+            public Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetBlockDeploysAsync(blockIdentifier, parameters);
+            }
+
+
 
         }
 
@@ -471,6 +481,11 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<PaginatedResponse<DeployData>> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Deploy.GetAccountDeploys(_baseUrl, publicKey, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DeployData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Deploy.GetBlockDeploys(_baseUrl, blockIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DeployData>>(endpoint);
             }
         }

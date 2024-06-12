@@ -1184,5 +1184,123 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[8].Timestamp >= result.Data[9].Timestamp);
 
         }
+        // GetBlockDeploysAsync Tests
+        [Fact]
+        public async Task GetBlockDeploysAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetBlockDeploysAsync(_testBlockHash);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetBlockDeploysAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new BlockDeploysRequestParameters
+            {
+                OptionalParameters = new DeployOptionalParameters
+                {
+                    AccountInfo = true,
+                    CentralizedAccountInfo = true,
+                    ContractPackage = true,
+                    Contract = true,
+                    ContractEntrypoint = true,
+                    Rate = 1,
+                    Transfers = true,
+                    NFTTokenActions = true,
+                    FTTokenActions = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetBlockDeploysAsync(_testBlockHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Contract != null);
+            Assert.Contains(result.Data, value => value.ContractEntrypoint != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+            Assert.Contains(result.Data, value => value.Rate != null);
+
+        }
+        [Fact]
+        public async Task GetBlockDeploysAsync_WithContractHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new BlockDeploysRequestParameters
+            {
+                FilterParameters = new BlockDeploysFilterParameters
+                {
+                    ContractHash = "4376c1707d2c844bdc8d24def3ae7252f3e011fb446c9108a4418152938468f2"
+                }
+            };
+            var result = await _restClient.Testnet.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ContractHash == "4376c1707d2c844bdc8d24def3ae7252f3e011fb446c9108a4418152938468f2");
+        }
+        [Fact]
+        public async Task GetBlockDeploysAsync_WithContractPackageHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new BlockDeploysRequestParameters
+            {
+                FilterParameters = new BlockDeploysFilterParameters
+                {
+                    ContractPackageHash = "405d23bf75777993474c63c65f1803f3b70387d23ca1c4a391c02927ee69ca83"
+                }
+            };
+            var result = await _restClient.Testnet.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.ContractPackageHash == "405d23bf75777993474c63c65f1803f3b70387d23ca1c4a391c02927ee69ca83");
+        }
+        [Fact]
+        public async Task GetBlockDeploysAsync_WithCallerPublicKeyFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new BlockDeploysRequestParameters
+            {
+                FilterParameters = new BlockDeploysFilterParameters
+                {
+                    CallerPublicKey = "01f8c5cb2750adca87490dee7d71344775e479d1d63b5976c664eae4dc5d2c246b"
+                }
+            };
+            var result = await _restClient.Testnet.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Where(x => x.BlockHeight >= 3218428 && x.CallerPublicKey == "01f8c5cb2750adca87490dee7d71344775e479d1d63b5976c664eae4dc5d2c246b").Count() == result.Data.Count);
+        }
+        [Fact]
+        public async Task GetBlockDeploysAsync_WithASCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new BlockDeploysRequestParameters
+            {
+                SortingParameters = new DeploysSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+                PageNumber = 1,
+                PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetBlockDeploysAsync("a0c910531685b163b00b131739fb0f68dd84af2dbf51408b39f4acee3327363a", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+
+        }
+        [Fact]
+        public async Task GetBlockDeploysAsync_WithDESCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new BlockDeploysRequestParameters
+            {
+                SortingParameters = new DeploysSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                },
+                PageNumber = 1,
+                PageSize = 10
+
+            };
+            var result = await _restClient.Testnet.GetBlockDeploysAsync("a0c910531685b163b00b131739fb0f68dd84af2dbf51408b39f4acee3327363a", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+
+        }
     }
 }
