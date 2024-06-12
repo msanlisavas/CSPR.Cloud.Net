@@ -21,7 +21,7 @@ namespace CSPR.Cloud.Net.Objects.Contract
         public int? ContractTypeId { get; set; }
 
         [JsonProperty("timestamp")]
-        public DateTime Timestamp { get; set; }
+        public DateTime? Timestamp { get; set; }
 
         [JsonProperty("contract_version")]
         public int? ContractVersion { get; set; }
