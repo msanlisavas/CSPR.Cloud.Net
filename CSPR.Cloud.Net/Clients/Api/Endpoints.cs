@@ -50,6 +50,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetFungibleTokenActions { get; } = "/ft-token-actions";
             public static string GetAccountFungibleTokenActions { get; } = "/accounts/{0}/ft-token-actions";
             public static string GetContractPackageFungibleTokenActions { get; } = "/contract-packages/{0}/ft-token-actions";
+            public static string GetAccountFungibleTokenOwnership { get; } = "/accounts/{0}/ft-token-ownership";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -624,6 +625,25 @@ namespace CSPR.Cloud.Net.Clients.Api
                         (
                         filteringCriteria: filterParameters,
                         sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetAccountFungibleTokenOwnership(string baseUrl, string accountIdentifier, FTAccountOwnershipRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountFungibleTokenOwnership, accountIdentifier);
+                if (requestParams != null)
+                {
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
                         paginationParameters: paginationParameters,
                         optionalParameters: optionalParameters
                         );

@@ -221,7 +221,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
             }
-
+            public Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
+            }
         }
         public class TestnetEndpoint
         {
@@ -355,6 +358,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
+            }
+            public Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
             }
 
 
@@ -544,6 +551,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.FungibleToken.GetContractPackageFungibleTokenActions(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTTokenActionData>>(endpoint);
 
+            }
+            public async Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.FungibleToken.GetAccountFungibleTokenOwnership(_baseUrl, accountIdentifier, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTOwnershipData>>(endpoint);
             }
         }
 

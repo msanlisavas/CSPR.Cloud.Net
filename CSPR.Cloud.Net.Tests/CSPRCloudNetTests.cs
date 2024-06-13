@@ -1563,6 +1563,29 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
         }
+        // GetAccountFungibleTokenOwnershipAsync Tests
+        [Fact]
+        public async Task GetAccountFungibleTokenOwnershipAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetAccountFungibleTokenOwnershipAsync(_testAccountHash);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetAccountFungibleTokenOwnershipAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTAccountOwnershipRequestParameters
+            {
+                OptionalParameters = new FTAccountOwnershipOptionalParameters
+                {
+                    ContractPackage = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetAccountFungibleTokenOwnershipAsync(_testAccountHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHash);
+
+        }
 
     }
 }
