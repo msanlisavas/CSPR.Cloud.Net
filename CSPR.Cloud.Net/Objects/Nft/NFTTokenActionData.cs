@@ -1,4 +1,6 @@
 ﻿using CSPR.Cloud.Net.Enums;
+using CSPR.Cloud.Net.Objects.Contract;
+using CSPR.Cloud.Net.Objects.Deploy;
 using Newtonsoft.Json;
 using System;
 
@@ -38,5 +40,13 @@ namespace CSPR.Cloud.Net.Objects.Nft
 
         [JsonProperty("timestamp")]
         public DateTime? Timestamp { get; set; }
+        [JsonProperty("contract_package")]
+        public ContractPackageData ContractPackage { get; set; }
+        [JsonProperty("deploy")]
+        public DeployData Deploy { get; set; }
+        [JsonProperty("from_public_key")]
+        public string FromPublicKey { get; set; }
+        [JsonProperty("to_public_key")]
+        public string ToPublicKey { get; set; }
     }
 }
