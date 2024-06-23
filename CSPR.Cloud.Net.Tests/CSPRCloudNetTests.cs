@@ -1794,6 +1794,13 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetNFTStandardsAsync();
             Assert.True(result != null);
         }
+        // Get off-chain NFT metadata statuses Tests
+        [Fact]
+        public async Task GetOffChainNftMetadataStatusesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetOffchainNFTMetadataStatusesAsync();
+            Assert.True(result != null);
+        }
 
 
 
