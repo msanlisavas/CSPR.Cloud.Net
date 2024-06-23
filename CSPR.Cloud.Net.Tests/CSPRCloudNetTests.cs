@@ -9,6 +9,7 @@ using CSPR.Cloud.Net.Parameters.Filtering.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Parameters.Filtering.Contract;
 using CSPR.Cloud.Net.Parameters.Filtering.Deploy;
 using CSPR.Cloud.Net.Parameters.Filtering.Ft;
+using CSPR.Cloud.Net.Parameters.Filtering.Nft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
@@ -16,6 +17,7 @@ using CSPR.Cloud.Net.Parameters.OptionalParameters.Contract;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Delegate;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Deploy;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Ft;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Nft;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
@@ -23,6 +25,7 @@ using CSPR.Cloud.Net.Parameters.Sorting.Contract;
 using CSPR.Cloud.Net.Parameters.Sorting.Delegate;
 using CSPR.Cloud.Net.Parameters.Sorting.Deploy;
 using CSPR.Cloud.Net.Parameters.Sorting.Ft;
+using CSPR.Cloud.Net.Parameters.Sorting.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
@@ -31,6 +34,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
+using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
@@ -56,6 +60,8 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _callerPublicKey = "018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02";
         private readonly string _testFtTokenContractPackageHash = "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069";
         private readonly string _testTokenIdOfContractPackage = "395dc1a096e8dd8e1fda68bdd9cc94093974f58af63c0e054a075880e51060e0";
+        private readonly string _testAccountHashWithNft = "9c36101703214b13bc355dfb2fc7cfba0b553c780d7407943dfaadd8fb69de66";
+        private readonly string _testAccountHashWithAlotOfNfts = "0188ed5156681e57c66d2f3f5baa38126607774a6cba86369fa89970426242413a";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -1603,6 +1609,128 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result != null);
             Assert.True(result.Data.ContractPackageHash == _testContractPackageHash);
         }
+        // GetAccountNfts Tests
+        [Fact]
+        public async Task GetAccountNftsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetAccountNftsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountRequestParameters
+            {
+                OptionalParameters = new NFTOptionalParameters
+                {
+                    ContractPackage = true,
+                    OwnerPublicKey = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.OwnerPublicKey));
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+
+        }
+        [Fact]
+        public async Task GetAccountNftsAsync_WithFromBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountRequestParameters
+            {
+                FilterParameters = new NFTAccountFilterParameters
+                {
+                    FromBlockHeight = "1349344"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHashWithNft);
+        }
+        [Fact]
+        public async Task GetAccountNftsAsync_WithFromBlockHeightFilterParameters_ShouldntReturnData()
+        {
+            var parameters = new NFTAccountRequestParameters
+            {
+                FilterParameters = new NFTAccountFilterParameters
+                {
+                    FromBlockHeight = "1349345"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            Assert.True(result.ItemCount == 0);
+        }
+        [Fact]
+        public async Task GetAccountNftsAsync_WithToBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountRequestParameters
+            {
+                FilterParameters = new NFTAccountFilterParameters
+                {
+                    ToBlockHeight = "1349344"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHashWithNft);
+        }
+        [Fact]
+        public async Task GetAccountNftsAsync_WithToBlockHeightFilterParameters_ShouldntReturnData()
+        {
+            var parameters = new NFTAccountRequestParameters
+            {
+                FilterParameters = new NFTAccountFilterParameters
+                {
+                    ToBlockHeight = "1349343"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            Assert.True(result.ItemCount == 0);
+        }
+        [Fact]
+        public async Task GetAccountNftsAsync_WithASCSortParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountRequestParameters
+            {
+                SortingParameters = new NFTAccountSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithAlotOfNfts, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp <= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp <= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp <= result.Data[6].Timestamp);
+
+        }
+        [Fact]
+        public async Task GetAccountNftsAsync_WithDESCSortParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountRequestParameters
+            {
+                SortingParameters = new NFTAccountSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithAlotOfNfts, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp >= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp >= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp >= result.Data[6].Timestamp);
+
+        }
+
 
     }
 }
