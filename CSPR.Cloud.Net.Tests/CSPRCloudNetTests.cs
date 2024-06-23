@@ -1834,6 +1834,40 @@ namespace CSPR.Cloud.Net.Tests
 
 
         }
+        [Fact]
+        public async Task GetContractPackageNftActionsAsync_WithAscendingSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageActionsRequestParameters
+            {
+                SortingParameters = new NFTContractPackageActionsSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+        }
+        [Fact]
+        public async Task GetContractPackageNftActionsAsync_WithDescendingSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageActionsRequestParameters
+            {
+                SortingParameters = new NFTContractPackageActionsSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                },
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+        }
 
 
 
