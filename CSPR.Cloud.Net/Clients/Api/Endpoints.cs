@@ -9,6 +9,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Contract;
 using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
+using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -52,6 +53,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackageFungibleTokenActions { get; } = "/contract-packages/{0}/ft-token-actions";
             public static string GetAccountFungibleTokenOwnership { get; } = "/accounts/{0}/ft-token-ownership";
             public static string GetContractPackageFungibleTokenOwnership { get; } = "/contract-packages/{0}/ft-token-ownership";
+            public static string GetNFT { get; } = "/contract-packages/{0}/nft-tokens/{1}";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -658,6 +660,27 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackageFungibleTokenOwnership(string baseUrl, string contractPackageHash)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetContractPackageFungibleTokenOwnership, contractPackageHash);
+                return url;
+            }
+        }
+        public static class NonFungibleToken
+        {
+            public static string GetNonFungibleToken(string baseUrl, string contractPackageHash, string tokenId, NFTRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetNFT, contractPackageHash, tokenId);
+                if (requestParams != null)
+                {
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+
+                }
                 return url;
             }
         }

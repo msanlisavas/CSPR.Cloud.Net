@@ -55,6 +55,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testDeployHash2 = "ffeee7e097a17702b11a68a870b5c0e7b0d3a2207228a5316dfaf2b4896dbca9";
         private readonly string _callerPublicKey = "018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02";
         private readonly string _testFtTokenContractPackageHash = "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069";
+        private readonly string _testTokenIdOfContractPackage = "395dc1a096e8dd8e1fda68bdd9cc94093974f58af63c0e054a075880e51060e0";
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -1584,6 +1585,7 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetAccountFungibleTokenOwnershipAsync(_testAccountHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHash);
+            Assert.True(result.Data[0].ContractPackage != null);
 
         }
         // GetContractPackageFungibleTokenOwnershipAsync Tests
@@ -1592,6 +1594,14 @@ namespace CSPR.Cloud.Net.Tests
         {
             var result = await _restClient.Testnet.GetContractPackageFungibleTokenOwnershipAsync(_testFtTokenContractPackageHash);
             Assert.True(result.ItemCount > 0);
+        }
+        // GetNonFungibleToken Tests
+        [Fact]
+        public async Task GetNonFungibleTokenAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetNonFungibleTokenAsync(_testContractPackageHash, _testTokenIdOfContractPackage);
+            Assert.True(result != null);
+            Assert.True(result.Data.ContractPackageHash == _testContractPackageHash);
         }
 
     }

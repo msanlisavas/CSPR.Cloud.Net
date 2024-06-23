@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CSPR.Cloud.Net.Objects.Contract;
+using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Objects.Ft
 {
@@ -10,5 +11,7 @@ namespace CSPR.Cloud.Net.Objects.Ft
         public string ContractPackageHash { get; set; }
         [JsonProperty("owner_hash")]
         public string OwnerHash { get; set; }
+        [JsonProperty("contract_package")]
+        public ContractPackageData ContractPackage { get; set; }
     }
 }
