@@ -62,6 +62,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testTokenIdOfContractPackage = "395dc1a096e8dd8e1fda68bdd9cc94093974f58af63c0e054a075880e51060e0";
         private readonly string _testAccountHashWithNft = "9c36101703214b13bc355dfb2fc7cfba0b553c780d7407943dfaadd8fb69de66";
         private readonly string _testAccountHashWithAlotOfNfts = "0188ed5156681e57c66d2f3f5baa38126607774a6cba86369fa89970426242413a";
+        private readonly string _testContractPackageNFT = "5341882bae97a7368cdb007faa9f25735d2780d601114f82907fd83af2e9f508";
 
         public CSPRCloudNetTests()
         {
@@ -1749,9 +1750,9 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageNFT, parameters);
             Assert.True(result.ItemCount > 0);
-            Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHashWithNft);
+            Assert.Contains(result.Data, value => !(String.IsNullOrWhiteSpace(value.OwnerPublicKey)));
 
         }
         [Fact]
@@ -1801,6 +1802,39 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetOffchainNFTMetadataStatusesAsync();
             Assert.True(result != null);
         }
+        // Get contract package NFT actions for a token Tests
+        [Fact]
+        public async Task GetContractPackageNftActionsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageHash, _testTokenIdOfContractPackage);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].ContractPackageHash == _testContractPackageHash);
+            Assert.True(result.Data[0].TokenId == _testTokenIdOfContractPackage);
+        }
+        [Fact]
+        public async Task GetContractPackageNftActionsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageActionsRequestParameters
+            {
+                OptionalParameters = new NFTContractPackageActionsOptionalParameters
+                {
+                    ContractPackage = true,
+                    Deploy = true,
+                    FromPublicKey = true,
+                    ToPublicKey = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Deploy != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.FromPublicKey));
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.ToPublicKey));
+
+
+        }
+
 
 
 
