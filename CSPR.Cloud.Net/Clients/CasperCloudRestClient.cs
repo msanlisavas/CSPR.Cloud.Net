@@ -239,6 +239,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountNFTsAsync(accountIdentifier, parameters);
             }
+            public Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTs(Endpoints.BaseUrls.Testnet, contractPackageHash, parameters);
+                return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
+            }
         }
         public class TestnetEndpoint
         {
@@ -388,6 +393,11 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<NFTTokenData>> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountNFTsAsync(accountIdentifier, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTs(Endpoints.BaseUrls.Testnet, contractPackageHash, parameters);
+                return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
             }
 
         }
@@ -596,10 +606,15 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.NonFungibleToken.GetAccountNFTs(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenData>>(endpoint);
             }
+            public async Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTs(_baseUrl, contractPackageHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenData>>(endpoint);
+            }
+
+
         }
 
 
     }
-
-
 }

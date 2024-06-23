@@ -1730,6 +1730,63 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[5].Timestamp >= result.Data[6].Timestamp);
 
         }
+        // GetContractPackageNfts Tests
+        [Fact]
+        public async Task GetContractPackageNftsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetContractPackageNftsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageRequestParameters
+            {
+                OptionalParameters = new NFTContractPackageOptionalParameters
+                {
+                    OwnerPublicKey = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHashWithNft);
+
+        }
+        [Fact]
+        public async Task GetContractPackageNftsAsync_WithFromBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageRequestParameters
+            {
+                FilterParameters = new NFTContractPackageFilterParameters
+                {
+                    FromBlockHeight = "3000000",
+                    ToBlockHeight = "3250000"
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value =>
+                value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
+                value.BlockHeight <= ulong.Parse(parameters.FilterParameters.ToBlockHeight));
+
+        }
+        [Fact]
+        public async Task GetContractPackageNftsAsync_WithFromBlockHeightFilterParameters_ShouldntReturnData()
+        {
+            var parameters = new NFTContractPackageRequestParameters
+            {
+                FilterParameters = new NFTContractPackageFilterParameters
+                {
+                    FromBlockHeight = "1349344",
+                    ToBlockHeight = "1349500"
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount == 0);
+        }
+
 
 
     }
