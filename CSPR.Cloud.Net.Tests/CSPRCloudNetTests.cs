@@ -62,6 +62,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testTokenIdOfContractPackage = "395dc1a096e8dd8e1fda68bdd9cc94093974f58af63c0e054a075880e51060e0";
         private readonly string _testAccountHashWithNft = "9c36101703214b13bc355dfb2fc7cfba0b553c780d7407943dfaadd8fb69de66";
         private readonly string _testAccountHashWithAlotOfNfts = "0188ed5156681e57c66d2f3f5baa38126607774a6cba86369fa89970426242413a";
+
         public CSPRCloudNetTests()
         {
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
@@ -1785,6 +1786,13 @@ namespace CSPR.Cloud.Net.Tests
             };
             var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount == 0);
+        }
+        // GetNftStandard Tests
+        [Fact]
+        public async Task GetNftStandardAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetNFTStandardsAsync();
+            Assert.True(result != null);
         }
 
 
