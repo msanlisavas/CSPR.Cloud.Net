@@ -225,6 +225,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
             }
+            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash)
+            {
+                return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash);
+            }
         }
         public class TestnetEndpoint
         {
@@ -362,6 +366,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
+            }
+            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash)
+            {
+                return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash);
             }
 
 
@@ -555,6 +563,11 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FungibleToken.GetAccountFungibleTokenOwnership(_baseUrl, accountIdentifier, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTOwnershipData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash)
+            {
+                string endpoint = Endpoints.FungibleToken.GetContractPackageFungibleTokenOwnership(_baseUrl, contractPackageHash);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTOwnershipData>>(endpoint);
             }
         }

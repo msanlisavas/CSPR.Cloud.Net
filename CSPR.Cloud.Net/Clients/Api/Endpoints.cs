@@ -51,6 +51,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountFungibleTokenActions { get; } = "/accounts/{0}/ft-token-actions";
             public static string GetContractPackageFungibleTokenActions { get; } = "/contract-packages/{0}/ft-token-actions";
             public static string GetAccountFungibleTokenOwnership { get; } = "/accounts/{0}/ft-token-ownership";
+            public static string GetContractPackageFungibleTokenOwnership { get; } = "/contract-packages/{0}/ft-token-ownership";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -652,6 +653,11 @@ namespace CSPR.Cloud.Net.Clients.Api
                         url = $"{url}?{queryString}";
                     }
                 }
+                return url;
+            }
+            public static string GetContractPackageFungibleTokenOwnership(string baseUrl, string contractPackageHash)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetContractPackageFungibleTokenOwnership, contractPackageHash);
                 return url;
             }
         }

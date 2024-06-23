@@ -1586,6 +1586,13 @@ namespace CSPR.Cloud.Net.Tests
             Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHash);
 
         }
+        // GetContractPackageFungibleTokenOwnershipAsync Tests
+        [Fact]
+        public async Task GetContractPackageFungibleTokenOwnershipAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackageFungibleTokenOwnershipAsync(_testFtTokenContractPackageHash);
+            Assert.True(result.ItemCount > 0);
+        }
 
     }
 }
