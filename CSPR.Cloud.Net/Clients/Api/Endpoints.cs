@@ -577,7 +577,7 @@ namespace CSPR.Cloud.Net.Clients.Api
                 return url;
             }
         }
-        public static class FungibleToken
+        public static class FT
         {
             public static string GetFungibleTokenActions(string baseUrl, FTActionRequestParameters requestParams = null)
             {
@@ -673,7 +673,7 @@ namespace CSPR.Cloud.Net.Clients.Api
                 return url;
             }
         }
-        public static class NonFungibleToken
+        public static class NFT
         {
             public static string GetNonFungibleToken(string baseUrl, string contractPackageHash, string tokenId, NFTRequestParameters requestParams = null)
             {
@@ -865,6 +865,10 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
+        }
+        public static class Rate
+        {
+
         }
     }
 }
