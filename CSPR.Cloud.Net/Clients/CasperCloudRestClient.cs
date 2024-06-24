@@ -272,6 +272,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
             }
+            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
+            }
         }
         public class TestnetEndpoint
         {
@@ -454,6 +458,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
             }
         }
 
@@ -699,6 +707,11 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTOwnership(_baseUrl, contractPackageHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenOwnershipData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.NonFungibleToken.GetAccountNFTOwnership(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenOwnershipData>>(endpoint);
             }
 

@@ -63,6 +63,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackageNFTActions { get; } = "/contract-packages/{0}/nft-token-actions";
             public static string GetNFTTokenActionTypes { get; } = "/nft-token-action-types";
             public static string GetContractPackageNFTOwnership { get; } = "/contract-packages/{0}/nft-token-ownership";
+            public static string GetAccountNFTOwnership { get; } = "/accounts/{0}/nft-token-ownership";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -821,6 +822,29 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackageNFTOwnership(string baseUrl, string contractPackageHash, NFTContractPackageOwnershipRequestParameters requestParams = null)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetContractPackageNFTOwnership, contractPackageHash);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetAccountNFTOwnership(string baseUrl, string accountIdentifier, NFTAccountOwnershipRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountNFTOwnership, accountIdentifier);
                 if (requestParams != null)
                 {
                     var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
