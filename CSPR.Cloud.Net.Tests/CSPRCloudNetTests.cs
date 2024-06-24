@@ -1795,14 +1795,14 @@ namespace CSPR.Cloud.Net.Tests
         public async Task GetNftStandardAsync_ReturnsExpectedData()
         {
             var result = await _restClient.Testnet.GetNFTStandardsAsync();
-            Assert.True(result != null);
+            Assert.True(result.Data.Count > 0);
         }
         // Get off-chain NFT metadata statuses Tests
         [Fact]
         public async Task GetOffChainNftMetadataStatusesAsync_ReturnsExpectedData()
         {
             var result = await _restClient.Testnet.GetOffchainNFTMetadataStatusesAsync();
-            Assert.True(result != null);
+            Assert.True(result.Data.Count > 0);
         }
         // Get contract package NFT actions for a token Tests
         [Fact]
@@ -2043,6 +2043,13 @@ namespace CSPR.Cloud.Net.Tests
                 value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
                 value.BlockHeight <= ulong.Parse(parameters.FilterParameters.ToBlockHeight));
 
+        }
+        // Get NFT action types Tests
+        [Fact]
+        public async Task GetNftActionTypesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetNFTActionTypesAsync();
+            Assert.True(result.Data.Count > 0);
         }
 
 

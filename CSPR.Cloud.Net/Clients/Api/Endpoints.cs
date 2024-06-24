@@ -61,6 +61,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackageNFTActionsForAToken { get; } = "/contract-packages/{0}/nft-tokens/{1}/nft-token-actions";
             public static string GetAccountNFTActions { get; } = "/accounts/{0}/nft-token-actions";
             public static string GetContractPackageNFTActions { get; } = "/contract-packages/{0}/nft-token-actions";
+            public static string GetNFTTokenActionTypes { get; } = "/nft-token-action-types";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -809,6 +810,11 @@ namespace CSPR.Cloud.Net.Clients.Api
                         url = $"{url}?{queryString}";
                     }
                 }
+                return url;
+            }
+            public static string GetNFTActionTypes(string baseUrl)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetNFTTokenActionTypes}";
                 return url;
             }
         }

@@ -244,11 +244,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTs(Endpoints.BaseUrls.Testnet, contractPackageHash, parameters);
                 return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
             }
-            public Task<List<NFTStandardData>> GetNFTStandardsAsync()
+            public Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
             {
                 return _commonEndpoint.GetNFTStandardsAsync();
             }
-            public Task<List<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
+            public Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
             {
                 return _commonEndpoint.GetOffchainNFTMetadataStatusesAsync();
             }
@@ -263,6 +263,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTActionsAsync(contractPackageHash, parameters);
+            }
+            public Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
+            {
+                return _commonEndpoint.GetNFTActionTypesAsync();
             }
         }
         public class TestnetEndpoint
@@ -419,11 +423,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTs(Endpoints.BaseUrls.Testnet, contractPackageHash, parameters);
                 return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
             }
-            public Task<List<NFTStandardData>> GetNFTStandardsAsync()
+            public Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
             {
                 return _commonEndpoint.GetNFTStandardsAsync();
             }
-            public Task<List<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
+            public Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
             {
                 return _commonEndpoint.GetOffchainNFTMetadataStatusesAsync();
             }
@@ -438,6 +442,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTActionsAsync(contractPackageHash, parameters);
+            }
+            public Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
+            {
+                return _commonEndpoint.GetNFTActionTypesAsync();
             }
         }
 
@@ -650,15 +658,15 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTs(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenData>>(endpoint);
             }
-            public async Task<List<NFTStandardData>> GetNFTStandardsAsync()
+            public async Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
             {
                 string endpoint = Endpoints.NonFungibleToken.GetNFTStandards(_baseUrl);
-                return await _casperCloudRestClient.GetDataAsync<List<NFTStandardData>>(endpoint);
+                return await _casperCloudRestClient.GetDataAsync<ListResponse<NFTStandardData>>(endpoint);
             }
-            public async Task<List<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
+            public async Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
             {
                 string endpoint = Endpoints.NonFungibleToken.GetOffchainNFTMetadataStatuses(_baseUrl);
-                return await _casperCloudRestClient.GetDataAsync<List<NFTMetadataStatusData>>(endpoint);
+                return await _casperCloudRestClient.GetDataAsync<ListResponse<NFTMetadataStatusData>>(endpoint);
             }
             public async Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
             {
@@ -674,6 +682,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTActions(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenActionData>>(endpoint);
+            }
+            public async Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
+            {
+                string endpoint = Endpoints.NonFungibleToken.GetNFTActionTypes(_baseUrl);
+                return await _casperCloudRestClient.GetDataAsync<ListResponse<NFTActionTypesData>>(endpoint);
             }
 
 
