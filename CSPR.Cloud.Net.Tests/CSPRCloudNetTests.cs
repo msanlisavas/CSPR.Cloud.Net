@@ -2314,6 +2314,62 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[7].Created >= result.Data[8].Created);
             Assert.True(result.Data[8].Created >= result.Data[9].Created);
         }
+        // Get a paginated list of currencies Tests
+        [Fact]
+        public async Task GetCurrenciesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetCurrenciesAsync();
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetCurrenciesAsync_WithDESCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new RateCurrenciesRequestParameters
+            {
+                PageSize = 200,
+                SortingParameters = new RateCurrenciesSortingParameters
+                {
+                    OrderById = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.GetCurrenciesAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Id >= result.Data[1].Id);
+            Assert.True(result.Data[1].Id >= result.Data[2].Id);
+            Assert.True(result.Data[2].Id >= result.Data[3].Id);
+            Assert.True(result.Data[3].Id >= result.Data[4].Id);
+            Assert.True(result.Data[4].Id >= result.Data[5].Id);
+            Assert.True(result.Data[5].Id >= result.Data[6].Id);
+            Assert.True(result.Data[6].Id >= result.Data[7].Id);
+            Assert.True(result.Data[7].Id >= result.Data[8].Id);
+            Assert.True(result.Data[8].Id >= result.Data[9].Id);
+        }
+        [Fact]
+        public async Task GetCurrenciesAsync_WithASCOrdering_ReturnsExpectedData()
+        {
+            var parameters = new RateCurrenciesRequestParameters
+            {
+                PageSize = 200,
+                SortingParameters = new RateCurrenciesSortingParameters
+                {
+                    OrderById = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.GetCurrenciesAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Id <= result.Data[1].Id);
+            Assert.True(result.Data[1].Id <= result.Data[2].Id);
+            Assert.True(result.Data[2].Id <= result.Data[3].Id);
+            Assert.True(result.Data[3].Id <= result.Data[4].Id);
+            Assert.True(result.Data[4].Id <= result.Data[5].Id);
+            Assert.True(result.Data[5].Id <= result.Data[6].Id);
+            Assert.True(result.Data[6].Id <= result.Data[7].Id);
+            Assert.True(result.Data[7].Id <= result.Data[8].Id);
+            Assert.True(result.Data[8].Id <= result.Data[9].Id);
+
+        }
 
 
 

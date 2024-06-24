@@ -285,6 +285,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
             }
+            public Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetCurrenciesAsync(parameters);
+            }
         }
         public class TestnetEndpoint
         {
@@ -478,6 +482,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
+            }
+            public Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetCurrenciesAsync(parameters);
             }
         }
 
@@ -740,7 +748,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Rate.GetHistoricalCurrencyRates(_baseUrl, currencyId, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RateData>>(endpoint);
             }
-
+            public async Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Rate.GetCurrencies(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<CurrencyData>>(endpoint);
+            }
 
         }
 

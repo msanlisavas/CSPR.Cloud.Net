@@ -67,6 +67,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountNFTOwnership { get; } = "/accounts/{0}/nft-token-ownership";
             public static string GetCurrentCurrencyRate { get; } = "/rates/{0}/amount";
             public static string GetHistoricalCurrencyRates { get; } = "/currencies/{0}/rates";
+            public static string GetCurrencies { get; } = "/currencies";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -897,6 +898,25 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
 
+            }
+            public static string GetCurrencies(string baseUrl, RateCurrenciesRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetCurrencies}";
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
             }
         }
     }
