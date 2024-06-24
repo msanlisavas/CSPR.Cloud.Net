@@ -1816,9 +1816,9 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractPackageNftActionsAsync_WithOptionalParameters_ReturnsExpectedData()
         {
-            var parameters = new NFTContractPackageActionsRequestParameters
+            var parameters = new NFTContractPackageTokenActionsRequestParameters
             {
-                OptionalParameters = new NFTContractPackageActionsOptionalParameters
+                OptionalParameters = new NFTContractPackageTokenActionsOptionalParameters
                 {
                     ContractPackage = true,
                     Deploy = true,
@@ -1839,9 +1839,9 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractPackageNftActionsAsync_WithAscendingSortingParameters_ReturnsExpectedData()
         {
-            var parameters = new NFTContractPackageActionsRequestParameters
+            var parameters = new NFTContractPackageTokenActionsRequestParameters
             {
-                SortingParameters = new NFTContractPackageActionsSortingParameters
+                SortingParameters = new NFTContractPackageTokenActionsSortingParameters
                 {
                     OrderByTimestamp = true,
                     SortType = SortType.Ascending
@@ -1856,9 +1856,9 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractPackageNftActionsAsync_WithDescendingSortingParameters_ReturnsExpectedData()
         {
-            var parameters = new NFTContractPackageActionsRequestParameters
+            var parameters = new NFTContractPackageTokenActionsRequestParameters
             {
-                SortingParameters = new NFTContractPackageActionsSortingParameters
+                SortingParameters = new NFTContractPackageTokenActionsSortingParameters
                 {
                     OrderByTimestamp = true,
                     SortType = SortType.Descending
@@ -1951,7 +1951,87 @@ namespace CSPR.Cloud.Net.Tests
                 value.BlockHeight <= ulong.Parse(parameters.FilterParameters.ToBlockHeight));
 
         }
+        // Get contract package NFT actions by its hash Tests
+        [Fact]
+        public async Task GetContractPackageNftActionsByHashAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetContractPackageNftActionsByHashAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageActionsRequestParameters
+            {
+                OptionalParameters = new NFTContractPackageActionsOptionalParameters
+                {
+                    ContractPackage = true,
+                    Deploy = true,
+                    FromPublicKey = true,
+                    ToPublicKey = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Deploy != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.FromPublicKey));
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.ToPublicKey));
 
+        }
+        [Fact]
+        public async Task GetContractPackageNftActionsByHashAsync_WithAscendingSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageActionsRequestParameters
+            {
+                SortingParameters = new NFTContractPackageActionsSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+        }
+        [Fact]
+        public async Task GetContractPackageNftActionsByHashAsync_WithDescendingSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageActionsRequestParameters
+            {
+                SortingParameters = new NFTContractPackageActionsSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                },
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+        }
+        [Fact]
+        public async Task GetContractPackageNftActionsByHashAsync_WithFromBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageActionsRequestParameters
+            {
+                FilterParameters = new NFTContractPackageActionsFilterParameters
+                {
+                    FromBlockHeight = "487957",
+                    ToBlockHeight = "488669"
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value =>
+                value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
+                value.BlockHeight <= ulong.Parse(parameters.FilterParameters.ToBlockHeight));
+
+        }
 
 
 
