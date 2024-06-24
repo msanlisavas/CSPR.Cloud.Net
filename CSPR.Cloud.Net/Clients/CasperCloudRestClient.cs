@@ -268,6 +268,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetNFTActionTypesAsync();
             }
+            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
+            }
         }
         public class TestnetEndpoint
         {
@@ -446,6 +450,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
             {
                 return _commonEndpoint.GetNFTActionTypesAsync();
+            }
+            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
             }
         }
 
@@ -687,6 +695,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.NonFungibleToken.GetNFTActionTypes(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<ListResponse<NFTActionTypesData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.NonFungibleToken.GetContractPackageNFTOwnership(_baseUrl, contractPackageHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenOwnershipData>>(endpoint);
             }
 
 

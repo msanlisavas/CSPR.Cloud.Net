@@ -64,6 +64,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testAccountHashWithAlotOfNfts = "0188ed5156681e57c66d2f3f5baa38126607774a6cba86369fa89970426242413a";
         private readonly string _testContractPackageNFT = "5341882bae97a7368cdb007faa9f25735d2780d601114f82907fd83af2e9f508";
         private readonly string _testAccountPublicKeyWithNFT = "0131561311ded2e4c2bbb6d2497e231ae554afc86e7b6b9a083a84330830b8cfc5";
+        private readonly string _testNFTOwnerHash = "2554a43ce4c90967adf811ca022526a3eab70ab4928bff3a81327e406092cdbc";
 
 
         public CSPRCloudNetTests()
@@ -2051,6 +2052,95 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.GetNFTActionTypesAsync();
             Assert.True(result.Data.Count > 0);
         }
+        // Get contract package NFT ownerships Tests
+        [Fact]
+        public async Task GetContractPackageNftOwnershipsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetContractPackageNftOwnershipsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageOwnershipRequestParameters
+            {
+                OptionalParameters = new NFTContractPackageOwnershipOptionalParameters
+                {
+                    OwnerPublicKey = true,
+                    ContractPackage = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.OwnerPublicKey));
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+
+        }
+        [Fact]
+        public async Task GetContractPackageNftOwnershipsAsync_WithOwnerHashFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageOwnershipRequestParameters
+            {
+                FilterParameters = new NFTContractPackageOwnershipFilterParameters
+                {
+                    OwnerHash = _testNFTOwnerHash,
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.OwnerHash == _testNFTOwnerHash);
+
+        }
+        [Fact]
+        public async Task GetContractPackageNftOwnershipsAsync_WithDESCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageOwnershipRequestParameters
+            {
+                SortingParameters = new NFTContractPackageOwnershipSortingParameters
+                {
+                    OrderByTokensNumber = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].TokensNumber >= result.Data[1].TokensNumber);
+            Assert.True(result.Data[1].TokensNumber >= result.Data[2].TokensNumber);
+            Assert.True(result.Data[2].TokensNumber >= result.Data[3].TokensNumber);
+            Assert.True(result.Data[3].TokensNumber >= result.Data[4].TokensNumber);
+            Assert.True(result.Data[4].TokensNumber >= result.Data[5].TokensNumber);
+            Assert.True(result.Data[5].TokensNumber >= result.Data[6].TokensNumber);
+            Assert.True(result.Data[6].TokensNumber >= result.Data[7].TokensNumber);
+            Assert.True(result.Data[7].TokensNumber >= result.Data[8].TokensNumber);
+            Assert.True(result.Data[8].TokensNumber >= result.Data[9].TokensNumber);
+
+        }
+        [Fact]
+        public async Task GetContractPackageNftOwnershipsAsync_WithASCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTContractPackageOwnershipRequestParameters
+            {
+                SortingParameters = new NFTContractPackageOwnershipSortingParameters
+                {
+                    OrderByTokensNumber = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].TokensNumber <= result.Data[1].TokensNumber);
+            Assert.True(result.Data[1].TokensNumber <= result.Data[2].TokensNumber);
+            Assert.True(result.Data[2].TokensNumber <= result.Data[3].TokensNumber);
+            Assert.True(result.Data[3].TokensNumber <= result.Data[4].TokensNumber);
+            Assert.True(result.Data[4].TokensNumber <= result.Data[5].TokensNumber);
+            Assert.True(result.Data[5].TokensNumber <= result.Data[6].TokensNumber);
+            Assert.True(result.Data[6].TokensNumber <= result.Data[7].TokensNumber);
+            Assert.True(result.Data[7].TokensNumber <= result.Data[8].TokensNumber);
+            Assert.True(result.Data[8].TokensNumber <= result.Data[9].TokensNumber);
+
+        }
+
 
 
 
