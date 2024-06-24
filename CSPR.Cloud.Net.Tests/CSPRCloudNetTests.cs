@@ -1996,6 +1996,12 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
             Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp <= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp <= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp <= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp <= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp <= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp <= result.Data[9].Timestamp);
         }
         [Fact]
         public async Task GetContractPackageNftActionsByHashAsync_WithDescendingSortingParameters_ReturnsExpectedData()
@@ -2013,6 +2019,12 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
             Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp >= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp >= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp >= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp >= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp >= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp >= result.Data[9].Timestamp);
         }
         [Fact]
         public async Task GetContractPackageNftActionsByHashAsync_WithFromBlockHeightFilterParameters_ReturnsExpectedData()
