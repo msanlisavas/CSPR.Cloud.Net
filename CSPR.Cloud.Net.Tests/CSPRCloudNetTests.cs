@@ -2227,6 +2227,16 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[6].TokensNumber <= result.Data[7].TokensNumber);
             Assert.True(result.Data[7].TokensNumber <= result.Data[8].TokensNumber);
         }
+        // Get the current CSPR rate by currency identifier Tests
+        [Fact]
+        public async Task GetCsprRateByCurrencyIdentifierAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetCurrentCurrencyRateAsync("1");
+            Assert.True(result.Data != null);
+            Assert.True(result.Data.CurrencyId == 1);
+            Assert.True(result.Data.Amount > 0); // hopefully xD
+            Assert.True(result.Data.Created > DateTime.UtcNow.AddDays(-1));
+        }
 
 
 

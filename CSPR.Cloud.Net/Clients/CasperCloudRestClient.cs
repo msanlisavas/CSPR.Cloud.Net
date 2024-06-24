@@ -12,6 +12,7 @@ using CSPR.Cloud.Net.Objects.Delegate;
 using CSPR.Cloud.Net.Objects.Deploy;
 using CSPR.Cloud.Net.Objects.Ft;
 using CSPR.Cloud.Net.Objects.Nft;
+using CSPR.Cloud.Net.Objects.Rate;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -275,6 +276,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
             }
+            public Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
+            {
+                return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
+            }
         }
         public class TestnetEndpoint
         {
@@ -460,6 +465,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
+            }
+            public Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
+            {
+                return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
             }
         }
 
@@ -711,6 +720,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.NFT.GetAccountNFTOwnership(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenOwnershipData>>(endpoint);
+            }
+            public async Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
+            {
+                string endpoint = Endpoints.Rate.GetCurrentCurrencyRate(_baseUrl, currencyId);
+                return await _casperCloudRestClient.GetDataAsync<Response<RateData>>(endpoint);
             }
 
 

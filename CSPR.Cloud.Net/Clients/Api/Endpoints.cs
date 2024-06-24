@@ -64,6 +64,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetNFTTokenActionTypes { get; } = "/nft-token-action-types";
             public static string GetContractPackageNFTOwnership { get; } = "/contract-packages/{0}/nft-token-ownership";
             public static string GetAccountNFTOwnership { get; } = "/accounts/{0}/nft-token-ownership";
+            public static string GetCurrentCurrencyRate { get; } = "/rates/{0}/amount";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -868,7 +869,11 @@ namespace CSPR.Cloud.Net.Clients.Api
         }
         public static class Rate
         {
-
+            public static string GetCurrentCurrencyRate(string baseUrl, string currencyId)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetCurrentCurrencyRate, currencyId);
+                return url;
+            }
         }
     }
 }
