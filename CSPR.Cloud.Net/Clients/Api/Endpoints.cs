@@ -59,6 +59,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetNFTStandards { get; } = "/nft-token-standards";
             public static string GetOffchainNFTMetadataStatuses { get; } = "/nft-token-offchain-metadata-statuses";
             public static string GetContractPackageNFTActionsForAToken { get; } = "/contract-packages/{0}/nft-tokens/{1}/nft-token-actions";
+            public static string GetAccountNFTActions { get; } = "/accounts/{0}/nft-token-actions";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -747,6 +748,27 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackageActionsForAToken(string baseUrl, string contractPackageHash, string tokenId, NFTContractPackageActionsRequestParameters requestParams = null)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetContractPackageNFTActionsForAToken, contractPackageHash, tokenId);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetAccountNFTActions(string baseUrl, string accountIdentifier, NFTAccountActionsRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountNFTActions, accountIdentifier);
                 if (requestParams != null)
                 {
                     var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);

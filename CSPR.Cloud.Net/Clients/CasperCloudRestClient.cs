@@ -256,6 +256,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetContractPackageNFTActionsForATokenAsync(contractPackageHash, tokenId, parameters);
             }
+            public Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountNFTActionsAsync(accountIdentifier, parameters);
+            }
         }
         public class TestnetEndpoint
         {
@@ -422,6 +426,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageActionsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTActionsForATokenAsync(contractPackageHash, tokenId, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountNFTActionsAsync(accountIdentifier, parameters);
             }
         }
 
@@ -647,6 +655,11 @@ namespace CSPR.Cloud.Net.Clients
             public async Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageActionsRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NonFungibleToken.GetContractPackageActionsForAToken(_baseUrl, contractPackageHash, tokenId, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenActionData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.NonFungibleToken.GetAccountNFTActions(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenActionData>>(endpoint);
             }
 

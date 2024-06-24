@@ -63,6 +63,8 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testAccountHashWithNft = "9c36101703214b13bc355dfb2fc7cfba0b553c780d7407943dfaadd8fb69de66";
         private readonly string _testAccountHashWithAlotOfNfts = "0188ed5156681e57c66d2f3f5baa38126607774a6cba86369fa89970426242413a";
         private readonly string _testContractPackageNFT = "5341882bae97a7368cdb007faa9f25735d2780d601114f82907fd83af2e9f508";
+        private readonly string _testAccountPublicKeyWithNFT = "0131561311ded2e4c2bbb6d2497e231ae554afc86e7b6b9a083a84330830b8cfc5";
+
 
         public CSPRCloudNetTests()
         {
@@ -1868,6 +1870,88 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
             Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
         }
+        // Get account NFT actions by its identifier (public key or account hash) Tests
+        [Fact]
+        public async Task GetAccountNftActionsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountHashWithNft);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetAccountNftActionsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountActionsRequestParameters
+            {
+                OptionalParameters = new NFTAccountActionsOptionalParameters
+                {
+                    ContractPackage = true,
+                    Deploy = true,
+                    FromPublicKey = true,
+                    ToPublicKey = true
+                },
+                PageSize = 200
+            };
+            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.Deploy != null);
+            Assert.Contains(result.Data, value => value.ContractPackage != null);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.FromPublicKey));
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.ToPublicKey));
+
+        }
+        [Fact]
+        public async Task GetAccountNftActionsAsync_WithAscendingSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountActionsRequestParameters
+            {
+                SortingParameters = new NFTAccountActionsSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                },
+            };
+            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+        }
+        [Fact]
+        public async Task GetAccountNftActionsAsync_WithDescendingSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountActionsRequestParameters
+            {
+                SortingParameters = new NFTAccountActionsSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                },
+            };
+            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+        }
+        [Fact]
+        public async Task GetAccountNftActionsAsync_WithFromBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new NFTAccountActionsRequestParameters
+            {
+                FilterParameters = new NFTAccountActionsFilterParameters
+                {
+                    FromBlockHeight = "1349344",
+                    ToBlockHeight = "1349500"
+                }
+            };
+            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value =>
+                value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
+                value.BlockHeight <= ulong.Parse(parameters.FilterParameters.ToBlockHeight));
+
+        }
+
 
 
 
