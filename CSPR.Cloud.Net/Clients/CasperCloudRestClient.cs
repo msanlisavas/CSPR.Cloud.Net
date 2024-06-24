@@ -24,6 +24,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
+using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -280,6 +281,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
             }
+            public Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
+            }
         }
         public class TestnetEndpoint
         {
@@ -469,6 +474,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
             {
                 return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
+            }
+            public Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
             }
         }
 
@@ -726,7 +735,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Rate.GetCurrentCurrencyRate(_baseUrl, currencyId);
                 return await _casperCloudRestClient.GetDataAsync<Response<RateData>>(endpoint);
             }
-
+            public async Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Rate.GetHistoricalCurrencyRates(_baseUrl, currencyId, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RateData>>(endpoint);
+            }
 
 
         }

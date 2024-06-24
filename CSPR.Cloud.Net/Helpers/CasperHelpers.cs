@@ -6,6 +6,7 @@ using CSPR.Cloud.Net.Objects.Sorting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -161,6 +162,12 @@ namespace CSPR.Cloud.Net.Helpers
                     {
                         var filteringCriterion = new FilteringCriterion(fieldName);
                         filteringCriterion.Values.AddRange(values);
+                        filteringParams.Add(filteringCriterion);
+                    }
+                    else if (propValue is DateTime dateTimeValue)
+                    {
+                        var filteringCriterion = new FilteringCriterion(fieldName);
+                        filteringCriterion.Values.Add(dateTimeValue.ToString("o", CultureInfo.InvariantCulture)); // "o" is the format specifier for ISO 8601
                         filteringParams.Add(filteringCriterion);
                     }
                     // Optionally handle other types as needed

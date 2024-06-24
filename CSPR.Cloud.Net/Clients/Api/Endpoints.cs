@@ -10,6 +10,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
+using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -65,6 +66,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackageNFTOwnership { get; } = "/contract-packages/{0}/nft-token-ownership";
             public static string GetAccountNFTOwnership { get; } = "/accounts/{0}/nft-token-ownership";
             public static string GetCurrentCurrencyRate { get; } = "/rates/{0}/amount";
+            public static string GetHistoricalCurrencyRates { get; } = "/currencies/{0}/rates";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -873,6 +875,28 @@ namespace CSPR.Cloud.Net.Clients.Api
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetCurrentCurrencyRate, currencyId);
                 return url;
+            }
+            public static string GetHistoricalCurrencyRates(string baseUrl, string currencyId, RateHistoricalRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetHistoricalCurrencyRates, currencyId);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+
             }
         }
     }

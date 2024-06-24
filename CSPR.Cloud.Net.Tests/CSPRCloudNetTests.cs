@@ -10,6 +10,7 @@ using CSPR.Cloud.Net.Parameters.Filtering.Contract;
 using CSPR.Cloud.Net.Parameters.Filtering.Deploy;
 using CSPR.Cloud.Net.Parameters.Filtering.Ft;
 using CSPR.Cloud.Net.Parameters.Filtering.Nft;
+using CSPR.Cloud.Net.Parameters.Filtering.Rate;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
@@ -26,6 +27,7 @@ using CSPR.Cloud.Net.Parameters.Sorting.Delegate;
 using CSPR.Cloud.Net.Parameters.Sorting.Deploy;
 using CSPR.Cloud.Net.Parameters.Sorting.Ft;
 using CSPR.Cloud.Net.Parameters.Sorting.Nft;
+using CSPR.Cloud.Net.Parameters.Sorting.Rate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
@@ -35,6 +37,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Delegate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
+using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
 using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
@@ -2236,6 +2239,80 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data.CurrencyId == 1);
             Assert.True(result.Data.Amount > 0); // hopefully xD
             Assert.True(result.Data.Created > DateTime.UtcNow.AddDays(-1));
+        }
+        // Get a paginated list of historical currency rates for the given time range Tests
+        [Fact]
+        public async Task GetHistoricalCurrencyRatesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1");
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].CurrencyId == 1);
+            Assert.True(result.Data[0].Amount > 0); // hopefully xD
+            Assert.True(result.Data[0].Created > DateTime.UtcNow.AddDays(-1));
+        }
+        [Fact]
+        public async Task GetHistoricalCurrencyRatesAsync_WithQueryParameters_ReturnsExpectedData()
+        {
+            var parameters = new RateHistoricalRequestParameters
+            {
+                PageSize = 200,
+                FilterParameters = new RateHistoricalFilterParameters
+                {
+                    From = DateTime.UtcNow.AddMinutes(-10),
+                    To = DateTime.UtcNow
+                }
+            };
+            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.CurrencyId == 1);
+            Assert.Contains(result.Data, value => value.Created >= parameters.FilterParameters.To && value.Created <= parameters.FilterParameters.From);
+
+        }
+        [Fact]
+        public async Task GetHistoricalCurrencyRatesAsync_WithASCOrdering_ReturnsExpectedData()
+        {
+            var parameters = new RateHistoricalRequestParameters
+            {
+                SortingParameters = new RateHistoricalSortingParameters
+                {
+                    OrderByCreated = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Created <= result.Data[1].Created);
+            Assert.True(result.Data[1].Created <= result.Data[2].Created);
+            Assert.True(result.Data[2].Created <= result.Data[3].Created);
+            Assert.True(result.Data[3].Created <= result.Data[4].Created);
+            Assert.True(result.Data[4].Created <= result.Data[5].Created);
+            Assert.True(result.Data[5].Created <= result.Data[6].Created);
+            Assert.True(result.Data[6].Created <= result.Data[7].Created);
+            Assert.True(result.Data[7].Created <= result.Data[8].Created);
+            Assert.True(result.Data[8].Created <= result.Data[9].Created);
+        }
+        [Fact]
+        public async Task GetHistoricalCurrencyRatesAsync_WithDESCOrdering_ReturnsExpectedData()
+        {
+            var parameters = new RateHistoricalRequestParameters
+            {
+                SortingParameters = new RateHistoricalSortingParameters
+                {
+                    OrderByCreated = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Created >= result.Data[1].Created);
+            Assert.True(result.Data[1].Created >= result.Data[2].Created);
+            Assert.True(result.Data[2].Created >= result.Data[3].Created);
+            Assert.True(result.Data[3].Created >= result.Data[4].Created);
+            Assert.True(result.Data[4].Created >= result.Data[5].Created);
+            Assert.True(result.Data[5].Created >= result.Data[6].Created);
+            Assert.True(result.Data[6].Created >= result.Data[7].Created);
+            Assert.True(result.Data[7].Created >= result.Data[8].Created);
+            Assert.True(result.Data[8].Created >= result.Data[9].Created);
         }
 
 
