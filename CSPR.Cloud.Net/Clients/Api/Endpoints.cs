@@ -79,6 +79,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetHistoricalValidatorAveragePerformance { get; } = "/validators/{0}/relative-average-performances";
             public static string GetHistoricalValidatorsAveragePerformance { get; } = "/relative-average-validator-performances";
             public static string GetValidatorRewards { get; } = "/validators/{0}/rewards";
+            public static string GetValidatorTotalRewards { get; } = "/validators/{0}/total-rewards";
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
         {
@@ -1110,6 +1111,11 @@ namespace CSPR.Cloud.Net.Clients.Api
                         url = $"{url}?{queryString}";
                     }
                 }
+                return url;
+            }
+            public static string GetValidatorTotalRewards(string baseUrl, string publicKey)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetValidatorTotalRewards, publicKey);
                 return url;
             }
 

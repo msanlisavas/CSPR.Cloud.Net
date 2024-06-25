@@ -3597,6 +3597,15 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[8].EraId >= result.Data[9].EraId);
 
         }
+        // Get the cumulative amount of rewards received by a validator Tests
+        [Fact]
+        public async Task GetValidatorCumulativeRewardsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Validator.GetValidatorTotalRewardsAsync(_test2PublicKey);
+            Assert.True(result != null);
+            Assert.True(result.Data > 0);
+
+        }
 
 
 

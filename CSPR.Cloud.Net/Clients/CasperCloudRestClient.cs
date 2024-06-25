@@ -819,6 +819,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Validator.GetValidatorRewards(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorRewardData>>(endpoint);
             }
+            public async Task<Response<ulong>> GetValidatorTotalRewardsAsync(string publicKey)
+            {
+                string endpoint = Endpoints.Validator.GetValidatorTotalRewards(_baseUrl, publicKey);
+                return await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
+            }
         }
         public class Transfer
         {
@@ -868,6 +873,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<ValidatorRewardData>> GetValidatorRewardsAsync(string publicKey, ValidatorRewardsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetValidatorRewardsAsync(publicKey, parameters);
+            }
+            public Task<Response<ulong>> GetValidatorTotalRewardsAsync(string publicKey)
+            {
+                return _commonEndpoint.GetValidatorTotalRewardsAsync(publicKey);
             }
         }
 
