@@ -3639,6 +3639,15 @@ namespace CSPR.Cloud.Net.Tests
             Assert.Contains(result.Data, value => value.AccountHash == _test2AccountHash);
 
         }
+        // Get auction metrics Tests
+        [Fact]
+        public async Task GetAuctionMetricsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Auction.GetAuctionMetricsAsync();
+            Assert.True(result != null);
+            Assert.True(result.Data != null);
+
+        }
 
 
 

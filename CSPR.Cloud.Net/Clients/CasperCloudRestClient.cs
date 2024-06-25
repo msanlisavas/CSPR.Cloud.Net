@@ -4,6 +4,7 @@ using CSPR.Cloud.Net.Interfaces.Clients;
 using CSPR.Cloud.Net.Objects.Abstract;
 using CSPR.Cloud.Net.Objects.Account;
 using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.Auction;
 using CSPR.Cloud.Net.Objects.Bidder;
 using CSPR.Cloud.Net.Objects.Block;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
@@ -104,6 +105,7 @@ namespace CSPR.Cloud.Net.Clients
         {
             private readonly CommonEndpoint _commonEndpoint;
             public Account Account { get; }
+            public Auction Auction { get; }
             public Block Block { get; }
             public Bidder Bidder { get; }
             public CentralizedAccount CentralizedAccount { get; }
@@ -120,6 +122,7 @@ namespace CSPR.Cloud.Net.Clients
             {
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Testnet);
                 Account = new Account(_commonEndpoint);
+                Auction = new Auction(_commonEndpoint);
                 Block = new Block(_commonEndpoint);
                 Bidder = new Bidder(_commonEndpoint);
                 CentralizedAccount = new CentralizedAccount(_commonEndpoint);
@@ -139,6 +142,7 @@ namespace CSPR.Cloud.Net.Clients
         {
             private readonly CommonEndpoint _commonEndpoint;
             public Account Account { get; }
+            public Auction Auction { get; }
             public Block Block { get; }
             public Bidder Bidder { get; }
             public CentralizedAccount CentralizedAccount { get; }
@@ -167,6 +171,8 @@ namespace CSPR.Cloud.Net.Clients
                 Supply = new Supply(_commonEndpoint);
                 Transfer = new Transfer(_commonEndpoint);
                 Validator = new Validator(_commonEndpoint);
+                Auction = new Auction(_commonEndpoint);
+
             }
         }
 
@@ -494,6 +500,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Account.GetAccountInfos(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<AccountInfoData>>(endpoint);
             }
+            public async Task<Response<AuctionMetricsData>> GetAuctionMetricsAsync()
+            {
+                string endpoint = Endpoints.Auction.GetAuctionMetrics(_baseUrl);
+                return await _casperCloudRestClient.GetDataAsync<Response<AuctionMetricsData>>(endpoint);
+            }
         }
         public class Account
         {
@@ -518,6 +529,20 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<AccountInfoData>> GetAccountInfosAsync(AccountInfosRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountInfosAsync(parameters);
+            }
+
+        }
+        public class Auction
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Auction(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<Response<AuctionMetricsData>> GetAuctionMetricsAsync()
+            {
+                return _commonEndpoint.GetAuctionMetricsAsync();
             }
 
         }
