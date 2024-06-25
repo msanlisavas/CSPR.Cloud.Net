@@ -25,6 +25,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string Testnet { get; } = "https://api.testnet.cspr.cloud";
             public static string GetAccount { get; } = "/accounts/";
             public static string GetAccounts { get; } = "/accounts";
+            public static string GetAccountInfo { get; } = "/account-info/{0}";
             public static string GetBlock { get; } = "/blocks/";
             public static string GetBlocks { get; } = "/blocks";
             public static string GetValidatorBlocks { get; } = "/validators/{0}/blocks";
@@ -142,7 +143,11 @@ namespace CSPR.Cloud.Net.Clients.Api
 
                 return url;
             }
-
+            public static string GetAccountInfo(string baseUrl, string accountHash)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountInfo, accountHash);
+                return url;
+            }
 
 
         }
@@ -1118,6 +1123,7 @@ namespace CSPR.Cloud.Net.Clients.Api
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetValidatorTotalRewards, publicKey);
                 return url;
             }
+
 
         }
     }

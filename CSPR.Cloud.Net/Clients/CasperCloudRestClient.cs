@@ -3,6 +3,7 @@ using CSPR.Cloud.Net.Errors;
 using CSPR.Cloud.Net.Interfaces.Clients;
 using CSPR.Cloud.Net.Objects.Abstract;
 using CSPR.Cloud.Net.Objects.Account;
+using CSPR.Cloud.Net.Objects.AccountInfo;
 using CSPR.Cloud.Net.Objects.Bidder;
 using CSPR.Cloud.Net.Objects.Block;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
@@ -483,6 +484,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Validator.GetValidatorTotalRewards(_baseUrl, publicKey);
                 return await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
             }
+            public async Task<Response<AccountInfoData>> GetAccountInfo(string accountHash)
+            {
+                string endpoint = Endpoints.Account.GetAccountInfo(_baseUrl, accountHash);
+                return await _casperCloudRestClient.GetDataAsync<Response<AccountInfoData>>(endpoint);
+            }
         }
         public class Account
         {
@@ -499,6 +505,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountsAsync(parameters);
+            }
+            public Task<Response<AccountInfoData>> GetAccountInfo(string accountHash)
+            {
+                return _commonEndpoint.GetAccountInfo(accountHash);
             }
 
         }
