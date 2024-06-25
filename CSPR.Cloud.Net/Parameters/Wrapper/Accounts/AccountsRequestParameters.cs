@@ -8,13 +8,13 @@ namespace CSPR.Cloud.Net.Parameters.Wrapper.Accounts
 {
     public class AccountsRequestParameters : Paginated
     {
-        public AccountsSortingParameters Sorting { get; set; }
+        public AccountsSortingParameters SortingParameters { get; set; }
         public AccountsOptionalParameters OptionalParameters { get; set; }
         public AccountsFilterParameters QueryParameters { get; set; }
 
         public AccountsRequestParameters()
         {
-            Sorting = new AccountsSortingParameters();
+            SortingParameters = new AccountsSortingParameters();
             OptionalParameters = new AccountsOptionalParameters();
             QueryParameters = new AccountsFilterParameters()
             {
