@@ -102,412 +102,71 @@ namespace CSPR.Cloud.Net.Clients
         public class MainnetEndpoint
         {
             private readonly CommonEndpoint _commonEndpoint;
+            public Account Account { get; }
+            public Block Block { get; }
+            public Bidder Bidder { get; }
+            public CentralizedAccount CentralizedAccount { get; }
+            public Contract Contract { get; }
+            public Delegate Delegate { get; }
+            public Deploy Deploy { get; }
+            public FT FT { get; }
+            public NFT NFT { get; }
+            public Rate Rate { get; }
+            public Supply Supply { get; }
             public Transfer Transfer { get; }
             public Validator Validator { get; }
             public MainnetEndpoint(CasperCloudRestClient casperCloudRestClient)
             {
-                _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Mainnet);
+                _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Testnet);
+                Account = new Account(_commonEndpoint);
+                Block = new Block(_commonEndpoint);
+                Bidder = new Bidder(_commonEndpoint);
+                CentralizedAccount = new CentralizedAccount(_commonEndpoint);
+                Contract = new Contract(_commonEndpoint);
+                Delegate = new Delegate(_commonEndpoint);
+                Deploy = new Deploy(_commonEndpoint);
+                FT = new FT(_commonEndpoint);
+                NFT = new NFT(_commonEndpoint);
+                Rate = new Rate(_commonEndpoint);
+                Supply = new Supply(_commonEndpoint);
                 Transfer = new Transfer(_commonEndpoint);
                 Validator = new Validator(_commonEndpoint);
             }
-            public Task<AccountData> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters)
-            {
-                return _commonEndpoint.GetAccountAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters)
-            {
-                return _commonEndpoint.GetAccountsAsync(parameters);
-            }
-            public Task<BlockData> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
-            {
-                return _commonEndpoint.GetBlockAsync(blockHash, parameters);
-            }
-            public Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetBlocksAsync(parameters);
-            }
-            public Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
-            }
-            public Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
-            {
-                return _commonEndpoint.GetBidderAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
-            {
-                return _commonEndpoint.GetBiddersAsync(parameters);
-            }
-            public Task<CentralizedAccountInfoData> GetCentralizedAccountInfoAsync(string accountHash)
-            {
-                return _commonEndpoint.GetCentralizedAccountInfoAsync(accountHash);
-            }
-            public Task<PaginatedResponse<CentralizedAccountInfoData>> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
-            {
-                return _commonEndpoint.GetCentralizedAccountInfosAsync(parameters);
-            }
-            public Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractAsync(contractHash, parameters);
-            }
-            public Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractsAsync(parameters);
-            }
-            public Task<PaginatedResponse<ContractData>> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractsByContractPackageAsync(contractPackageHash, parameters);
-            }
-            public Task<List<ContractTypeData>> GetContractTypesAsync()
-            {
-                return _commonEndpoint.GetContractTypesAsync();
-            }
-            public Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
-            {
-                return _commonEndpoint.GetContractEntryPointsAsync(contractHash);
-            }
-            public Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
-            {
-                return _commonEndpoint.GetContractEntryPointCostsAsync(contractHash, entryPointName);
-            }
-            public Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
-            {
-                return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
-            }
-            public Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackagesAsync(parameters);
-            }
-            public Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetValidatorDelegationsAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DelegatorRewardData>> GetAccountDelegatorRewardsAsync(string publicKey, AccountDelegatorRewardRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountDelegatorRewardsAsync(publicKey, parameters);
-            }
-            public Task<ulong> GetTotalAccountDelegationRewards(string publicKey)
-            {
-                return _commonEndpoint.GetTotalAccountDelegationRewards(publicKey);
-            }
-            public Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
-            {
-                return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
-            }
-            public Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetDeployAsync(deployHash, parameters);
-            }
-            public Task<PaginatedResponse<DeployData>> GetDeploysAsync(DeploysRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetDeploysAsync(parameters);
-            }
-            public Task<PaginatedResponse<DeployData>> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountDeploysAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetBlockDeploysAsync(blockIdentifier, parameters);
-            }
-            public Task<Response<List<DeployExecutionTypesData>>> GetDeployExecutionTypesAsync()
-            {
-                return _commonEndpoint.GetDeployExecutionTypesAsync();
-            }
-            public Task<PaginatedResponse<FTTokenActionData>> GetFungibleTokenActionsAsync(FTActionRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetFungibleTokenActionsAsync(parameters);
-            }
-            public Task<PaginatedResponse<FTTokenActionData>> GetAccountFungibleTokenActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountFungibleTokenActionsAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
-            }
-            public Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash)
-            {
-                return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash);
-            }
-            public Task<Response<NFTTokenData>> GetNonFungibleTokenAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetNFTAsync(contractPackageHash, tokenId, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenData>> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountNFTsAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
-            }
-            public Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
-            {
-                return _commonEndpoint.GetNFTStandardsAsync();
-            }
-            public Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
-            {
-                return _commonEndpoint.GetOffchainNFTMetadataStatusesAsync();
-            }
-            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTActionsForATokenAsync(contractPackageHash, tokenId, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountNFTActionsAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTActionsAsync(contractPackageHash, parameters);
-            }
-            public Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
-            {
-                return _commonEndpoint.GetNFTActionTypesAsync();
-            }
-            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
-            }
-            public Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
-            {
-                return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
-            }
-            public Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
-            }
-            public Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetCurrenciesAsync(parameters);
-            }
-            public Task<Response<SupplyData>> GetSupplyAsync()
-            {
-                return _commonEndpoint.GetSupplyAsync();
-            }
+
         }
         public class TestnetEndpoint
         {
             private readonly CommonEndpoint _commonEndpoint;
+            public Account Account { get; }
+            public Block Block { get; }
+            public Bidder Bidder { get; }
+            public CentralizedAccount CentralizedAccount { get; }
+            public Contract Contract { get; }
+            public Delegate Delegate { get; }
+            public Deploy Deploy { get; }
+            public FT FT { get; }
+            public NFT NFT { get; }
+            public Rate Rate { get; }
+            public Supply Supply { get; }
             public Transfer Transfer { get; }
             public Validator Validator { get; }
             public TestnetEndpoint(CasperCloudRestClient casperCloudRestClient)
             {
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Testnet);
+                Account = new Account(_commonEndpoint);
+                Block = new Block(_commonEndpoint);
+                Bidder = new Bidder(_commonEndpoint);
+                CentralizedAccount = new CentralizedAccount(_commonEndpoint);
+                Contract = new Contract(_commonEndpoint);
+                Delegate = new Delegate(_commonEndpoint);
+                Deploy = new Deploy(_commonEndpoint);
+                FT = new FT(_commonEndpoint);
+                NFT = new NFT(_commonEndpoint);
+                Rate = new Rate(_commonEndpoint);
+                Supply = new Supply(_commonEndpoint);
                 Transfer = new Transfer(_commonEndpoint);
                 Validator = new Validator(_commonEndpoint);
             }
-
-            public Task<AccountData> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountsAsync(parameters);
-            }
-            public Task<BlockData> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
-            {
-                return _commonEndpoint.GetBlockAsync(blockHash, parameters);
-            }
-            public Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetBlocksAsync(parameters);
-            }
-            public Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
-            }
-            public Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
-            {
-                return _commonEndpoint.GetBidderAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
-            {
-                return _commonEndpoint.GetBiddersAsync(parameters);
-            }
-            public Task<CentralizedAccountInfoData> GetCentralizedAccountInfoAsync(string accountHash)
-            {
-                return _commonEndpoint.GetCentralizedAccountInfoAsync(accountHash);
-            }
-            public Task<PaginatedResponse<CentralizedAccountInfoData>> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
-            {
-                return _commonEndpoint.GetCentralizedAccountInfosAsync(parameters);
-            }
-            public Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractAsync(contractHash, parameters);
-            }
-            public Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractsAsync(parameters);
-            }
-            public Task<PaginatedResponse<ContractData>> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractsByContractPackageAsync(contractPackageHash, parameters);
-            }
-            public Task<List<ContractTypeData>> GetContractTypesAsync()
-            {
-                return _commonEndpoint.GetContractTypesAsync();
-            }
-            public Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
-            {
-                return _commonEndpoint.GetContractEntryPointsAsync(contractHash);
-            }
-            public Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
-            {
-                return _commonEndpoint.GetContractEntryPointCostsAsync(contractHash, entryPointName);
-            }
-            public Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
-            {
-                return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
-            }
-            public Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackagesAsync(parameters);
-            }
-            public Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetValidatorDelegationsAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DelegatorRewardData>> GetAccountDelegatorRewardsAsync(string publicKey, AccountDelegatorRewardRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountDelegatorRewardsAsync(publicKey, parameters);
-            }
-            public Task<ulong> GetTotalAccountDelegationRewards(string publicKey)
-            {
-                return _commonEndpoint.GetTotalAccountDelegationRewards(publicKey);
-            }
-            public Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
-            {
-                return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
-            }
-            public Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetDeployAsync(deployHash, parameters);
-            }
-            public Task<PaginatedResponse<DeployData>> GetDeploysAsync(DeploysRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetDeploysAsync(parameters);
-            }
-            public Task<PaginatedResponse<DeployData>> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountDeploysAsync(publicKey, parameters);
-            }
-            public Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetBlockDeploysAsync(blockIdentifier, parameters);
-            }
-            public Task<Response<List<DeployExecutionTypesData>>> GetDeployExecutionTypesAsync()
-            {
-                return _commonEndpoint.GetDeployExecutionTypesAsync();
-            }
-            public Task<PaginatedResponse<FTTokenActionData>> GetFungibleTokenActionsAsync(FTActionRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetFungibleTokenActionsAsync(parameters);
-            }
-            public Task<PaginatedResponse<FTTokenActionData>> GetAccountFungibleTokenActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountFungibleTokenActionsAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
-            }
-            public Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash)
-            {
-                return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash);
-            }
-            public Task<Response<NFTTokenData>> GetNonFungibleTokenAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetNFTAsync(contractPackageHash, tokenId, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenData>> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountNFTsAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
-            }
-            public Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
-            {
-                return _commonEndpoint.GetNFTStandardsAsync();
-            }
-            public Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
-            {
-                return _commonEndpoint.GetOffchainNFTMetadataStatusesAsync();
-            }
-            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTActionsForATokenAsync(contractPackageHash, tokenId, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountNFTActionsAsync(accountIdentifier, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTActionsAsync(contractPackageHash, parameters);
-            }
-            public Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
-            {
-                return _commonEndpoint.GetNFTActionTypesAsync();
-            }
-            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
-            }
-            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
-            }
-            public Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
-            {
-                return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
-            }
-            public Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
-            }
-            public Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
-            {
-                return _commonEndpoint.GetCurrenciesAsync(parameters);
-            }
-            public Task<Response<SupplyData>> GetSupplyAsync()
-            {
-                return _commonEndpoint.GetSupplyAsync();
-            }
-
         }
 
         public class CommonEndpoint
@@ -825,6 +484,300 @@ namespace CSPR.Cloud.Net.Clients
                 return await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
             }
         }
+        public class Account
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Account(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<AccountData> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountsAsync(parameters);
+            }
+
+        }
+        public class Block
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Block(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<BlockData> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
+            {
+                return _commonEndpoint.GetBlockAsync(blockHash, parameters);
+            }
+            public Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetBlocksAsync(parameters);
+            }
+            public Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
+            }
+        }
+        public class Bidder
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Bidder(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
+            {
+                return _commonEndpoint.GetBidderAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
+            {
+                return _commonEndpoint.GetBiddersAsync(parameters);
+            }
+        }
+        public class CentralizedAccount
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public CentralizedAccount(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<CentralizedAccountInfoData> GetCentralizedAccountInfoAsync(string accountHash)
+            {
+                return _commonEndpoint.GetCentralizedAccountInfoAsync(accountHash);
+            }
+            public Task<PaginatedResponse<CentralizedAccountInfoData>> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
+            {
+                return _commonEndpoint.GetCentralizedAccountInfosAsync(parameters);
+            }
+        }
+        public class Contract
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Contract(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractAsync(contractHash, parameters);
+            }
+            public Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractsAsync(parameters);
+            }
+            public Task<PaginatedResponse<ContractData>> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractsByContractPackageAsync(contractPackageHash, parameters);
+            }
+            public Task<List<ContractTypeData>> GetContractTypesAsync()
+            {
+                return _commonEndpoint.GetContractTypesAsync();
+            }
+            public Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
+            {
+                return _commonEndpoint.GetContractEntryPointsAsync(contractHash);
+            }
+            public Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
+            {
+                return _commonEndpoint.GetContractEntryPointCostsAsync(contractHash, entryPointName);
+            }
+            public Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
+            {
+                return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
+            }
+            public Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackagesAsync(parameters);
+            }
+            public Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
+            }
+        }
+        public class Delegate
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Delegate(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetValidatorDelegationsAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<DelegatorRewardData>> GetAccountDelegatorRewardsAsync(string publicKey, AccountDelegatorRewardRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountDelegatorRewardsAsync(publicKey, parameters);
+            }
+            public Task<ulong> GetTotalAccountDelegationRewards(string publicKey)
+            {
+                return _commonEndpoint.GetTotalAccountDelegationRewards(publicKey);
+            }
+            public Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
+            {
+                return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
+            }
+
+        }
+        public class Deploy
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Deploy(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetDeployAsync(deployHash, parameters);
+            }
+            public Task<PaginatedResponse<DeployData>> GetDeploysAsync(DeploysRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetDeploysAsync(parameters);
+            }
+            public Task<PaginatedResponse<DeployData>> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountDeploysAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetBlockDeploysAsync(blockIdentifier, parameters);
+            }
+            public Task<Response<List<DeployExecutionTypesData>>> GetDeployExecutionTypesAsync()
+            {
+                return _commonEndpoint.GetDeployExecutionTypesAsync();
+            }
+        }
+        public class FT
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public FT(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<PaginatedResponse<FTTokenActionData>> GetFTActionsAsync(FTActionRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetFungibleTokenActionsAsync(parameters);
+            }
+            public Task<PaginatedResponse<FTTokenActionData>> GetAccountFTActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountFungibleTokenActionsAsync(accountIdentifier, parameters);
+            }
+            public Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFTActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
+            }
+            public Task<PaginatedResponse<FTOwnershipData>> GetAccountFTOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
+            }
+            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFTOwnershipAsync(string contractPackageHash)
+            {
+                return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash);
+            }
+        }
+        public class NFT
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public NFT(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<Response<NFTTokenData>> GetNFTAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetNFTAsync(contractPackageHash, tokenId, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenData>> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountNFTsAsync(accountIdentifier, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
+            }
+            public Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
+            {
+                return _commonEndpoint.GetNFTStandardsAsync();
+            }
+            public Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
+            {
+                return _commonEndpoint.GetOffchainNFTMetadataStatusesAsync();
+            }
+            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageNFTActionsForATokenAsync(contractPackageHash, tokenId, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountNFTActionsAsync(accountIdentifier, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageNFTActionsAsync(contractPackageHash, parameters);
+            }
+            public Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
+            {
+                return _commonEndpoint.GetNFTActionTypesAsync();
+            }
+            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
+            }
+            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
+            }
+        }
+        public class Rate
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Rate(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
+            {
+                return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
+            }
+            public Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
+            }
+            public Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetCurrenciesAsync(parameters);
+            }
+        }
+        public class Supply
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Supply(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<Response<SupplyData>> GetSupplyAsync()
+            {
+                return _commonEndpoint.GetSupplyAsync();
+            }
+        }
+
         public class Transfer
         {
             private readonly CommonEndpoint _commonEndpoint;
