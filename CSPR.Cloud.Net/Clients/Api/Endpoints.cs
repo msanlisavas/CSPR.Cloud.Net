@@ -11,6 +11,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -69,6 +70,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetHistoricalCurrencyRates { get; } = "/currencies/{0}/rates";
             public static string GetCurrencies { get; } = "/currencies";
             public static string GetSupply { get; } = "/supply";
+            public static string GetAccountTransfers { get; } = "/accounts/{0}/transfers";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -925,6 +927,32 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetSupply(string baseUrl)
             {
                 var url = $"{baseUrl}{BaseUrls.GetSupply}";
+                return url;
+            }
+        }
+        public static class Transfer
+        {
+            public static string GetAccountTransfers(string baseUrl, string accountIdentifier, TransferAccountRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountTransfers, accountIdentifier);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
                 return url;
             }
         }

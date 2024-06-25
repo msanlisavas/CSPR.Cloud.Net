@@ -11,6 +11,7 @@ using CSPR.Cloud.Net.Parameters.Filtering.Deploy;
 using CSPR.Cloud.Net.Parameters.Filtering.Ft;
 using CSPR.Cloud.Net.Parameters.Filtering.Nft;
 using CSPR.Cloud.Net.Parameters.Filtering.Rate;
+using CSPR.Cloud.Net.Parameters.Filtering.Transfer;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
@@ -19,6 +20,7 @@ using CSPR.Cloud.Net.Parameters.OptionalParameters.Delegate;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Deploy;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Ft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Nft;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Transfer;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
@@ -28,6 +30,7 @@ using CSPR.Cloud.Net.Parameters.Sorting.Deploy;
 using CSPR.Cloud.Net.Parameters.Sorting.Ft;
 using CSPR.Cloud.Net.Parameters.Sorting.Nft;
 using CSPR.Cloud.Net.Parameters.Sorting.Rate;
+using CSPR.Cloud.Net.Parameters.Sorting.Transfer;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
@@ -38,6 +41,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
 using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
@@ -2381,7 +2385,125 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data.Timestamp > DateTime.UtcNow.AddDays(-1));
         }
 
+        // Get all account sent and received transfers by the account identifier (public key or account hash) Tests
+        [Fact]
+        public async Task GetAccountTransfersAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Transfer.GetAccountTransfersAsync(_testAccountHash);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetAccountTransfersAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new TransferAccountRequestParameters
+            {
+                OptionalParameters = new TransferAccountOptionalParameters
+                {
+                    ToPublicKey = true,
+                    FromPurseAccountInfo = true,
+                    FromPurseCentralizedAccountInfo = true,
+                    FromPursePublicKey = true,
+                    InitiatorPublicKey = true,
+                    Rate = 1,
+                    ToAccountInfo = true,
+                    ToCentralizedAccountInfo = true,
+                    ToPurseAccountInfo = true,
+                    ToPurseCentralizedAccountInfo = true,
+                    ToPursePublicKey = true
+                },
+                PageSize = 10
+            };
+            var result = await _restClient.Testnet.Transfer.GetAccountTransfersAsync(_testAccountHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.ToPublicKey));
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.FromPursePublicKey));
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.InitiatorPublicKey));
+            Assert.Contains(result.Data, value => value.Rate != null);
+            Assert.Contains(result.Data, value => value.ToAccountInfo != null);
+            Assert.Contains(result.Data, value => value.ToPurseAccountInfo != null);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.ToPursePublicKey));
 
+
+        }
+        [Fact]
+        public async Task GetAccountTransfersAsync_WithASCOrdering_ReturnsExpectedData()
+        {
+            var parameters = new TransferAccountRequestParameters
+            {
+                SortingParameters = new TransferAccountSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.Transfer.GetAccountTransfersAsync(_testAccountHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp <= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp <= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp <= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp <= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp <= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp <= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp <= result.Data[9].Timestamp);
+        }
+        [Fact]
+        public async Task GetAccountTransfersAsync_WithDESCOrdering_ReturnsExpectedData()
+        {
+            var parameters = new TransferAccountRequestParameters
+            {
+                SortingParameters = new TransferAccountSortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.Transfer.GetAccountTransfersAsync(_testAccountHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+            Assert.True(result.Data[2].Timestamp >= result.Data[3].Timestamp);
+            Assert.True(result.Data[3].Timestamp >= result.Data[4].Timestamp);
+            Assert.True(result.Data[4].Timestamp >= result.Data[5].Timestamp);
+            Assert.True(result.Data[5].Timestamp >= result.Data[6].Timestamp);
+            Assert.True(result.Data[6].Timestamp >= result.Data[7].Timestamp);
+            Assert.True(result.Data[7].Timestamp >= result.Data[8].Timestamp);
+            Assert.True(result.Data[8].Timestamp >= result.Data[9].Timestamp);
+        }
+        [Fact]
+        public async Task GetAccountTransfersAsync_WithFromBlockHeightFilterParameters_ReturnsExpectedData()
+        {
+            var parameters = new TransferAccountRequestParameters
+            {
+                FilterParameters = new TransferAccountFilterParameters
+                {
+                    FromBlockHeight = "2349344",
+                    ToBlockHeight = "3349500"
+                }
+            };
+            var result = await _restClient.Testnet.Transfer.GetAccountTransfersAsync(_testAccountHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value =>
+                value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
+                value.BlockHeight <= ulong.Parse(parameters.FilterParameters.ToBlockHeight));
+
+        }
+        [Fact]
+        public async Task GetAccountTransfersAsync_WithFromBlockHeightFilterParameters_ShouldntReturnData()
+        {
+            var parameters = new TransferAccountRequestParameters
+            {
+                FilterParameters = new TransferAccountFilterParameters
+                {
+                    FromBlockHeight = "1349344",
+                    ToBlockHeight = "1349500"
+                }
+            };
+            var result = await _restClient.Testnet.Transfer.GetAccountTransfersAsync(_testAccountHash, parameters);
+            Assert.True(result.ItemCount == 0);
+
+        }
 
 
 

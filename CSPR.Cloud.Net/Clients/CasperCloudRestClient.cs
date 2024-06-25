@@ -14,6 +14,7 @@ using CSPR.Cloud.Net.Objects.Ft;
 using CSPR.Cloud.Net.Objects.Nft;
 using CSPR.Cloud.Net.Objects.Rate;
 using CSPR.Cloud.Net.Objects.Supply;
+using CSPR.Cloud.Net.Objects.Transfer;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -26,6 +27,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -98,9 +100,11 @@ namespace CSPR.Cloud.Net.Clients
         public class MainnetEndpoint
         {
             private readonly CommonEndpoint _commonEndpoint;
+            public Transfer Transfer { get; }
             public MainnetEndpoint(CasperCloudRestClient casperCloudRestClient)
             {
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Mainnet);
+                Transfer = new Transfer(_commonEndpoint);
             }
             public Task<AccountData> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters)
             {
@@ -298,10 +302,11 @@ namespace CSPR.Cloud.Net.Clients
         public class TestnetEndpoint
         {
             private readonly CommonEndpoint _commonEndpoint;
-
+            public Transfer Transfer { get; }
             public TestnetEndpoint(CasperCloudRestClient casperCloudRestClient)
             {
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Testnet);
+                Transfer = new Transfer(_commonEndpoint);
             }
 
             public Task<AccountData> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters = null)
@@ -495,6 +500,20 @@ namespace CSPR.Cloud.Net.Clients
             public Task<Response<SupplyData>> GetSupplyAsync()
             {
                 return _commonEndpoint.GetSupplyAsync();
+            }
+
+        }
+        public class Transfer
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public Transfer(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+            public Task<PaginatedResponse<TransferData>> GetAccountTransfersAsync(string accountIdentifier, TransferAccountRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountTransfersAsync(accountIdentifier, parameters);
             }
         }
 
@@ -766,6 +785,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.Supply.GetSupply(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<Response<SupplyData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<TransferData>> GetAccountTransfersAsync(string accountIdentifier, TransferAccountRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Transfer.GetAccountTransfers(_baseUrl, accountIdentifier, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<TransferData>>(endpoint);
             }
 
         }
