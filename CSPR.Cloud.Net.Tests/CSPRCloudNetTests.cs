@@ -3355,6 +3355,183 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[8].EraId >= result.Data[9].EraId);
 
         }
+        // Returns a paginated list of average validators performances. The average performance is calculated as a moving average of the validator performance for the past 360 eras (approximately one month) Tests
+        [Fact]
+        public async Task GetValidatorsAveragePerformancesAsync_ReturnsExpectedData()
+        {
+
+            var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync();
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Count == 10);
+
+        }
+        [Fact]
+        public async Task GetValidatorsAveragePerformancesAsync_WithEraIds_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsHistoricalAveragePerformanceRequestParameters
+            {
+                FilterParameters = new ValidatorsHistoricalAveragePerformanceFilterParameters
+                {
+                    EraIds = new List<string>
+                {
+                    "14027",
+                    "14026",
+                    "14025",
+                    "14024",
+                    "14023",
+                    "14022",
+                    "14021",
+                    "14020",
+                    "14019",
+                    "14018"
+                },
+                },
+                PageSize = 250
+            };
+
+            var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
+
+            // Verify that the result contains data
+            Assert.NotNull(result);
+            Assert.True(result.ItemCount > 0);
+
+            // Convert the EraIds to integers
+            var eraIds = parameters.FilterParameters.EraIds.Select(int.Parse).ToHashSet();
+
+            // Verify that each item in result.Data has an EraId that is in the list of parameters.FilterParameters.EraIds
+            foreach (var item in result.Data)
+            {
+                Assert.Contains(item.EraId, eraIds);
+            }
+
+            // Verify that result.Data does not contain any EraIds outside of parameters.FilterParameters.EraIds
+            var resultEraIds = result.Data.Select(d => d.EraId).ToHashSet();
+            Assert.True(resultEraIds.All(eraId => eraIds.Contains(eraId)), "Result contains EraId(s) not in the specified list.");
+
+
+
+        }
+        [Fact]
+        public async Task GetValidatorsAveragePerformanceAsync_WithPublicKeys_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsHistoricalAveragePerformanceRequestParameters
+            {
+                FilterParameters = new ValidatorsHistoricalAveragePerformanceFilterParameters
+                {
+                    PublicKeys = new List<string>
+                    {
+                    _testPublicKey,
+                    _test2PublicKey
+                    }
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
+            Assert.NotNull(result);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.PublicKey == _testPublicKey);
+            Assert.Contains(result.Data, value => value.PublicKey == _test2PublicKey);
+        }
+        [Fact]
+        public async Task GetValidatorsAveragePerformancesAsync_WithASCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsHistoricalAveragePerformanceRequestParameters
+            {
+                SortingParameters = new ValidatorsHistoricalAveragePerformanceSortingParameters
+                {
+                    OrderByEraId = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Count == 10);
+            Assert.True(result.Data[0].EraId <= result.Data[1].EraId);
+            Assert.True(result.Data[1].EraId <= result.Data[2].EraId);
+            Assert.True(result.Data[2].EraId <= result.Data[3].EraId);
+            Assert.True(result.Data[3].EraId <= result.Data[4].EraId);
+            Assert.True(result.Data[4].EraId <= result.Data[5].EraId);
+            Assert.True(result.Data[5].EraId <= result.Data[6].EraId);
+            Assert.True(result.Data[6].EraId <= result.Data[7].EraId);
+            Assert.True(result.Data[7].EraId <= result.Data[8].EraId);
+            Assert.True(result.Data[8].EraId <= result.Data[9].EraId);
+
+        }
+        [Fact]
+        public async Task GetValidatorsAveragePerformancesAsync_WithDESCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsHistoricalAveragePerformanceRequestParameters
+            {
+                SortingParameters = new ValidatorsHistoricalAveragePerformanceSortingParameters
+                {
+                    OrderByEraId = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Count == 10);
+            Assert.True(result.Data[0].EraId >= result.Data[1].EraId);
+            Assert.True(result.Data[1].EraId >= result.Data[2].EraId);
+            Assert.True(result.Data[2].EraId >= result.Data[3].EraId);
+            Assert.True(result.Data[3].EraId >= result.Data[4].EraId);
+            Assert.True(result.Data[4].EraId >= result.Data[5].EraId);
+            Assert.True(result.Data[5].EraId >= result.Data[6].EraId);
+            Assert.True(result.Data[6].EraId >= result.Data[7].EraId);
+            Assert.True(result.Data[7].EraId >= result.Data[8].EraId);
+            Assert.True(result.Data[8].EraId >= result.Data[9].EraId);
+
+        }
+        [Fact]
+        public async Task GetValidatorsAveragePerformancesAsync_WithASCSortingParameters_OrderByPublicKeyPerformance_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsHistoricalAveragePerformanceRequestParameters
+            {
+                SortingParameters = new ValidatorsHistoricalAveragePerformanceSortingParameters
+                {
+                    OrderByPublicKeyPerformance = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Count == 10);
+            Assert.True(result.Data[0].AverageScore <= result.Data[1].AverageScore);
+            Assert.True(result.Data[1].AverageScore <= result.Data[2].AverageScore);
+            Assert.True(result.Data[2].AverageScore <= result.Data[3].AverageScore);
+            Assert.True(result.Data[3].AverageScore <= result.Data[4].AverageScore);
+            Assert.True(result.Data[4].AverageScore <= result.Data[5].AverageScore);
+            Assert.True(result.Data[5].AverageScore <= result.Data[6].AverageScore);
+            Assert.True(result.Data[6].AverageScore <= result.Data[7].AverageScore);
+            Assert.True(result.Data[7].AverageScore <= result.Data[8].AverageScore);
+            Assert.True(result.Data[8].AverageScore <= result.Data[9].AverageScore);
+
+        }
+        [Fact]
+        public async Task GetValidatorsAveragePerformancesAsync_WithDESCSortingParameters_OrderByPublicKeyPerformance_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsHistoricalAveragePerformanceRequestParameters
+            {
+                SortingParameters = new ValidatorsHistoricalAveragePerformanceSortingParameters
+                {
+                    OrderByPublicKeyPerformance = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Count == 10);
+            Assert.True(result.Data[0].AverageScore >= result.Data[1].AverageScore);
+            Assert.True(result.Data[1].AverageScore >= result.Data[2].AverageScore);
+            Assert.True(result.Data[2].AverageScore >= result.Data[3].AverageScore);
+            Assert.True(result.Data[3].AverageScore >= result.Data[4].AverageScore);
+            Assert.True(result.Data[4].AverageScore >= result.Data[5].AverageScore);
+            Assert.True(result.Data[5].AverageScore >= result.Data[6].AverageScore);
+            Assert.True(result.Data[6].AverageScore >= result.Data[7].AverageScore);
+            Assert.True(result.Data[7].AverageScore >= result.Data[8].AverageScore);
+            Assert.True(result.Data[8].AverageScore >= result.Data[9].AverageScore);
+
+        }
+
 
 
 

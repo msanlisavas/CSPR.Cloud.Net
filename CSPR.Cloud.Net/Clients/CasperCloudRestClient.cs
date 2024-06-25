@@ -809,6 +809,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Validator.GetHistoricalAverageValidatorPerformance(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorPerformanceData>>(endpoint);
             }
+            public async Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Validator.GetHistoricalAverageValidatorsPerformance(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorPerformanceData>>(endpoint);
+            }
         }
         public class Transfer
         {
@@ -850,6 +855,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorAveragePerformanceAsync(string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalValidatorAveragePerformanceAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
             }
         }
 
