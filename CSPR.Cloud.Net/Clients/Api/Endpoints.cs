@@ -74,7 +74,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountTransfers { get; } = "/accounts/{0}/transfers";
             public static string GetDeployTransfers { get; } = "/deploys/{0}/transfers";
             public static string GetValidator { get; } = "/validators/{0}";
-
+            public static string GetValidators { get; } = "/validators";
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
         {
@@ -1001,7 +1001,29 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
-
+            public static string GetValidators(string baseUrl, ValidatorsRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetValidators}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
         }
 
     }

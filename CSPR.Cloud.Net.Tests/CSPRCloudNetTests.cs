@@ -33,6 +33,7 @@ using CSPR.Cloud.Net.Parameters.Sorting.Ft;
 using CSPR.Cloud.Net.Parameters.Sorting.Nft;
 using CSPR.Cloud.Net.Parameters.Sorting.Rate;
 using CSPR.Cloud.Net.Parameters.Sorting.Transfer;
+using CSPR.Cloud.Net.Parameters.Sorting.Validator;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
 using CSPR.Cloud.Net.Parameters.Wrapper.Bidder;
 using CSPR.Cloud.Net.Parameters.Wrapper.Block;
@@ -2619,7 +2620,515 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data.AveragePerformance != null);
             Assert.True(result.Data.AccountInfo != null);
         }
+        // Get a paginated list of validators Tests
+        [Fact]
+        public async Task GetValidatorsAsync_ShouldntThrowException()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = false
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
 
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                OptionalParameters = new ValidatorsOptionalParameters
+                {
+                    AccountInfo = true,
+                    CentralizedAccountInfo = true,
+                    AveragePerformance = true,
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result contains expected data
+            Assert.Contains(result.Data, value => value.AveragePerformance != null);
+            Assert.Contains(result.Data, value => value.AccountInfo != null);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithASCOrdering_OrderByTotalStake_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByTotalStake = true,
+                    SortType = SortType.Ascending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].TotalStake <= result.Data[1].TotalStake);
+            Assert.True(result.Data[1].TotalStake <= result.Data[2].TotalStake);
+            Assert.True(result.Data[2].TotalStake <= result.Data[3].TotalStake);
+            Assert.True(result.Data[3].TotalStake <= result.Data[4].TotalStake);
+            Assert.True(result.Data[4].TotalStake <= result.Data[5].TotalStake);
+            Assert.True(result.Data[5].TotalStake <= result.Data[6].TotalStake);
+            Assert.True(result.Data[6].TotalStake <= result.Data[7].TotalStake);
+            Assert.True(result.Data[7].TotalStake <= result.Data[8].TotalStake);
+            Assert.True(result.Data[8].TotalStake <= result.Data[9].TotalStake);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithDESCOrdering_OrderByTotalStake_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByTotalStake = true,
+                    SortType = SortType.Descending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in descending order
+            Assert.True(result.Data[0].TotalStake >= result.Data[1].TotalStake);
+            Assert.True(result.Data[1].TotalStake >= result.Data[2].TotalStake);
+            Assert.True(result.Data[2].TotalStake >= result.Data[3].TotalStake);
+            Assert.True(result.Data[3].TotalStake >= result.Data[4].TotalStake);
+            Assert.True(result.Data[4].TotalStake >= result.Data[5].TotalStake);
+            Assert.True(result.Data[5].TotalStake >= result.Data[6].TotalStake);
+            Assert.True(result.Data[6].TotalStake >= result.Data[7].TotalStake);
+            Assert.True(result.Data[7].TotalStake >= result.Data[8].TotalStake);
+            Assert.True(result.Data[8].TotalStake >= result.Data[9].TotalStake);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithASCOrdering_OrderByRank_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByRank = true,
+                    SortType = SortType.Ascending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].Rank <= result.Data[1].Rank);
+            Assert.True(result.Data[1].Rank <= result.Data[2].Rank);
+            Assert.True(result.Data[2].Rank <= result.Data[3].Rank);
+            Assert.True(result.Data[3].Rank <= result.Data[4].Rank);
+            Assert.True(result.Data[4].Rank <= result.Data[5].Rank);
+            Assert.True(result.Data[5].Rank <= result.Data[6].Rank);
+            Assert.True(result.Data[6].Rank <= result.Data[7].Rank);
+            Assert.True(result.Data[7].Rank <= result.Data[8].Rank);
+            Assert.True(result.Data[8].Rank <= result.Data[9].Rank);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithDESCOrdering_OrderByRank_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByRank = true,
+                    SortType = SortType.Descending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].Rank >= result.Data[1].Rank);
+            Assert.True(result.Data[1].Rank >= result.Data[2].Rank);
+            Assert.True(result.Data[2].Rank >= result.Data[3].Rank);
+            Assert.True(result.Data[3].Rank >= result.Data[4].Rank);
+            Assert.True(result.Data[4].Rank >= result.Data[5].Rank);
+            Assert.True(result.Data[5].Rank >= result.Data[6].Rank);
+            Assert.True(result.Data[6].Rank >= result.Data[7].Rank);
+            Assert.True(result.Data[7].Rank >= result.Data[8].Rank);
+            Assert.True(result.Data[8].Rank >= result.Data[9].Rank);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithASCOrdering_OrderByFee_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByFee = true,
+                    SortType = SortType.Ascending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].Fee <= result.Data[1].Fee);
+            Assert.True(result.Data[1].Fee <= result.Data[2].Fee);
+            Assert.True(result.Data[2].Fee <= result.Data[3].Fee);
+            Assert.True(result.Data[3].Fee <= result.Data[4].Fee);
+            Assert.True(result.Data[4].Fee <= result.Data[5].Fee);
+            Assert.True(result.Data[5].Fee <= result.Data[6].Fee);
+            Assert.True(result.Data[6].Fee <= result.Data[7].Fee);
+            Assert.True(result.Data[7].Fee <= result.Data[8].Fee);
+            Assert.True(result.Data[8].Fee <= result.Data[9].Fee);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithDESCOrdering_OrderByFee_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByFee = true,
+                    SortType = SortType.Descending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].Fee >= result.Data[1].Fee);
+            Assert.True(result.Data[1].Fee >= result.Data[2].Fee);
+            Assert.True(result.Data[2].Fee >= result.Data[3].Fee);
+            Assert.True(result.Data[3].Fee >= result.Data[4].Fee);
+            Assert.True(result.Data[4].Fee >= result.Data[5].Fee);
+            Assert.True(result.Data[5].Fee >= result.Data[6].Fee);
+            Assert.True(result.Data[6].Fee >= result.Data[7].Fee);
+            Assert.True(result.Data[7].Fee >= result.Data[8].Fee);
+            Assert.True(result.Data[8].Fee >= result.Data[9].Fee);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithASCOrdering_OrderByDelegatorsNumber_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByDelegatorsNumber = true,
+                    SortType = SortType.Ascending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].DelegatorsNumber <= result.Data[1].DelegatorsNumber);
+            Assert.True(result.Data[1].DelegatorsNumber <= result.Data[2].DelegatorsNumber);
+            Assert.True(result.Data[2].DelegatorsNumber <= result.Data[3].DelegatorsNumber);
+            Assert.True(result.Data[3].DelegatorsNumber <= result.Data[4].DelegatorsNumber);
+            Assert.True(result.Data[4].DelegatorsNumber <= result.Data[5].DelegatorsNumber);
+            Assert.True(result.Data[5].DelegatorsNumber <= result.Data[6].DelegatorsNumber);
+            Assert.True(result.Data[6].DelegatorsNumber <= result.Data[7].DelegatorsNumber);
+            Assert.True(result.Data[7].DelegatorsNumber <= result.Data[8].DelegatorsNumber);
+            Assert.True(result.Data[8].DelegatorsNumber <= result.Data[9].DelegatorsNumber);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithDESCOrdering_OrderByDelegatorsNumber_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByDelegatorsNumber = true,
+                    SortType = SortType.Descending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].DelegatorsNumber >= result.Data[1].DelegatorsNumber);
+            Assert.True(result.Data[1].DelegatorsNumber >= result.Data[2].DelegatorsNumber);
+            Assert.True(result.Data[2].DelegatorsNumber >= result.Data[3].DelegatorsNumber);
+            Assert.True(result.Data[3].DelegatorsNumber >= result.Data[4].DelegatorsNumber);
+            Assert.True(result.Data[4].DelegatorsNumber >= result.Data[5].DelegatorsNumber);
+            Assert.True(result.Data[5].DelegatorsNumber >= result.Data[6].DelegatorsNumber);
+            Assert.True(result.Data[6].DelegatorsNumber >= result.Data[7].DelegatorsNumber);
+            Assert.True(result.Data[7].DelegatorsNumber >= result.Data[8].DelegatorsNumber);
+            Assert.True(result.Data[8].DelegatorsNumber >= result.Data[9].DelegatorsNumber);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithASCOrdering_OrderBySelfStake_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderBySelfStake = true,
+                    SortType = SortType.Ascending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].SelfStake <= result.Data[1].SelfStake);
+            Assert.True(result.Data[1].SelfStake <= result.Data[2].SelfStake);
+            Assert.True(result.Data[2].SelfStake <= result.Data[3].SelfStake);
+            Assert.True(result.Data[3].SelfStake <= result.Data[4].SelfStake);
+            Assert.True(result.Data[4].SelfStake <= result.Data[5].SelfStake);
+            Assert.True(result.Data[5].SelfStake <= result.Data[6].SelfStake);
+            Assert.True(result.Data[6].SelfStake <= result.Data[7].SelfStake);
+            Assert.True(result.Data[7].SelfStake <= result.Data[8].SelfStake);
+            Assert.True(result.Data[8].SelfStake <= result.Data[9].SelfStake);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithDESCOrdering_OrderBySelfStake_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderBySelfStake = true,
+                    SortType = SortType.Descending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].SelfStake >= result.Data[1].SelfStake);
+            Assert.True(result.Data[1].SelfStake >= result.Data[2].SelfStake);
+            Assert.True(result.Data[2].SelfStake >= result.Data[3].SelfStake);
+            Assert.True(result.Data[3].SelfStake >= result.Data[4].SelfStake);
+            Assert.True(result.Data[4].SelfStake >= result.Data[5].SelfStake);
+            Assert.True(result.Data[5].SelfStake >= result.Data[6].SelfStake);
+            Assert.True(result.Data[6].SelfStake >= result.Data[7].SelfStake);
+            Assert.True(result.Data[7].SelfStake >= result.Data[8].SelfStake);
+            Assert.True(result.Data[8].SelfStake >= result.Data[9].SelfStake);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithASCOrdering_OrderByNetworkShare_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByNetworkShare = true,
+                    SortType = SortType.Ascending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].NetworkShare <= result.Data[1].NetworkShare);
+            Assert.True(result.Data[1].NetworkShare <= result.Data[2].NetworkShare);
+            Assert.True(result.Data[2].NetworkShare <= result.Data[3].NetworkShare);
+            Assert.True(result.Data[3].NetworkShare <= result.Data[4].NetworkShare);
+            Assert.True(result.Data[4].NetworkShare <= result.Data[5].NetworkShare);
+            Assert.True(result.Data[5].NetworkShare <= result.Data[6].NetworkShare);
+            Assert.True(result.Data[6].NetworkShare <= result.Data[7].NetworkShare);
+            Assert.True(result.Data[7].NetworkShare <= result.Data[8].NetworkShare);
+            Assert.True(result.Data[8].NetworkShare <= result.Data[9].NetworkShare);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithDESCOrdering_OrderByNetworkShare_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                SortingParameters = new ValidatorsSortingParameters
+                {
+                    OrderByNetworkShare = true,
+                    SortType = SortType.Descending
+                },
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    IsActive = true
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+
+            // Verify that the result is not null
+            Assert.NotNull(result);
+
+            // Verify that the result contains expected data
+            Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
+
+            // Verify that the result is sorted in ascending order
+            Assert.True(result.Data[0].NetworkShare >= result.Data[1].NetworkShare);
+            Assert.True(result.Data[1].NetworkShare >= result.Data[2].NetworkShare);
+            Assert.True(result.Data[2].NetworkShare >= result.Data[3].NetworkShare);
+            Assert.True(result.Data[3].NetworkShare >= result.Data[4].NetworkShare);
+            Assert.True(result.Data[4].NetworkShare >= result.Data[5].NetworkShare);
+            Assert.True(result.Data[5].NetworkShare >= result.Data[6].NetworkShare);
+            Assert.True(result.Data[6].NetworkShare >= result.Data[7].NetworkShare);
+            Assert.True(result.Data[7].NetworkShare >= result.Data[8].NetworkShare);
+            Assert.True(result.Data[8].NetworkShare >= result.Data[9].NetworkShare);
+        }
+        [Fact]
+        public async Task GetValidatorsAsync_WithPublicKeyList_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorsRequestParameters
+            {
+                FilterParameters = new ValidatorsFilterParameters
+                {
+                    EraId = "14027",
+                    PublicKeys = new List<string>
+                    {
+                        _testPublicKey,
+                        _test2PublicKey
+                    }
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
+            Assert.NotNull(result);
+            Assert.NotEmpty(result.Data);
+            Assert.Contains(result.Data, value => value.PublicKey == _testPublicKey);
+            Assert.Contains(result.Data, value => value.PublicKey == _test2PublicKey);
+        }
 
     }
 }

@@ -10,7 +10,7 @@ namespace CSPR.Cloud.Net.Objects.Validator
         [JsonProperty("era_id")]
         public int EraId { get; set; }
 
-        [JsonProperty("score")]
-        public double Score { get; set; }
+        [JsonProperty("average_score")]
+        public double AverageScore { get; set; }
     }
 }

@@ -170,6 +170,12 @@ namespace CSPR.Cloud.Net.Helpers
                         filteringCriterion.Values.Add(dateTimeValue.ToString("o", CultureInfo.InvariantCulture)); // "o" is the format specifier for ISO 8601
                         filteringParams.Add(filteringCriterion);
                     }
+                    else if (propValue is bool boolValue)
+                    {
+                        var filteringCriterion = new FilteringCriterion(fieldName);
+                        filteringCriterion.Values.Add(boolValue.ToString().ToLower());
+                        filteringParams.Add(filteringCriterion);
+                    }
                     // Optionally handle other types as needed
                 }
             }
