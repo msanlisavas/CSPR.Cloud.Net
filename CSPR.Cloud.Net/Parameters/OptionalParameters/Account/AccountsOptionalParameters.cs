@@ -15,6 +15,10 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Account
 
         [JsonProperty("staked_balance")]
         public bool StakedBalance { get; set; } = false;
+        [JsonProperty("account_info")]
+        public bool AccountInfo { get; set; } = false;
+        [JsonProperty("centralized_account_info")]
+        public bool CentralizedAccountInfo { get; set; } = false;
     }
 
 }
