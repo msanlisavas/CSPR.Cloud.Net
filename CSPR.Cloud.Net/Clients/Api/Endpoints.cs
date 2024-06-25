@@ -78,6 +78,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetHistoricalValidatorPerformance { get; } = "/validators/{0}/relative-performances";
             public static string GetHistoricalValidatorAveragePerformance { get; } = "/validators/{0}/relative-average-performances";
             public static string GetHistoricalValidatorsAveragePerformance { get; } = "/relative-average-validator-performances";
+            public static string GetValidatorRewards { get; } = "/validators/{0}/rewards";
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
         {
@@ -1082,6 +1083,27 @@ namespace CSPR.Cloud.Net.Clients.Api
                         filteringCriteria: filterParameters,
                         sortingParameters: sortingParameters,
                         paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetValidatorRewards(string baseUrl, string publicKey, ValidatorRewardsRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetValidatorRewards, publicKey);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))
                     {

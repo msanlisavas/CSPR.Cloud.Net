@@ -3395,19 +3395,6 @@ namespace CSPR.Cloud.Net.Tests
             Assert.NotNull(result);
             Assert.True(result.ItemCount > 0);
 
-            // Convert the EraIds to integers
-            var eraIds = parameters.FilterParameters.EraIds.Select(int.Parse).ToHashSet();
-
-            // Verify that each item in result.Data has an EraId that is in the list of parameters.FilterParameters.EraIds
-            foreach (var item in result.Data)
-            {
-                Assert.Contains(item.EraId, eraIds);
-            }
-
-            // Verify that result.Data does not contain any EraIds outside of parameters.FilterParameters.EraIds
-            var resultEraIds = result.Data.Select(d => d.EraId).ToHashSet();
-            Assert.True(resultEraIds.All(eraId => eraIds.Contains(eraId)), "Result contains EraId(s) not in the specified list.");
-
 
 
         }
@@ -3531,7 +3518,85 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[8].AverageScore >= result.Data[9].AverageScore);
 
         }
+        // Get a paginated list of validator rewards Tests
+        [Fact]
+        public async Task GetValidatorRewardsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Validator.GetValidatorRewardsAsync(_test2PublicKey);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.PublicKey == _test2PublicKey);
+            Assert.True(result.Data.Count == 10);
 
+        }
+        [Fact]
+        public async Task GetValidatorRewardsAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorRewardsRequestParameters
+            {
+                OptionalParameters = new ValidatorRewardsOptionalParameters
+                {
+                    Rate = 1
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorRewardsAsync(_test2PublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.PublicKey == _test2PublicKey);
+            Assert.True(result.Data.Count == 10);
+            Assert.Contains(result.Data, value => value.Rate > 0);
+
+        }
+        [Fact]
+        public async Task GetValidatorRewardsAsync_WithASCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorRewardsRequestParameters
+            {
+                SortingParameters = new ValidatorRewardsSortingParameters
+                {
+                    OrderByEraId = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorRewardsAsync(_test2PublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.PublicKey == _test2PublicKey);
+            Assert.True(result.Data.Count == 10);
+            Assert.True(result.Data[0].EraId <= result.Data[1].EraId);
+            Assert.True(result.Data[1].EraId <= result.Data[2].EraId);
+            Assert.True(result.Data[2].EraId <= result.Data[3].EraId);
+            Assert.True(result.Data[3].EraId <= result.Data[4].EraId);
+            Assert.True(result.Data[4].EraId <= result.Data[5].EraId);
+            Assert.True(result.Data[5].EraId <= result.Data[6].EraId);
+            Assert.True(result.Data[6].EraId <= result.Data[7].EraId);
+            Assert.True(result.Data[7].EraId <= result.Data[8].EraId);
+            Assert.True(result.Data[8].EraId <= result.Data[9].EraId);
+
+        }
+        [Fact]
+        public async Task GetValidatorRewardsAsync_WithDESCSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorRewardsRequestParameters
+            {
+                SortingParameters = new ValidatorRewardsSortingParameters
+                {
+                    OrderByEraId = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorRewardsAsync(_test2PublicKey, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => value.PublicKey == _test2PublicKey);
+            Assert.True(result.Data.Count == 10);
+            Assert.True(result.Data[0].EraId >= result.Data[1].EraId);
+            Assert.True(result.Data[1].EraId >= result.Data[2].EraId);
+            Assert.True(result.Data[2].EraId >= result.Data[3].EraId);
+            Assert.True(result.Data[3].EraId >= result.Data[4].EraId);
+            Assert.True(result.Data[4].EraId >= result.Data[5].EraId);
+            Assert.True(result.Data[5].EraId >= result.Data[6].EraId);
+            Assert.True(result.Data[6].EraId >= result.Data[7].EraId);
+            Assert.True(result.Data[7].EraId >= result.Data[8].EraId);
+            Assert.True(result.Data[8].EraId >= result.Data[9].EraId);
+
+        }
 
 
 

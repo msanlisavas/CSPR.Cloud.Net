@@ -8,9 +8,9 @@ namespace CSPR.Cloud.Net.Objects.Validator
         public string PublicKey { get; set; }
 
         [JsonProperty("era_id")]
-        public int EraId { get; set; }
+        public uint? EraId { get; set; }
 
         [JsonProperty("average_score")]
-        public double AverageScore { get; set; }
+        public double? AverageScore { get; set; }
     }
 }
