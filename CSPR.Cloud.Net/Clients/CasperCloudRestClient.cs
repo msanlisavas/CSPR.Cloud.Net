@@ -489,6 +489,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Account.GetAccountInfo(_baseUrl, accountHash);
                 return await _casperCloudRestClient.GetDataAsync<Response<AccountInfoData>>(endpoint);
             }
+            public async Task<PaginatedResponse<AccountInfoData>> GetAccountInfosAsync(AccountInfosRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Account.GetAccountInfos(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<AccountInfoData>>(endpoint);
+            }
         }
         public class Account
         {
@@ -509,6 +514,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<Response<AccountInfoData>> GetAccountInfo(string accountHash)
             {
                 return _commonEndpoint.GetAccountInfo(accountHash);
+            }
+            public Task<PaginatedResponse<AccountInfoData>> GetAccountInfosAsync(AccountInfosRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountInfosAsync(parameters);
             }
 
         }

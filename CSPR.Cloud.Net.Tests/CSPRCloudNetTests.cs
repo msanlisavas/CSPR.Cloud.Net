@@ -3616,6 +3616,31 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data.AccountHash == _test2AccountHash);
 
         }
+        // Get account infos Tests
+        [Fact]
+        public async Task GetAccountInfosAsync_ReturnsExpectedData()
+        {
+            var parameters = new AccountInfosRequestParameters
+            {
+                FilterParameters = new AccountInfosFilterParameters
+                {
+                    AccountHashes = new List<string>
+                    {
+                        _testAccountHash,
+                        _test2AccountHash
+                    }
+                }
+            };
+            var result = await _restClient.Testnet.Account.GetAccountInfosAsync(parameters);
+            Assert.True(result != null);
+            Assert.True(result.Data != null);
+            Assert.True(result.Data.Count == 2);
+            Assert.Contains(result.Data, value => value.AccountHash == _testAccountHash);
+            Assert.Contains(result.Data, value => value.AccountHash == _test2AccountHash);
+
+        }
+
+
 
 
 

@@ -26,6 +26,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccount { get; } = "/accounts/";
             public static string GetAccounts { get; } = "/accounts";
             public static string GetAccountInfo { get; } = "/account-info/{0}";
+            public static string GetAccountInfos { get; } = "/account-info";
             public static string GetBlock { get; } = "/blocks/";
             public static string GetBlocks { get; } = "/blocks";
             public static string GetValidatorBlocks { get; } = "/validators/{0}/blocks";
@@ -148,7 +149,27 @@ namespace CSPR.Cloud.Net.Clients.Api
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountInfo, accountHash);
                 return url;
             }
-
+            public static string GetAccountInfos(string baseUrl, AccountInfosRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetAccountInfos}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
 
         }
         public static class Block
