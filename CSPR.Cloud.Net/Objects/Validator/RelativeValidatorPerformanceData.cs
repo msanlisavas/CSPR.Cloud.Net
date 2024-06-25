@@ -2,7 +2,7 @@
 
 namespace CSPR.Cloud.Net.Objects.Validator
 {
-    public class RelativeValidatorPerformance
+    public class RelativeValidatorPerformanceData
     {
         [JsonProperty("public_key")]
         public string PublicKey { get; set; }

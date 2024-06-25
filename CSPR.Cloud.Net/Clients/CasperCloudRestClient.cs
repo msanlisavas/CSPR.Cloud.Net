@@ -799,10 +799,15 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Validator.GetValidators(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorData>>(endpoint);
             }
-            public async Task<PaginatedResponse<RelativeValidatorPerformance>> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
+            public async Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Validator.GetHistoricalValidatorPerformance(_baseUrl, publicKey, parameters);
-                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RelativeValidatorPerformance>>(endpoint);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RelativeValidatorPerformanceData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorAveragePerformanceAsync(string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Validator.GetHistoricalAverageValidatorPerformance(_baseUrl, publicKey, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorPerformanceData>>(endpoint);
             }
         }
         public class Transfer
@@ -838,9 +843,13 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetValidatorsAsync(parameters);
             }
-            public Task<PaginatedResponse<RelativeValidatorPerformance>> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
+            public Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalValidatorPerformanceAsync(publicKey, parameters);
+            }
+            public Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorAveragePerformanceAsync(string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetHistoricalValidatorAveragePerformanceAsync(publicKey, parameters);
             }
         }
 

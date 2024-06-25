@@ -76,6 +76,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetValidator { get; } = "/validators/{0}";
             public static string GetValidators { get; } = "/validators";
             public static string GetHistoricalValidatorPerformance { get; } = "/validators/{0}/relative-performances";
+            public static string GetHistoricalValidatorAveragePerformance { get; } = "/validators/{0}/relative-average-performances";
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
         {
@@ -1028,6 +1029,27 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetHistoricalValidatorPerformance(string baseUrl, string publicKey, ValidatorHistoricalPerformanceRequestParameters requestParams = null)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetHistoricalValidatorPerformance, publicKey);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetHistoricalAverageValidatorPerformance(string baseUrl, string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetHistoricalValidatorAveragePerformance, publicKey);
                 if (requestParams != null)
                 {
                     var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
