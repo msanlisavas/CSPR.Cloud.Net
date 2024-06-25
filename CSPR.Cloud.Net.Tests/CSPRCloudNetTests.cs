@@ -88,7 +88,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountAsync(_testPublicKey);
+            var result = await _restClient.Testnet.Account.GetAccountAsync(_testPublicKey);
             Assert.Equal(_testPublicKey, result.PublicKey);
         }
         [Fact]
@@ -98,7 +98,7 @@ namespace CSPR.Cloud.Net.Tests
             {
                 AuctionStatus = true,
             };
-            var result = await _restClient.Testnet.GetAccountAsync(_testPublicKey, parameters);
+            var result = await _restClient.Testnet.Account.GetAccountAsync(_testPublicKey, parameters);
 
             Assert.Equal(AuctionStatus.ActiveValidator.GetEnumMemberValue(), result.AuctionStatus);
             Assert.True(result.StakedBalance == null && result.AuctionStatus != null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
@@ -110,7 +110,7 @@ namespace CSPR.Cloud.Net.Tests
             {
                 StakedBalance = true,
             };
-            var result = await _restClient.Testnet.GetAccountAsync(_testPublicKey, parameters);
+            var result = await _restClient.Testnet.Account.GetAccountAsync(_testPublicKey, parameters);
 
             Assert.True(result.StakedBalance > 0 && result.AuctionStatus == null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
         }
@@ -127,7 +127,7 @@ namespace CSPR.Cloud.Net.Tests
 
                 },
             };
-            var result = await _restClient.Testnet.GetAccountsAsync(parameters);
+            var result = await _restClient.Testnet.Account.GetAccountsAsync(parameters);
             Assert.True(result.ItemCount > 0);
         }
 
@@ -143,14 +143,14 @@ namespace CSPR.Cloud.Net.Tests
                     UndelegatingBalance = true
 
                 },
-                Sorting = new AccountsSortingParameters
+                SortingParameters = new AccountsSortingParameters
                 {
 
                     OrderByTotalBalance = true,
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountsAsync(parameters);
+            var result = await _restClient.Testnet.Account.GetAccountsAsync(parameters);
             Assert.True(result.ItemCount > 0 && result.Data[0].Balance >= result.Data[1].Balance);
         }
         [Fact]
@@ -165,13 +165,13 @@ namespace CSPR.Cloud.Net.Tests
                     UndelegatingBalance = true
 
                 },
-                Sorting = new AccountsSortingParameters
+                SortingParameters = new AccountsSortingParameters
                 {
                     OrderByBalance = true,
                     SortType = SortType.Ascending
                 },
             };
-            var result = await _restClient.Testnet.GetAccountsAsync(parameters);
+            var result = await _restClient.Testnet.Account.GetAccountsAsync(parameters);
             Assert.True(result.ItemCount > 0 && result.Data[0].Balance == null);
         }
         [Fact]
@@ -187,7 +187,7 @@ namespace CSPR.Cloud.Net.Tests
                     }
                 }
             };
-            var result = await _restClient.Testnet.GetAccountsAsync(parameters);
+            var result = await _restClient.Testnet.Account.GetAccountsAsync(parameters);
             Assert.True(result.Data[0].PublicKey == _testPublicKey);
         }
         [Fact]
@@ -203,20 +203,20 @@ namespace CSPR.Cloud.Net.Tests
                         _test2AccountHash
                     }
                 },
-                Sorting = new AccountsSortingParameters
+                SortingParameters = new AccountsSortingParameters
                 {
                     OrderByBalance = true,
                     OrderByTotalBalance = false,
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountsAsync(parameters);
+            var result = await _restClient.Testnet.Account.GetAccountsAsync(parameters);
             Assert.True(result.Data[0].PublicKey == _test2PublicKey && result.Data[1].PublicKey == _testPublicKey);
         }
         [Fact]
         public async Task GetBlockAsync_ReturnsBlockDataUsingBlockHash()
         {
-            var result = await _restClient.Testnet.GetBlockAsync(_testBlockHash);
+            var result = await _restClient.Testnet.Block.GetBlockAsync(_testBlockHash);
             Assert.Equal(_testBlockHeight, result.BlockHeight);
             Assert.Equal(_testBlockHash, result.BlockHash);
 
@@ -224,7 +224,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetBlockAsync_ReturnsBlockDataUsingBlockHeight()
         {
-            var result = await _restClient.Testnet.GetBlockAsync(_testBlockHeight.ToString());
+            var result = await _restClient.Testnet.Block.GetBlockAsync(_testBlockHeight.ToString());
             Assert.Equal(_testBlockHeight, result.BlockHeight);
             Assert.Equal(_testBlockHash, result.BlockHash);
 
@@ -236,7 +236,7 @@ namespace CSPR.Cloud.Net.Tests
             {
                 ProposerAccountInfo = true
             };
-            var result = await _restClient.Testnet.GetBlockAsync(_testBlockHash, parameters);
+            var result = await _restClient.Testnet.Block.GetBlockAsync(_testBlockHash, parameters);
             Assert.True(result.ProposerAccountInfo != null);
 
         }
@@ -247,7 +247,7 @@ namespace CSPR.Cloud.Net.Tests
             {
                 ProposerAccountInfo = false
             };
-            var result = await _restClient.Testnet.GetBlockAsync(_testBlockHash, parameters);
+            var result = await _restClient.Testnet.Block.GetBlockAsync(_testBlockHash, parameters);
             Assert.True(result.ProposerAccountInfo == null);
 
         }
@@ -255,7 +255,7 @@ namespace CSPR.Cloud.Net.Tests
         public async Task GetBlocksAsync_ReturnsExpectedData()
         {
 
-            var result = await _restClient.Testnet.GetBlocksAsync();
+            var result = await _restClient.Testnet.Block.GetBlocksAsync();
             Assert.True(result.ItemCount > 0);
 
         }
@@ -281,7 +281,7 @@ namespace CSPR.Cloud.Net.Tests
                 //PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            var result = await _restClient.Testnet.Block.GetBlocksAsync(parameters);
             Assert.True(result.Data[0].BlockHeight < result.Data[1].BlockHeight);
 
         }
@@ -308,7 +308,7 @@ namespace CSPR.Cloud.Net.Tests
                 //PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            var result = await _restClient.Testnet.Block.GetBlocksAsync(parameters);
             Assert.True(result.Data[0].Timestamp < result.Data[1].Timestamp);
 
         }
@@ -329,7 +329,7 @@ namespace CSPR.Cloud.Net.Tests
                 //PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            var result = await _restClient.Testnet.Block.GetBlocksAsync(parameters);
             Assert.True(result.Data[0].ProposerPublicKey == _testPublicKey);
 
         }
@@ -346,7 +346,7 @@ namespace CSPR.Cloud.Net.Tests
                 //PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            var result = await _restClient.Testnet.Block.GetBlocksAsync(parameters);
             Assert.True(result.Data[0].ProposerAccountInfo != null);
 
         }
@@ -359,7 +359,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 250
 
             };
-            var result = await _restClient.Testnet.GetBlocksAsync(parameters);
+            var result = await _restClient.Testnet.Block.GetBlocksAsync(parameters);
             Assert.True(result.Data.Count == 250);
 
         }
@@ -368,7 +368,7 @@ namespace CSPR.Cloud.Net.Tests
         public async Task GetValidatorBlocksAsync_ReturnsExpectedData()
         {
 
-            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey);
+            var result = await _restClient.Testnet.Block.GetValidatorBlocksAsync(_testPublicKey);
             Assert.True(result.ItemCount > 0);
 
         }
@@ -394,7 +394,7 @@ namespace CSPR.Cloud.Net.Tests
                 //PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            var result = await _restClient.Testnet.Block.GetValidatorBlocksAsync(_testPublicKey, parameters);
             Assert.True(result.Data[0].BlockHeight < result.Data[1].BlockHeight && result.Data[0].ProposerPublicKey == _testPublicKey);
 
         }
@@ -421,7 +421,7 @@ namespace CSPR.Cloud.Net.Tests
                 //PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            var result = await _restClient.Testnet.Block.GetValidatorBlocksAsync(_testPublicKey, parameters);
             Assert.True(result.Data[0].Timestamp < result.Data[1].Timestamp && result.Data[0].ProposerPublicKey == _testPublicKey);
 
         }
@@ -439,7 +439,7 @@ namespace CSPR.Cloud.Net.Tests
                 //PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            var result = await _restClient.Testnet.Block.GetValidatorBlocksAsync(_testPublicKey, parameters);
             Assert.True(result.Data[0].ProposerAccountInfo != null);
 
         }
@@ -452,7 +452,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 250
 
             };
-            var result = await _restClient.Testnet.GetValidatorBlocksAsync(_testPublicKey, parameters);
+            var result = await _restClient.Testnet.Block.GetValidatorBlocksAsync(_testPublicKey, parameters);
             Assert.True(result.Data.Count == 250 && result.Data[0].ProposerPublicKey == _testPublicKey);
 
         }
@@ -467,7 +467,7 @@ namespace CSPR.Cloud.Net.Tests
                     EraId = "10935"
                 }
             };
-            var result = await _restClient.Testnet.GetBidderAsync(_testBidderPublicKey, parameters);
+            var result = await _restClient.Testnet.Bidder.GetBidderAsync(_testBidderPublicKey, parameters);
             Assert.Equal(_testBidderPublicKey, result.PublicKey);
         }
         [Fact]
@@ -480,7 +480,7 @@ namespace CSPR.Cloud.Net.Tests
                     EraId = "10935"
                 }
             };
-            var result = await _restClient.Testnet.GetBidderAsync(_testBidderPublicKey, parameters);
+            var result = await _restClient.Testnet.Bidder.GetBidderAsync(_testBidderPublicKey, parameters);
             Assert.Equal(_testBidderPublicKey, result.PublicKey);
         }
         [Fact]
@@ -499,7 +499,7 @@ namespace CSPR.Cloud.Net.Tests
                     CentralizedAccountInfo = true,
                 }
             };
-            var result = await _restClient.Testnet.GetBidderAsync(_testBidderPublicKey, parameters);
+            var result = await _restClient.Testnet.Bidder.GetBidderAsync(_testBidderPublicKey, parameters);
 
         }
         // Get BiddersAsync tests
@@ -518,14 +518,14 @@ namespace CSPR.Cloud.Net.Tests
                     }
                 }
             };
-            var result = await _restClient.Testnet.GetBiddersAsync(parameters);
+            var result = await _restClient.Testnet.Bidder.GetBiddersAsync(parameters);
             Assert.True(result.ItemCount > 0);
         }
         // Get CentralizedAccountInfoAsync Tests
         [Fact]
         public async Task GetCentralizedAccountInfoAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetCentralizedAccountInfoAsync(_testCentralizedAccountHash);
+            var result = await _restClient.Testnet.CentralizedAccount.GetCentralizedAccountInfoAsync(_testCentralizedAccountHash);
             Assert.Equal(_testCentralizedAccountHash, result.AccountHash);
         }
         [Fact]
@@ -547,14 +547,14 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetCentralizedAccountInfosAsync(parameters);
+            var result = await _restClient.Testnet.CentralizedAccount.GetCentralizedAccountInfosAsync(parameters);
             Assert.True(result.ItemCount > 0);
         }
         // Get ContractAsync Tests
         [Fact]
         public async Task GetContractAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractAsync(_testContractHash);
+            var result = await _restClient.Testnet.Contract.GetContractAsync(_testContractHash);
             Assert.True(result.ContractHash == _testContractHash);
         }
         [Fact]
@@ -567,13 +567,13 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackage = true
                 }
             };
-            var result = await _restClient.Testnet.GetContractAsync(_testContractHash, parameters);
+            var result = await _restClient.Testnet.Contract.GetContractAsync(_testContractHash, parameters);
             Assert.True(result.ContractPackage != null);
         }
         [Fact]
         public async Task GetContractsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractsAsync();
+            var result = await _restClient.Testnet.Contract.GetContractsAsync();
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -586,7 +586,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackage = true
                 }
             };
-            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            var result = await _restClient.Testnet.Contract.GetContractsAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].ContractPackage != null);
         }
@@ -600,7 +600,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackageHash = _testContractPackageHash
                 }
             };
-            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            var result = await _restClient.Testnet.Contract.GetContractsAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].ContractPackageHash == _testContractPackageHash);
         }
@@ -614,7 +614,7 @@ namespace CSPR.Cloud.Net.Tests
                     DeployHash = _testContractDeployHash
                 }
             };
-            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            var result = await _restClient.Testnet.Contract.GetContractsAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].DeployHash == _testContractDeployHash);
         }
@@ -632,7 +632,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 100
 
             };
-            var result = await _restClient.Testnet.GetContractsAsync(parameters);
+            var result = await _restClient.Testnet.Contract.GetContractsAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -642,7 +642,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractByContractPackageAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractsByContractPackageAsync(_testContractPackageHash);
+            var result = await _restClient.Testnet.Contract.GetContractsByContractPackageAsync(_testContractPackageHash);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].ContractPackageHash == _testContractPackageHash);
         }
@@ -650,14 +650,14 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractTypesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractTypesAsync();
+            var result = await _restClient.Testnet.Contract.GetContractTypesAsync();
             Assert.True(result.Count > 0);
         }
         // GetContractEntryPointsAsync Tests
         [Fact]
         public async Task GetContractEntryPointsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractEntryPointsAsync(_testContractHash);
+            var result = await _restClient.Testnet.Contract.GetContractEntryPointsAsync(_testContractHash);
             Assert.True(result.ItemCount > 0);
             var count = result.Data.Count();
             var equalCount = result.Data.Where(x => x.ContractHash == _testContractHash).Count();
@@ -667,21 +667,21 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractEntryPointCostsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractEntryPointCostsAsync(_testContractHash, "activate_bid");
+            var result = await _restClient.Testnet.Contract.GetContractEntryPointCostsAsync(_testContractHash, "activate_bid");
             Assert.True(result != null);
         }
         // GetContractPackageAsync Tests
         [Fact]
         public async Task GetContractPackageAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackageAsync(_testContractPackageHash);
+            var result = await _restClient.Testnet.Contract.GetContractPackageAsync(_testContractPackageHash);
             Assert.True(result.Data.ContractPackageHash == _testContractPackageHash);
         }
         // GetContractPackagesAsync Tests
         [Fact]
         public async Task GetContractPackagesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackagesAsync();
+            var result = await _restClient.Testnet.Contract.GetContractPackagesAsync();
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -694,7 +694,7 @@ namespace CSPR.Cloud.Net.Tests
                     OwnerPublicKey = _testOwnerPublicKey
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackagesAsync(parameters);
+            var result = await _restClient.Testnet.Contract.GetContractPackagesAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].OwnerPublicKey == _testOwnerPublicKey);
         }
@@ -712,7 +712,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetContractPackagesAsync(parameters);
+            var result = await _restClient.Testnet.Contract.GetContractPackagesAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -739,7 +739,7 @@ namespace CSPR.Cloud.Net.Tests
                 }
 
             };
-            var result = await _restClient.Testnet.GetContractPackagesAsync(parameters);
+            var result = await _restClient.Testnet.Contract.GetContractPackagesAsync(parameters);
             Assert.True(result.ItemCount > 0);
             var isDeployNumbersLowerThan = result.Data.Where(x => x.DeploysNumber < 63).Count();
             Assert.True(isDeployNumbersLowerThan == 0);
@@ -748,7 +748,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountContractPackagesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountContractPackagesAsync(_testOwnerPublicKey);
+            var result = await _restClient.Testnet.Contract.GetAccountContractPackagesAsync(_testOwnerPublicKey);
             Assert.True(result.ItemCount > 0);
             var count = result.Data.Count();
             var equalCount = result.Data.Where(x => x.OwnerPublicKey == _testOwnerPublicKey).Count();
@@ -758,7 +758,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountDelegationsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountDelegationsAsync(_testDelegatorPublicKey);
+            var result = await _restClient.Testnet.Delegate.GetAccountDelegationsAsync(_testDelegatorPublicKey);
             Assert.True(result.ItemCount > 0);
             var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.PublicKey == _testDelegatorPublicKey).Count() == 10;
             Assert.True(IsAllDelegatorPublicKeyEqual);
@@ -774,7 +774,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountDelegationsAsync(_testDelegatorPublicKey, parameters);
+            var result = await _restClient.Testnet.Delegate.GetAccountDelegationsAsync(_testDelegatorPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             var firstStake = BigInteger.Parse(result.Data[0].Stake);
             var secondStake = BigInteger.Parse(result.Data[1].Stake);
@@ -786,7 +786,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetValidatorDelegationsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetValidatorDelegationsAsync(_test2PublicKey);
+            var result = await _restClient.Testnet.Delegate.GetValidatorDelegationsAsync(_test2PublicKey);
             Assert.True(result.ItemCount > 0);
             var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.ValidatorPublicKey == _test2PublicKey).Count() == 10;
             Assert.True(IsAllDelegatorPublicKeyEqual);
@@ -803,7 +803,7 @@ namespace CSPR.Cloud.Net.Tests
                     CentralizedAccountInfo = true
                 }
             };
-            var result = await _restClient.Testnet.GetValidatorDelegationsAsync(_test2PublicKey, parameters);
+            var result = await _restClient.Testnet.Delegate.GetValidatorDelegationsAsync(_test2PublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].ValidatorAccountInfo != null);
         }
@@ -811,7 +811,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountDelegatorRewardsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey);
+            var result = await _restClient.Testnet.Delegate.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey);
             Assert.True(result.ItemCount > 0);
             var IsAllDelegatorPublicKeyEqual = result.Data.Where(x => x.PublicKey == _testDelegatorPublicKey).Count() == 10;
             Assert.True(IsAllDelegatorPublicKeyEqual);
@@ -828,7 +828,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey, parameters);
+            var result = await _restClient.Testnet.Delegate.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             var firstEra = result.Data[0].EraId;
             var secondEra = result.Data[1].EraId;
@@ -845,7 +845,7 @@ namespace CSPR.Cloud.Net.Tests
                     Rate = 1,
                 }
             };
-            var result = await _restClient.Testnet.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey, parameters);
+            var result = await _restClient.Testnet.Delegate.GetAccountDelegatorRewardsAsync(_testDelegatorPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Rate != null);
         }
@@ -853,21 +853,21 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetTotalAccountDelegatorRewardsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetTotalAccountDelegationRewards(_testDelegatorPublicKey);
+            var result = await _restClient.Testnet.Delegate.GetTotalAccountDelegationRewards(_testDelegatorPublicKey);
             Assert.True(result > 0);
         }
         // GetTotalValidatorDelegationRewards Tests
         [Fact]
         public async Task GetTotalValidatorDelegationRewardsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetTotalValidatorDelegationRewards(_test2PublicKey);
+            var result = await _restClient.Testnet.Delegate.GetTotalValidatorDelegationRewards(_test2PublicKey);
             Assert.True(result > 0);
         }
         // GetDeployAsync Tests
         [Fact]
         public async Task GetDeployAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetDeployAsync(_testDeployHash);
+            var result = await _restClient.Testnet.Deploy.GetDeployAsync(_testDeployHash);
             Assert.True(result.Data.DeployHash == _testDeployHash);
         }
         [Fact]
@@ -888,7 +888,7 @@ namespace CSPR.Cloud.Net.Tests
                     FTTokenActions = true
                 }
             };
-            var result = await _restClient.Testnet.GetDeployAsync(_testDeployHash2, parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeployAsync(_testDeployHash2, parameters);
             Assert.True(result.Data.DeployHash == _testDeployHash2);
             Assert.True(result.Data.Contract != null);
             Assert.True(result.Data.ContractEntrypoint != null);
@@ -901,7 +901,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetDeploysAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetDeploysAsync();
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync();
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -923,7 +923,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Contract != null);
             Assert.Contains(result.Data, value => value.ContractEntrypoint != null);
@@ -941,7 +941,7 @@ namespace CSPR.Cloud.Net.Tests
                     CallerPublicKey = _callerPublicKey
                 }
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.CallerPublicKey == _callerPublicKey);
         }
@@ -955,7 +955,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractHash = _testContractHash
                 }
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractHash == _testContractHash);
         }
@@ -969,7 +969,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackageHash = _testContractPackageHash
                 }
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractPackageHash == _testContractPackageHash);
         }
@@ -983,7 +983,7 @@ namespace CSPR.Cloud.Net.Tests
                     BlockHash = _testBlockHash
                 }
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.BlockHash == _testBlockHash);
         }
@@ -997,7 +997,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "3218428"
                 }
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight >= 3218428).Count() == result.Data.Count);
         }
@@ -1011,7 +1011,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "3218428"
                 }
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight <= 3218428).Count() == result.Data.Count);
         }
@@ -1029,7 +1029,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1056,7 +1056,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetDeploysAsync(parameters);
+            var result = await _restClient.Testnet.Deploy.GetDeploysAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1073,7 +1073,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountDeploysAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync(_callerPublicKey);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1095,7 +1095,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetAccountDeploysAsync("01cde2af414349be59d01206e3ffd6b9f1f49a4292b2c219f8d7d53f55d5e39b17", parameters);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync("01cde2af414349be59d01206e3ffd6b9f1f49a4292b2c219f8d7d53f55d5e39b17", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Contract != null);
             Assert.Contains(result.Data, value => value.ContractEntrypoint != null);
@@ -1113,7 +1113,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractHash = "d950b6fb1e487e054dff551ad1acd0106802bb482bf1e88630b6a1eec2de8ed9"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountDeploysAsync("01a35887f3962a6a232e8e11fa7d4567b6866d68850974aad7289ef287676825f6", parameters);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync("01a35887f3962a6a232e8e11fa7d4567b6866d68850974aad7289ef287676825f6", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractHash == "d950b6fb1e487e054dff551ad1acd0106802bb482bf1e88630b6a1eec2de8ed9");
         }
@@ -1127,7 +1127,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackageHash = "dbb3284da4e20be62aeb332c653bfa715c7fa1ef6a73393cd36804b382f10d4e"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountDeploysAsync("01a35887f3962a6a232e8e11fa7d4567b6866d68850974aad7289ef287676825f6", parameters);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync("01a35887f3962a6a232e8e11fa7d4567b6866d68850974aad7289ef287676825f6", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractPackageHash == _testContractPackageHash);
         }
@@ -1141,7 +1141,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "3218428"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync(_callerPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight >= 3218428 && x.CallerPublicKey == _callerPublicKey).Count() == result.Data.Count);
         }
@@ -1155,7 +1155,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "3218428"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync(_callerPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight <= 3218428 && x.CallerPublicKey == _callerPublicKey).Count() == result.Data.Count);
         }
@@ -1173,7 +1173,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync(_callerPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1200,7 +1200,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetAccountDeploysAsync(_callerPublicKey, parameters);
+            var result = await _restClient.Testnet.Deploy.GetAccountDeploysAsync(_callerPublicKey, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1217,7 +1217,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetBlockDeploysAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetBlockDeploysAsync(_testBlockHash);
+            var result = await _restClient.Testnet.Deploy.GetBlockDeploysAsync(_testBlockHash);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1239,7 +1239,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetBlockDeploysAsync(_testBlockHash, parameters);
+            var result = await _restClient.Testnet.Deploy.GetBlockDeploysAsync(_testBlockHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Contract != null);
             Assert.Contains(result.Data, value => value.ContractEntrypoint != null);
@@ -1257,7 +1257,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractHash = "4376c1707d2c844bdc8d24def3ae7252f3e011fb446c9108a4418152938468f2"
                 }
             };
-            var result = await _restClient.Testnet.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
+            var result = await _restClient.Testnet.Deploy.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractHash == "4376c1707d2c844bdc8d24def3ae7252f3e011fb446c9108a4418152938468f2");
         }
@@ -1271,7 +1271,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackageHash = "405d23bf75777993474c63c65f1803f3b70387d23ca1c4a391c02927ee69ca83"
                 }
             };
-            var result = await _restClient.Testnet.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
+            var result = await _restClient.Testnet.Deploy.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractPackageHash == "405d23bf75777993474c63c65f1803f3b70387d23ca1c4a391c02927ee69ca83");
         }
@@ -1285,7 +1285,7 @@ namespace CSPR.Cloud.Net.Tests
                     CallerPublicKey = "01f8c5cb2750adca87490dee7d71344775e479d1d63b5976c664eae4dc5d2c246b"
                 }
             };
-            var result = await _restClient.Testnet.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
+            var result = await _restClient.Testnet.Deploy.GetBlockDeploysAsync("77f57ec996017340dfdd832c24608aad81f71a4f77da6ed4e4f32bab1717e41f", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Where(x => x.BlockHeight >= 3218428 && x.CallerPublicKey == "01f8c5cb2750adca87490dee7d71344775e479d1d63b5976c664eae4dc5d2c246b").Count() == result.Data.Count);
         }
@@ -1303,7 +1303,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetBlockDeploysAsync("a0c910531685b163b00b131739fb0f68dd84af2dbf51408b39f4acee3327363a", parameters);
+            var result = await _restClient.Testnet.Deploy.GetBlockDeploysAsync("a0c910531685b163b00b131739fb0f68dd84af2dbf51408b39f4acee3327363a", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1323,7 +1323,7 @@ namespace CSPR.Cloud.Net.Tests
                 PageSize = 10
 
             };
-            var result = await _restClient.Testnet.GetBlockDeploysAsync("a0c910531685b163b00b131739fb0f68dd84af2dbf51408b39f4acee3327363a", parameters);
+            var result = await _restClient.Testnet.Deploy.GetBlockDeploysAsync("a0c910531685b163b00b131739fb0f68dd84af2dbf51408b39f4acee3327363a", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1333,14 +1333,14 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetDeployExecutionTypesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetDeployExecutionTypesAsync();
+            var result = await _restClient.Testnet.Deploy.GetDeployExecutionTypesAsync();
             Assert.True(result.Data.Count > 0);
         }
         // GetFungibleTokenActions Tests
         [Fact]
         public async Task GetFungibleTokenActionsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync();
+            var result = await _restClient.Testnet.FT.GetFTActionsAsync();
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1355,7 +1355,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync(parameters);
+            var result = await _restClient.Testnet.FT.GetFTActionsAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Deploy != null);
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -1371,7 +1371,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackageHash = "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069"
                 }
             };
-            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync(parameters);
+            var result = await _restClient.Testnet.FT.GetFTActionsAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractPackageHash == "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069");
         }
@@ -1385,7 +1385,7 @@ namespace CSPR.Cloud.Net.Tests
                     AccountHash = "0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2"
                 }
             };
-            var result = await _restClient.Testnet.GetFungibleTokenActionsAsync(parameters);
+            var result = await _restClient.Testnet.FT.GetFTActionsAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ToHash == "0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2");
         }
@@ -1393,7 +1393,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountFungibleTokenActionsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2");
+            var result = await _restClient.Testnet.FT.GetAccountFTActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2");
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1408,7 +1408,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
+            var result = await _restClient.Testnet.FT.GetAccountFTActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Deploy != null);
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -1424,7 +1424,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "3212781"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
+            var result = await _restClient.Testnet.FT.GetAccountFTActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractPackageHash == "de04671ba6226ecbb4c4e09c256459d2dec2d7dab305b5e57825894c07607069");
         }
@@ -1438,7 +1438,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "3212783"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
+            var result = await _restClient.Testnet.FT.GetAccountFTActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
             Assert.True(result.ItemCount == 0);
         }
         [Fact]
@@ -1451,7 +1451,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "3224327"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
+            var result = await _restClient.Testnet.FT.GetAccountFTActionsAsync("0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ToHash == "0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2");
         }
@@ -1466,7 +1466,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("ddfc69e06130a5cb1aaf51254cf913a0ab0c60922f4c33261bbcdbdc8156421a", parameters);
+            var result = await _restClient.Testnet.FT.GetAccountFTActionsAsync("ddfc69e06130a5cb1aaf51254cf913a0ab0c60922f4c33261bbcdbdc8156421a", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1482,7 +1482,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountFungibleTokenActionsAsync("ddfc69e06130a5cb1aaf51254cf913a0ab0c60922f4c33261bbcdbdc8156421a", parameters);
+            var result = await _restClient.Testnet.FT.GetAccountFTActionsAsync("ddfc69e06130a5cb1aaf51254cf913a0ab0c60922f4c33261bbcdbdc8156421a", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1491,7 +1491,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractPackageFungibleTokenActionsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTActionsAsync(_testFtTokenContractPackageHash);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1508,7 +1508,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTActionsAsync(_testFtTokenContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Deploy != null);
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -1524,7 +1524,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "3212781"
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTActionsAsync(_testFtTokenContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractPackageHash == _testFtTokenContractPackageHash);
         }
@@ -1538,7 +1538,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "3212783"
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTActionsAsync(_testFtTokenContractPackageHash, parameters);
             Assert.True(result.ItemCount == 0);
         }
         [Fact]
@@ -1551,7 +1551,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "3224327"
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTActionsAsync(_testFtTokenContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ToHash == "0f758c10859a3dcf2a041ad3505e0e12754e66662e7e1a6d9d76af43395197a2");
         }
@@ -1566,7 +1566,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTActionsAsync(_testFtTokenContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1582,7 +1582,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenActionsAsync(_testFtTokenContractPackageHash, parameters);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTActionsAsync(_testFtTokenContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1591,7 +1591,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountFungibleTokenOwnershipAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountFungibleTokenOwnershipAsync(_testAccountHash);
+            var result = await _restClient.Testnet.FT.GetAccountFTOwnershipAsync(_testAccountHash);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1605,7 +1605,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetAccountFungibleTokenOwnershipAsync(_testAccountHash, parameters);
+            var result = await _restClient.Testnet.FT.GetAccountFTOwnershipAsync(_testAccountHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHash);
             Assert.True(result.Data[0].ContractPackage != null);
@@ -1615,14 +1615,14 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractPackageFungibleTokenOwnershipAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackageFungibleTokenOwnershipAsync(_testFtTokenContractPackageHash);
+            var result = await _restClient.Testnet.FT.GetContractPackageFTOwnershipAsync(_testFtTokenContractPackageHash);
             Assert.True(result.ItemCount > 0);
         }
         // GetNonFungibleToken Tests
         [Fact]
         public async Task GetNonFungibleTokenAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetNonFungibleTokenAsync(_testContractPackageHash, _testTokenIdOfContractPackage);
+            var result = await _restClient.Testnet.NFT.GetNFTAsync(_testContractPackageHash, _testTokenIdOfContractPackage);
             Assert.True(result != null);
             Assert.True(result.Data.ContractPackageHash == _testContractPackageHash);
         }
@@ -1630,7 +1630,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountNftsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithNft);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1645,7 +1645,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.OwnerPublicKey));
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -1661,7 +1661,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "1349344"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHashWithNft);
         }
@@ -1675,7 +1675,7 @@ namespace CSPR.Cloud.Net.Tests
                     FromBlockHeight = "1349345"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
             Assert.True(result.ItemCount == 0);
         }
         [Fact]
@@ -1688,7 +1688,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "1349344"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHashWithNft);
         }
@@ -1702,7 +1702,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "1349343"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithNft, parameters);
             Assert.True(result.ItemCount == 0);
         }
         [Fact]
@@ -1716,7 +1716,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithAlotOfNfts, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithAlotOfNfts, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1737,7 +1737,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTsAsync(_testAccountHashWithAlotOfNfts, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTsAsync(_testAccountHashWithAlotOfNfts, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1751,7 +1751,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractPackageNftsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTsAsync(_testContractPackageHash);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1765,7 +1765,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageNFT, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTsAsync(_testContractPackageNFT, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => !(String.IsNullOrWhiteSpace(value.OwnerPublicKey)));
 
@@ -1782,7 +1782,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value =>
                 value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
@@ -1800,28 +1800,28 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "1349500"
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTsAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount == 0);
         }
         // GetNftStandard Tests
         [Fact]
         public async Task GetNftStandardAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetNFTStandardsAsync();
+            var result = await _restClient.Testnet.NFT.GetNFTStandardsAsync();
             Assert.True(result.Data.Count > 0);
         }
         // Get off-chain NFT metadata statuses Tests
         [Fact]
         public async Task GetOffChainNftMetadataStatusesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetOffchainNFTMetadataStatusesAsync();
+            var result = await _restClient.Testnet.NFT.GetOffchainNFTMetadataStatusesAsync();
             Assert.True(result.Data.Count > 0);
         }
         // Get contract package NFT actions for a token Tests
         [Fact]
         public async Task GetContractPackageNftActionsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageHash, _testTokenIdOfContractPackage);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsForATokenAsync(_testContractPackageHash, _testTokenIdOfContractPackage);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].ContractPackageHash == _testContractPackageHash);
             Assert.True(result.Data[0].TokenId == _testTokenIdOfContractPackage);
@@ -1840,7 +1840,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Deploy != null);
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -1860,7 +1860,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 },
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1877,7 +1877,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 },
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsForATokenAsync(_testContractPackageNFT, "200", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1887,7 +1887,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountNftActionsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountHashWithNft);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTActionsAsync(_testAccountHashWithNft);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1904,7 +1904,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Deploy != null);
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -1923,7 +1923,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 },
             };
-            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -1940,7 +1940,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 },
             };
-            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -1957,7 +1957,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "1349500"
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTActionsAsync(_testAccountPublicKeyWithNFT, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value =>
                 value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
@@ -1968,7 +1968,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetContractPackageNftActionsByHashAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsAsync(_testContractPackageHash);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -1985,7 +1985,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.Deploy != null);
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -2004,7 +2004,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 },
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
@@ -2027,7 +2027,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 },
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
@@ -2050,7 +2050,7 @@ namespace CSPR.Cloud.Net.Tests
                     ToBlockHeight = "488669"
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTActionsAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value =>
                 value.BlockHeight >= ulong.Parse(parameters.FilterParameters.FromBlockHeight) &&
@@ -2061,14 +2061,14 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetNftActionTypesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetNFTActionTypesAsync();
+            var result = await _restClient.Testnet.NFT.GetNFTActionTypesAsync();
             Assert.True(result.Data.Count > 0);
         }
         // Get contract package NFT ownerships Tests
         [Fact]
         public async Task GetContractPackageNftOwnershipsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -2083,7 +2083,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.OwnerPublicKey));
             Assert.Contains(result.Data, value => value.ContractPackage != null);
@@ -2099,7 +2099,7 @@ namespace CSPR.Cloud.Net.Tests
                     OwnerHash = _testNFTOwnerHash,
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTOwnershipAsync(_testContractPackageNFT, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.OwnerHash == _testNFTOwnerHash);
 
@@ -2115,7 +2115,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTOwnershipAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].TokensNumber >= result.Data[1].TokensNumber);
             Assert.True(result.Data[1].TokensNumber >= result.Data[2].TokensNumber);
@@ -2139,7 +2139,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetContractPackageNFTOwnershipAsync(_testContractPackageHash, parameters);
+            var result = await _restClient.Testnet.NFT.GetContractPackageNFTOwnershipAsync(_testContractPackageHash, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].TokensNumber <= result.Data[1].TokensNumber);
             Assert.True(result.Data[1].TokensNumber <= result.Data[2].TokensNumber);
@@ -2156,7 +2156,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountNftOwnershipsAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetAccountNFTOwnershipAsync(_testAccountHashWithNft);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTOwnershipAsync(_testAccountHashWithNft);
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -2171,7 +2171,7 @@ namespace CSPR.Cloud.Net.Tests
                 },
                 PageSize = 200
             };
-            var result = await _restClient.Testnet.GetAccountNFTOwnershipAsync(_testAccountHashWithNft, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTOwnershipAsync(_testAccountHashWithNft, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.OwnerHash == _testAccountHashWithNft);
             Assert.Contains(result.Data, value => !String.IsNullOrWhiteSpace(value.OwnerPublicKey));
@@ -2188,7 +2188,7 @@ namespace CSPR.Cloud.Net.Tests
                     ContractPackageHash = _testAccountHashWithNftContractPackageHash,
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTOwnershipAsync(_testAccountHashWithNft, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTOwnershipAsync(_testAccountHashWithNft, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.ContractPackageHash == _testAccountHashWithNftContractPackageHash);
 
@@ -2204,7 +2204,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTOwnershipAsync(_testAccountHashWithAlotOfNfts, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTOwnershipAsync(_testAccountHashWithAlotOfNfts, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].TokensNumber >= result.Data[1].TokensNumber);
             Assert.True(result.Data[1].TokensNumber >= result.Data[2].TokensNumber);
@@ -2227,7 +2227,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetAccountNFTOwnershipAsync(_testAccountHashWithAlotOfNfts, parameters);
+            var result = await _restClient.Testnet.NFT.GetAccountNFTOwnershipAsync(_testAccountHashWithAlotOfNfts, parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].TokensNumber <= result.Data[1].TokensNumber);
             Assert.True(result.Data[1].TokensNumber <= result.Data[2].TokensNumber);
@@ -2242,7 +2242,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetCsprRateByCurrencyIdentifierAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetCurrentCurrencyRateAsync("1");
+            var result = await _restClient.Testnet.Rate.GetCurrentCurrencyRateAsync("1");
             Assert.True(result.Data != null);
             Assert.True(result.Data.CurrencyId == 1);
             Assert.True(result.Data.Amount > 0); // hopefully xD
@@ -2252,7 +2252,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetHistoricalCurrencyRatesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1");
+            var result = await _restClient.Testnet.Rate.GetHistoricalCurrencyRatesAsync("1");
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].CurrencyId == 1);
             Assert.True(result.Data[0].Amount > 0); // hopefully xD
@@ -2270,7 +2270,7 @@ namespace CSPR.Cloud.Net.Tests
                     To = DateTime.UtcNow
                 }
             };
-            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1", parameters);
+            var result = await _restClient.Testnet.Rate.GetHistoricalCurrencyRatesAsync("1", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.Contains(result.Data, value => value.CurrencyId == 1);
             Assert.Contains(result.Data, value => value.Created >= parameters.FilterParameters.To && value.Created <= parameters.FilterParameters.From);
@@ -2287,7 +2287,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1", parameters);
+            var result = await _restClient.Testnet.Rate.GetHistoricalCurrencyRatesAsync("1", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Created <= result.Data[1].Created);
             Assert.True(result.Data[1].Created <= result.Data[2].Created);
@@ -2310,7 +2310,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetHistoricalCurrencyRatesAsync("1", parameters);
+            var result = await _restClient.Testnet.Rate.GetHistoricalCurrencyRatesAsync("1", parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Created >= result.Data[1].Created);
             Assert.True(result.Data[1].Created >= result.Data[2].Created);
@@ -2326,7 +2326,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetCurrenciesAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetCurrenciesAsync();
+            var result = await _restClient.Testnet.Rate.GetCurrenciesAsync();
             Assert.True(result.ItemCount > 0);
         }
         [Fact]
@@ -2341,7 +2341,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Descending
                 }
             };
-            var result = await _restClient.Testnet.GetCurrenciesAsync(parameters);
+            var result = await _restClient.Testnet.Rate.GetCurrenciesAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Id >= result.Data[1].Id);
             Assert.True(result.Data[1].Id >= result.Data[2].Id);
@@ -2365,7 +2365,7 @@ namespace CSPR.Cloud.Net.Tests
                     SortType = SortType.Ascending
                 }
             };
-            var result = await _restClient.Testnet.GetCurrenciesAsync(parameters);
+            var result = await _restClient.Testnet.Rate.GetCurrenciesAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data[0].Id <= result.Data[1].Id);
             Assert.True(result.Data[1].Id <= result.Data[2].Id);
@@ -2382,7 +2382,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetCsprSupplyAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.GetSupplyAsync();
+            var result = await _restClient.Testnet.Supply.GetSupplyAsync();
             Assert.True(result.Data != null);
             Assert.True(result.Data.Circulating > 0); // hopefully
             Assert.True(result.Data.Total > 0); // hopefully
