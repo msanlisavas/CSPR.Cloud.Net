@@ -117,11 +117,11 @@ namespace CSPR.Cloud.Net.Clients.Api
                 if (requestParams != null)
                 {
                     var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.QueryParameters);
-                    if (requestParams.Sorting.OrderByBalance && requestParams.Sorting.OrderByTotalBalance)
+                    if (requestParams.SortingParameters.OrderByBalance && requestParams.SortingParameters.OrderByTotalBalance)
                     {
                         throw new InvalidOperationException("Both OrderByBalance and OrderByTotalBalance cannot be true at the same time. Choose only one to sort.");
                     }
-                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.Sorting);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
                     var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
                     var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
 
