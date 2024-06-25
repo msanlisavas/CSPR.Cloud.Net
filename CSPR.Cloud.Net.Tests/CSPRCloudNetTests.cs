@@ -179,7 +179,7 @@ namespace CSPR.Cloud.Net.Tests
         {
             var parameters = new AccountsRequestParameters
             {
-                QueryParameters = new AccountsFilterParameters
+                FilterParameters = new AccountsFilterParameters
                 {
                     AccountHashes = new List<string>
                     {
@@ -195,7 +195,7 @@ namespace CSPR.Cloud.Net.Tests
         {
             var parameters = new AccountsRequestParameters
             {
-                QueryParameters = new AccountsFilterParameters
+                FilterParameters = new AccountsFilterParameters
                 {
                     AccountHashes = new List<string>
                     {

@@ -119,7 +119,7 @@ namespace CSPR.Cloud.Net.Clients.Api
                 var url = $"{baseUrl}{BaseUrls.GetAccounts}";
                 if (requestParams != null)
                 {
-                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.QueryParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
                     if (requestParams.SortingParameters.OrderByBalance && requestParams.SortingParameters.OrderByTotalBalance)
                     {
                         throw new InvalidOperationException("Both OrderByBalance and OrderByTotalBalance cannot be true at the same time. Choose only one to sort.");

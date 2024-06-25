@@ -3,9 +3,17 @@ using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Parameters.Sorting.Nft
 {
+    /// <summary>
+    /// Base Timestamp Sorting Parameter
+    /// <para>For more information, see <see href="https://docs.cspr.cloud/documentation/overview/sorting">CSPR.Cloud API documentation</see>.</para>
+    /// </summary>
     public class NFTAccountSortingParameters : TimestampSortingParameters
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether to order by token ID. Set it to true to sort by token ID.
+        /// </summary>
         [JsonProperty("token_id")]
-        public bool TokenId { get; set; } = false;
+        public bool OrderByTokenId { get; set; } = false;
+
     }
 }
