@@ -515,6 +515,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetAccountTransfersAsync(accountIdentifier, parameters);
             }
+            public Task<PaginatedResponse<TransferData>> GetDeployTransfersAsync(string deployHash, TransferDeployRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetDeployTransfersAsync(deployHash, parameters);
+            }
         }
 
         public class CommonEndpoint
@@ -791,7 +795,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Transfer.GetAccountTransfers(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<TransferData>>(endpoint);
             }
-
+            public async Task<PaginatedResponse<TransferData>> GetDeployTransfersAsync(string deployHash, TransferDeployRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Transfer.GetDeployTransfers(_baseUrl, deployHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<TransferData>>(endpoint);
+            }
         }
 
 

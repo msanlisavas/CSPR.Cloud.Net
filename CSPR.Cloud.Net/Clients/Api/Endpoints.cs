@@ -71,6 +71,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetCurrencies { get; } = "/currencies";
             public static string GetSupply { get; } = "/supply";
             public static string GetAccountTransfers { get; } = "/accounts/{0}/transfers";
+            public static string GetDeployTransfers { get; } = "/deploys/{0}/transfers";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -944,6 +945,27 @@ namespace CSPR.Cloud.Net.Clients.Api
                     var queryString = CasperHelpers.BuildQueryString
                         (
                         filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetDeployTransfers(string baseUrl, string deployHash, TransferDeployRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetDeployTransfers, deployHash);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
                         sortingParameters: sortingParameters,
                         paginationParameters: paginationParameters,
                         optionalParameters: optionalParameters

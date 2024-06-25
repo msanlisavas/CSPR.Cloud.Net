@@ -2504,6 +2504,78 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.ItemCount == 0);
 
         }
+        // Get transfers by deploy hash Tests
+        [Fact]
+        public async Task GetTransfersByDeployHashAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Transfer.GetDeployTransfersAsync(_testDeployHash);
+            Assert.True(result.ItemCount > 0);
+        }
+        [Fact]
+        public async Task GetTransfersByDeployHashAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new TransferDeployRequestParameters
+            {
+                OptionalParameters = new TransferDeployOptionalParameters
+                {
+                    ToPublicKey = true,
+                    FromPurseAccountInfo = true,
+                    FromPurseCentralizedAccountInfo = true,
+                    FromPursePublicKey = true,
+                    InitiatorPublicKey = true,
+                    Rate = 1,
+                    ToAccountInfo = true,
+                    ToCentralizedAccountInfo = true,
+                    ToPurseAccountInfo = true,
+                    ToPurseCentralizedAccountInfo = true,
+                    ToPursePublicKey = true
+                },
+                PageSize = 10
+            };
+            var result = await _restClient.Testnet.Transfer.GetDeployTransfersAsync("da31ebd5faeb5d0e4c33e27e7b258209dac78368dcdcda56bc75026d53a7131b", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.ToPublicKey));
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.FromPursePublicKey));
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.InitiatorPublicKey));
+            Assert.Contains(result.Data, value => value.Rate != null);
+            Assert.Contains(result.Data, value => !string.IsNullOrWhiteSpace(value.ToPursePublicKey));
+
+        }
+        // Couldn't find a deploy with a lot of transfers to test the sorting
+        [Fact]
+        public async Task GetTransfersByDeployHashAsync_WithASCOrdering_ReturnsExpectedData()
+        {
+            var parameters = new TransferDeployRequestParameters
+            {
+                SortingParameters = new TransferDeploySortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Ascending
+                }
+            };
+            var result = await _restClient.Testnet.Transfer.GetDeployTransfersAsync("e3fd35c7dfbdfcad9467111b0a24d1458bc3098c8971a1f4a07e7ac0526f0be5", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp <= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp <= result.Data[2].Timestamp);
+        }
+        // Couldn't find a deploy with a lot of transfers to test the sorting
+        [Fact]
+        public async Task GetTransfersByDeployHashAsync_WithDESCOrdering_ReturnsExpectedData()
+        {
+            var parameters = new TransferDeployRequestParameters
+            {
+                SortingParameters = new TransferDeploySortingParameters
+                {
+                    OrderByTimestamp = true,
+                    SortType = SortType.Descending
+                }
+            };
+            var result = await _restClient.Testnet.Transfer.GetDeployTransfersAsync("adeb1a8db852a68f733a68a91aa519e95b198642e443ab40348ab1adffe470d0", parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].Timestamp >= result.Data[1].Timestamp);
+            Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
+
+        }
 
 
 
