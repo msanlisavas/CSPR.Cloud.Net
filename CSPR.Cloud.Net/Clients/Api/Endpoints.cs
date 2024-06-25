@@ -12,6 +12,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
+using CSPR.Cloud.Net.Parameters.Wrapper.Validator;
 using System;
 
 namespace CSPR.Cloud.Net.Clients.Api
@@ -72,6 +73,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetSupply { get; } = "/supply";
             public static string GetAccountTransfers { get; } = "/accounts/{0}/transfers";
             public static string GetDeployTransfers { get; } = "/deploys/{0}/transfers";
+            public static string GetValidator { get; } = "/validators/{0}";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -978,5 +980,29 @@ namespace CSPR.Cloud.Net.Clients.Api
                 return url;
             }
         }
+        public static class Validator
+        {
+            public static string GetValidator(string baseUrl, string publicKey, ValidatorRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetValidator, publicKey);
+                if (requestParams != null)
+                {
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+
+        }
+
     }
 }

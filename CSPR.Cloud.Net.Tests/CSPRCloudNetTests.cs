@@ -12,6 +12,7 @@ using CSPR.Cloud.Net.Parameters.Filtering.Ft;
 using CSPR.Cloud.Net.Parameters.Filtering.Nft;
 using CSPR.Cloud.Net.Parameters.Filtering.Rate;
 using CSPR.Cloud.Net.Parameters.Filtering.Transfer;
+using CSPR.Cloud.Net.Parameters.Filtering.Validator;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Bidder;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
@@ -21,6 +22,7 @@ using CSPR.Cloud.Net.Parameters.OptionalParameters.Deploy;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Ft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Nft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Transfer;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Validator;
 using CSPR.Cloud.Net.Parameters.Sorting.Account;
 using CSPR.Cloud.Net.Parameters.Sorting.Block;
 using CSPR.Cloud.Net.Parameters.Sorting.CentralizedAccountInfo;
@@ -42,6 +44,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
 using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
+using CSPR.Cloud.Net.Parameters.Wrapper.Validator;
 using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
@@ -2576,7 +2579,46 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[1].Timestamp >= result.Data[2].Timestamp);
 
         }
-
+        // Get validator by public key Tests
+        [Fact]
+        public async Task GetValidatorByPublicKeyAsync_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorRequestParameters
+            {
+                FilterParameters = new ValidatorFilterParameters
+                {
+                    EraId = "14027"
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorAsync(_test2PublicKey, parameters);
+            Assert.True(result.Data != null);
+            Assert.True(result.Data.PublicKey == _test2PublicKey);
+            Assert.True(result.Data.EraId == uint.Parse(parameters.FilterParameters.EraId));
+        }
+        [Fact]
+        public async Task GetValidatorByPublicKeyAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorRequestParameters
+            {
+                OptionalParameters = new ValidatorOptionalParameters
+                {
+                    AccountInfo = true,
+                    CentralizedAccountInfo = true,
+                    AveragePerformance = true,
+                },
+                FilterParameters = new ValidatorFilterParameters
+                {
+                    EraId = "14027"
+                }
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorAsync(_test2PublicKey, parameters);
+            Assert.True(result.Data != null);
+            Assert.True(result.Data.PublicKey == _test2PublicKey);
+            Assert.True(result.Data.EraId == uint.Parse(parameters.FilterParameters.EraId));
+            Assert.True(result.Data.TotalStake > 0);
+            Assert.True(result.Data.AveragePerformance != null);
+            Assert.True(result.Data.AccountInfo != null);
+        }
 
 
     }
