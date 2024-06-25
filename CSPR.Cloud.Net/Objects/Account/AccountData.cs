@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
+using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Objects.Account
 {
@@ -26,6 +28,10 @@ namespace CSPR.Cloud.Net.Objects.Account
         public ulong? UndelegatedBalance { get; set; }
         [JsonProperty("staked_balance")]
         public ulong? StakedBalance { get; set; }
+        [JsonProperty("account_info")]
+        public AccountInfoData AccountInfo { get; set; }
+        [JsonProperty("centralized_account_info")]
+        public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
 
     }
 }
