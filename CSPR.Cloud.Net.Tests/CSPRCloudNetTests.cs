@@ -2370,6 +2370,16 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data[8].Id <= result.Data[9].Id);
 
         }
+        // Get the latest CSPR supply Tests
+        [Fact]
+        public async Task GetCsprSupplyAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.GetSupplyAsync();
+            Assert.True(result.Data != null);
+            Assert.True(result.Data.Circulating > 0); // hopefully
+            Assert.True(result.Data.Total > 0); // hopefully
+            Assert.True(result.Data.Timestamp > DateTime.UtcNow.AddDays(-1));
+        }
 
 
 

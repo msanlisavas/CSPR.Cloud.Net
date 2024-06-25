@@ -13,6 +13,7 @@ using CSPR.Cloud.Net.Objects.Deploy;
 using CSPR.Cloud.Net.Objects.Ft;
 using CSPR.Cloud.Net.Objects.Nft;
 using CSPR.Cloud.Net.Objects.Rate;
+using CSPR.Cloud.Net.Objects.Supply;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -289,6 +290,10 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetCurrenciesAsync(parameters);
             }
+            public Task<Response<SupplyData>> GetSupplyAsync()
+            {
+                return _commonEndpoint.GetSupplyAsync();
+            }
         }
         public class TestnetEndpoint
         {
@@ -486,6 +491,10 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetCurrenciesAsync(parameters);
+            }
+            public Task<Response<SupplyData>> GetSupplyAsync()
+            {
+                return _commonEndpoint.GetSupplyAsync();
             }
         }
 
@@ -752,6 +761,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.Rate.GetCurrencies(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<CurrencyData>>(endpoint);
+            }
+            public async Task<Response<SupplyData>> GetSupplyAsync()
+            {
+                string endpoint = Endpoints.Supply.GetSupply(_baseUrl);
+                return await _casperCloudRestClient.GetDataAsync<Response<SupplyData>>(endpoint);
             }
 
         }

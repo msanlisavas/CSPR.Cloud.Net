@@ -68,6 +68,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetCurrentCurrencyRate { get; } = "/rates/{0}/amount";
             public static string GetHistoricalCurrencyRates { get; } = "/currencies/{0}/rates";
             public static string GetCurrencies { get; } = "/currencies";
+            public static string GetSupply { get; } = "/supply";
 
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
@@ -916,6 +917,14 @@ namespace CSPR.Cloud.Net.Clients.Api
                         url = $"{url}?{queryString}";
                     }
                 }
+                return url;
+            }
+        }
+        public static class Supply
+        {
+            public static string GetSupply(string baseUrl)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetSupply}";
                 return url;
             }
         }
