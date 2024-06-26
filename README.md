@@ -10,6 +10,17 @@ The library is targeting both `.NET Standard 2.0` and `.NET Standard 2.1` for op
 ## To do list
 - Implementation of Streaming API
 
+## Get the library
+`Package Manager`
+ ```
+NuGet\Install-Package CSPR.Cloud.Net -Version 1.0.0
+ ```
+`.NET CLI`
+ ```
+dotnet add package CSPR.Cloud.Net --version 1.0.0
+ ```
+	
+
 ## How to Use
 
 The `CasperCloudRestClient` class provides an easy way to interact with the CSPR Cloud API for both Mainnet and Testnet environments. Below are the steps to initialize and use the client in your application.
