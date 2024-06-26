@@ -4,6 +4,9 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion> <!-- Set C# language version -->
     <Nullable>enable</Nullable> <!-- Enable nullable reference types -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile> <!-- Enable XML documentation generation -->
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile> <!-- Specify the documentation file path -->
+    <NoWarn>$(NoWarn);1591</NoWarn> <!-- Suppress warnings for missing XML comments -->
  
   </PropertyGroup>
 
