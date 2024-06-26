@@ -7,6 +7,9 @@
 ## Supported Frameworks
 The library is targeting both `.NET Standard 2.0` and `.NET Standard 2.1` for optimal compatibility
 
+## To do list
+- Implementation of Streaming API
+
 ## How to Use
 
 The `CasperCloudRestClient` class provides an easy way to interact with the CSPR Cloud API for both Mainnet and Testnet environments. Below are the steps to initialize and use the client in your application.
