@@ -103,7 +103,7 @@ var blockData = await restClient.Mainnet.Block.GetBlockAsync("block-hash");
     "ApiKey": "your-api-key"
   }
  ```
-
+#### Startup.cs
  ```
  context.Services.AddSingleton(resolver =>
  {
@@ -111,7 +111,7 @@ var blockData = await restClient.Mainnet.Block.GetBlockAsync("block-hash");
      return new CasperCloudRestClient(new CasperCloudClientConfig(apiKey));
  });
  ```
-Then call using di
+#### Then call using di
  ```
  public class IndexModel : PageModel
 {
