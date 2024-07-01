@@ -3610,7 +3610,7 @@ namespace CSPR.Cloud.Net.Tests
         [Fact]
         public async Task GetAccountInfoByHashAsync_ReturnsExpectedData()
         {
-            var result = await _restClient.Testnet.Account.GetAccountInfo(_test2AccountHash);
+            var result = await _restClient.Testnet.Account.GetAccountInfoAsync(_test2AccountHash);
             Assert.True(result != null);
             Assert.True(result.Data != null);
             Assert.True(result.Data.AccountHash == _test2AccountHash);
