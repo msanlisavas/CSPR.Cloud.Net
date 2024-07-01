@@ -119,7 +119,7 @@ namespace CSPR.Cloud.Net.Clients
             public Validator Validator { get; }
             public MainnetEndpoint(CasperCloudRestClient casperCloudRestClient)
             {
-                _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Testnet);
+                _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Mainnet);
                 Account = new Account(_commonEndpoint);
                 Auction = new Auction(_commonEndpoint);
                 Block = new Block(_commonEndpoint);
@@ -489,7 +489,7 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Validator.GetValidatorTotalRewards(_baseUrl, publicKey);
                 return await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
             }
-            public async Task<Response<AccountInfoData>> GetAccountInfo(string accountHash)
+            public async Task<Response<AccountInfoData>> GetAccountInfoAsync(string accountHash)
             {
                 string endpoint = Endpoints.Account.GetAccountInfo(_baseUrl, accountHash);
                 return await _casperCloudRestClient.GetDataAsync<Response<AccountInfoData>>(endpoint);
@@ -543,9 +543,9 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="accountHash">The hash of the account.</param>
             /// <returns>A response containing account info data.</returns>
-            public Task<Response<AccountInfoData>> GetAccountInfo(string accountHash)
+            public Task<Response<AccountInfoData>> GetAccountInfoAsync(string accountHash)
             {
-                return _commonEndpoint.GetAccountInfo(accountHash);
+                return _commonEndpoint.GetAccountInfoAsync(accountHash);
             }
             /// <summary>
             /// Get account infos
