@@ -1,7 +1,7 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
-### v1.0.3
+### v1.0.6
 - Fixed mainnet baseUrl
 ### v1.0.2
 - Fixed an issue where mainnet endpoints were using testnet baseurl.
