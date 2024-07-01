@@ -1,10 +1,14 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
-- v.1.0.2
-- - Fixed an issue where mainnet endpoints were using testnet baseurl.
-- - GetAccountInfo endpoint replaced with GetAccountInfoAsync
-- v.1.0.0 Initial Release
+### v1.0.3
+- Fixed mainnet baseUrl
+### v1.0.2
+- Fixed an issue where mainnet endpoints were using testnet baseurl.
+- Changes:
+  - GetAccountInfo endpoint replaced with GetAccountInfoAsync
+### v.1.0.0 
+- Initial Release
 
 ## Supported Frameworks
 The library is targeting both `.NET Standard 2.0` and `.NET Standard 2.1` for optimal compatibility
