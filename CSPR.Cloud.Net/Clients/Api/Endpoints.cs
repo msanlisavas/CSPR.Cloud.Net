@@ -21,7 +21,7 @@ namespace CSPR.Cloud.Net.Clients.Api
     {
         public static class BaseUrls
         {
-            public static string Mainnet { get; } = "https://api.mainnet.cspr.cloud";
+            public static string Mainnet { get; } = "https://api.cspr.cloud";
             public static string Testnet { get; } = "https://api.testnet.cspr.cloud";
             public static string GetAccount { get; } = "/accounts/";
             public static string GetAccounts { get; } = "/accounts";
