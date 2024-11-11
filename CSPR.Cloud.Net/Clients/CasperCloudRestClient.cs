@@ -474,10 +474,10 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Validator.GetHistoricalAverageValidatorPerformance(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorPerformanceData>>(endpoint);
             }
-            public async Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
+            public async Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Validator.GetHistoricalAverageValidatorsPerformance(_baseUrl, parameters);
-                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorPerformanceData>>(endpoint);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RelativeValidatorPerformanceData>>(endpoint);
             }
             public async Task<PaginatedResponse<ValidatorRewardData>> GetValidatorRewardsAsync(string publicKey, ValidatorRewardsRequestParameters parameters = null)
             {
@@ -1394,7 +1394,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains historical average performance data of validators.</returns>
-            public Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
+            public Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
             }

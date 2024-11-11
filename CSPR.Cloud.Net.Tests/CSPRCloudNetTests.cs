@@ -3363,6 +3363,7 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync();
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Count == 10);
+            Assert.True(result.Data.All(value => value.Score != null));
 
         }
         [Fact]
@@ -3482,15 +3483,15 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Count == 10);
-            Assert.True(result.Data[0].AverageScore <= result.Data[1].AverageScore);
-            Assert.True(result.Data[1].AverageScore <= result.Data[2].AverageScore);
-            Assert.True(result.Data[2].AverageScore <= result.Data[3].AverageScore);
-            Assert.True(result.Data[3].AverageScore <= result.Data[4].AverageScore);
-            Assert.True(result.Data[4].AverageScore <= result.Data[5].AverageScore);
-            Assert.True(result.Data[5].AverageScore <= result.Data[6].AverageScore);
-            Assert.True(result.Data[6].AverageScore <= result.Data[7].AverageScore);
-            Assert.True(result.Data[7].AverageScore <= result.Data[8].AverageScore);
-            Assert.True(result.Data[8].AverageScore <= result.Data[9].AverageScore);
+            Assert.True(result.Data[0].Score <= result.Data[1].Score);
+            Assert.True(result.Data[1].Score <= result.Data[2].Score);
+            Assert.True(result.Data[2].Score <= result.Data[3].Score);
+            Assert.True(result.Data[3].Score <= result.Data[4].Score);
+            Assert.True(result.Data[4].Score <= result.Data[5].Score);
+            Assert.True(result.Data[5].Score <= result.Data[6].Score);
+            Assert.True(result.Data[6].Score <= result.Data[7].Score);
+            Assert.True(result.Data[7].Score <= result.Data[8].Score);
+            Assert.True(result.Data[8].Score <= result.Data[9].Score);
 
         }
         [Fact]
@@ -3507,15 +3508,15 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.Validator.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
             Assert.True(result.ItemCount > 0);
             Assert.True(result.Data.Count == 10);
-            Assert.True(result.Data[0].AverageScore >= result.Data[1].AverageScore);
-            Assert.True(result.Data[1].AverageScore >= result.Data[2].AverageScore);
-            Assert.True(result.Data[2].AverageScore >= result.Data[3].AverageScore);
-            Assert.True(result.Data[3].AverageScore >= result.Data[4].AverageScore);
-            Assert.True(result.Data[4].AverageScore >= result.Data[5].AverageScore);
-            Assert.True(result.Data[5].AverageScore >= result.Data[6].AverageScore);
-            Assert.True(result.Data[6].AverageScore >= result.Data[7].AverageScore);
-            Assert.True(result.Data[7].AverageScore >= result.Data[8].AverageScore);
-            Assert.True(result.Data[8].AverageScore >= result.Data[9].AverageScore);
+            Assert.True(result.Data[0].Score >= result.Data[1].Score);
+            Assert.True(result.Data[1].Score >= result.Data[2].Score);
+            Assert.True(result.Data[2].Score >= result.Data[3].Score);
+            Assert.True(result.Data[3].Score >= result.Data[4].Score);
+            Assert.True(result.Data[4].Score >= result.Data[5].Score);
+            Assert.True(result.Data[5].Score >= result.Data[6].Score);
+            Assert.True(result.Data[6].Score >= result.Data[7].Score);
+            Assert.True(result.Data[7].Score >= result.Data[8].Score);
+            Assert.True(result.Data[8].Score >= result.Data[9].Score);
 
         }
         // Get a paginated list of validator rewards Tests
