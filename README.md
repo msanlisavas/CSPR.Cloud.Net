@@ -1,10 +1,14 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
-- v.1.0.2
-- - Fixed an issue where mainnet endpoints were using testnet baseurl.
-- - GetAccountInfo endpoint replaced with GetAccountInfoAsync
-- v.1.0.0 Initial Release
+### v1.0.6
+- Fixed mainnet baseUrl
+### v1.0.2
+- Fixed an issue where mainnet endpoints were using testnet baseurl.
+- Changes:
+  - GetAccountInfo endpoint replaced with GetAccountInfoAsync
+### v.1.0.0 
+- Initial Release
 
 ## Supported Frameworks
 The library is targeting both `.NET Standard 2.0` and `.NET Standard 2.1` for optimal compatibility
@@ -31,15 +35,17 @@ The `CasperCloudRestClient` class provides an easy way to interact with the CSPR
 
 To create an instance of the `CasperCloudRestClient`, you need to provide your API key. Optionally, you can also pass a custom `HttpClient` and `ILoggerFactory` for logging purposes.
 
-#### Step-by-Step Guide
 
-1. **Add Dependencies**
+
+### Step-by-Step Guide
+
+### 1. **Add Dependencies**
 
    Ensure you have the necessary dependencies in your project. Typically, this includes:
    - `HttpClient`
    - `ILoggerFactory` from Microsoft.Extensions.Logging
 
-2. **Create a Configuration Class**
+### 2. **Create a Configuration Class**
 
    Create an instance of the `CasperCloudClientConfig` class with your API key.
 
@@ -89,12 +95,48 @@ var accountData = await restClient.Testnet.Account.GetAccountAsync("public-key")
 // Accessing the Block endpoint on Mainnet
 var blockData = await restClient.Mainnet.Block.GetBlockAsync("block-hash");
 ```
+### 5. Dependency Injection Example
+
+#### appsettings.json
+ ```
+  "CsprCloud": {
+    "ApiKey": "your-api-key"
+  }
+ ```
+#### Startup.cs
+ ```
+ context.Services.AddSingleton(resolver =>
+ {
+     var apiKey = configuration.GetSection("CsprCloud:ApiKey").Value;
+     return new CasperCloudRestClient(new CasperCloudClientConfig(apiKey));
+ });
+ ```
+#### Then call using di
+ ```
+ public class IndexModel : PageModel
+{
+     private readonly CasperCloudRestClient _restClient;
+     public IndexModel(CasperCloudRestClient restClient)
+     {
+          _restClient = restClient;
+     }
+     public async Task OnGet()
+     {
+         var result = await _restClient.Mainnet.Account.GetAccountInfoAsync("bb436216f3f56b073fc712c024a01c1291292e9533a03ddabc67ef85360b00bf");
+     }
+     
+}
+
+ ```
+
+
 ## Using Parameterized Requests on Endpoints
 
 Most of the endpoints require optional request parameters wrapped in a `RequestParameters` class, which includes three possible components:
 1. **FilterParameters**: Used to filter the results.
 2. **SortingParameters**: Used to sort the results.
 3. **OptionalParameters**: Used to include additional data in the results.
+
 
 ### Example Usage
 
@@ -129,6 +171,8 @@ var parameters = new ValidatorsRequestParameters
 // Execute the request
 var result = await _restClient.Testnet.Validator.GetValidatorsAsync(parameters);
 ```
+
+
 
 ### Samples
 
