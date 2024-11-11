@@ -1,6 +1,20 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
+### v1.0.7
+- Update tests and client for new validator performance data
+
+Updated `CSPRCloudNetTests.cs`:
+- Added assertion to check `Score` values are not null.
+- Replaced `AverageScore` ordering checks with `Score` ordering checks.
+
+Updated `CasperCloudRestClient.cs`:
+- Changed return type of `GetHistoricalValidatorsAveragePerformanceAsync` to `PaginatedResponse<RelativeValidatorPerformanceData>`.
+- Updated endpoint call, method signature, and documentation to reflect new return type.
+
+These changes ensure compatibility with updated data structures and API responses, improving the accuracy and reliability of tests and client methods.
+
+
 ### v1.0.6
 - Fixed mainnet baseUrl
 ### v1.0.2
