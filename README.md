@@ -1,6 +1,10 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
+### v1.0.8
+- Added `contract_package_hash` and `account_hash` filters to `FTAccountActionFilterParameters`
+- Enhanced fungible token action filtering capabilities for `GetAccountFTActionsAsync` methods on both Mainnet and Testnet
+
 ### v1.0.7
 - Update tests and client for new validator performance data
 

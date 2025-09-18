@@ -7,7 +7,19 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile> <!-- Enable XML documentation generation -->
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile> <!-- Specify the documentation file path -->
     <NoWarn>$(NoWarn);1591</NoWarn> <!-- Suppress warnings for missing XML comments -->
- 
+
+    <!-- NuGet Package Information -->
+    <PackageId>CSPR.Cloud.Net</PackageId>
+    <Version>1.0.8</Version>
+    <Authors>msanlisavas</Authors>
+    <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
+    <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>v1.0.8 - Added contract_package_hash and account_hash filters to FTAccountActionFilterParameters for improved fungible token action filtering.</PackageReleaseNotes>
+
   </PropertyGroup>
 
   <ItemGroup>
