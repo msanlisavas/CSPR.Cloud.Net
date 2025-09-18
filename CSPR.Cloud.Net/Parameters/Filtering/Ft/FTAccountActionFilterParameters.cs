@@ -9,6 +9,18 @@ namespace CSPR.Cloud.Net.Parameters.Filtering.Ft
     public class FTAccountActionFilterParameters
     {
         /// <summary>
+        /// Filter token actions by contract package hash
+        /// </summary>
+        [JsonProperty("contract_package_hash")]
+        public string ContractPackageHash { get; set; }
+
+        /// <summary>
+        /// Filter token actions by account hash
+        /// </summary>
+        [JsonProperty("account_hash")]
+        public string AccountHash { get; set; }
+
+        /// <summary>
         /// Filters by the starting block height.
         /// </summary>
         [JsonProperty("from_block_height")]
