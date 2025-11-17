@@ -1618,6 +1618,76 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.FT.GetContractPackageFTOwnershipAsync(_testFtTokenContractPackageHash);
             Assert.True(result.ItemCount > 0);
         }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenOwnershipAsync_WithSortingParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageOwnershipRequestParameters
+            {
+                SortingParameters = new FTOwnershipSortingParameters
+                {
+                    OrderByBalance = true,
+                    SortType = SortType.Descending
+                },
+                PageSize = 10
+            };
+            var result = await _restClient.Testnet.FT.GetContractPackageFTOwnershipAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Count > 1);
+            // Verify descending order by balance
+            var balance1 = decimal.Parse(result.Data[0].Balance);
+            var balance2 = decimal.Parse(result.Data[1].Balance);
+            Assert.True(balance1 >= balance2);
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenOwnershipAsync_WithOptionalParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageOwnershipRequestParameters
+            {
+                OptionalParameters = new FTContractPackageOwnershipOptionalParameters
+                {
+                    ContractPackage = true,
+                    AccountInfo = true,
+                    CentralizedAccountInfo = true,
+                    OwnerCsprName = true
+                },
+                PageSize = 10
+            };
+            var result = await _restClient.Testnet.FT.GetContractPackageFTOwnershipAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data[0].ContractPackage != null);
+            // Note: AccountInfo, CentralizedAccountInfo, and OwnerCsprName may be null even when requested
+            // as they depend on whether the data exists for the owner
+        }
+        [Fact]
+        public async Task GetContractPackageFungibleTokenOwnershipAsync_WithCombinedParameters_ReturnsExpectedData()
+        {
+            var parameters = new FTContractPackageOwnershipRequestParameters
+            {
+                SortingParameters = new FTOwnershipSortingParameters
+                {
+                    OrderByBalance = true,
+                    SortType = SortType.Ascending
+                },
+                OptionalParameters = new FTContractPackageOwnershipOptionalParameters
+                {
+                    ContractPackage = true,
+                    AccountInfo = true
+                },
+                PageNumber = 1,
+                PageSize = 5
+            };
+            var result = await _restClient.Testnet.FT.GetContractPackageFTOwnershipAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.True(result.ItemCount > 0);
+            Assert.True(result.Data.Count <= 5);
+            Assert.True(result.Data[0].ContractPackage != null);
+            // Verify ascending order by balance
+            if (result.Data.Count > 1)
+            {
+                var balance1 = decimal.Parse(result.Data[0].Balance);
+                var balance2 = decimal.Parse(result.Data[1].Balance);
+                Assert.True(balance1 <= balance2);
+            }
+        }
         // GetNonFungibleToken Tests
         [Fact]
         public async Task GetNonFungibleTokenAsync_ReturnsExpectedData()

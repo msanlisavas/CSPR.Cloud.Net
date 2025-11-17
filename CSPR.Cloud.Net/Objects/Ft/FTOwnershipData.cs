@@ -1,4 +1,6 @@
-﻿using CSPR.Cloud.Net.Objects.Contract;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
+using CSPR.Cloud.Net.Objects.Contract;
 using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Objects.Ft
@@ -32,6 +34,24 @@ namespace CSPR.Cloud.Net.Objects.Ft
         /// </summary>
         [JsonProperty("contract_package")]
         public ContractPackageData ContractPackage { get; set; }
+
+        /// <summary>
+        /// Owner account info data.
+        /// </summary>
+        [JsonProperty("account_info")]
+        public AccountInfoData AccountInfo { get; set; }
+
+        /// <summary>
+        /// Owner centralized account info data.
+        /// </summary>
+        [JsonProperty("centralized_account_info")]
+        public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
+
+        /// <summary>
+        /// Owner account CSPR.name.
+        /// </summary>
+        [JsonProperty("owner_cspr_name")]
+        public string OwnerCsprName { get; set; }
     }
 
 }

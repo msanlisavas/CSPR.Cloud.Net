@@ -717,9 +717,25 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
-            public static string GetContractPackageFungibleTokenOwnership(string baseUrl, string contractPackageHash)
+            public static string GetContractPackageFungibleTokenOwnership(string baseUrl, string contractPackageHash, FTContractPackageOwnershipRequestParameters requestParams = null)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetContractPackageFungibleTokenOwnership, contractPackageHash);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
                 return url;
             }
         }

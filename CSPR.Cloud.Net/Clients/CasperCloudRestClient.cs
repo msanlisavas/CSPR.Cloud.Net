@@ -364,9 +364,9 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.FT.GetAccountFungibleTokenOwnership(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTOwnershipData>>(endpoint);
             }
-            public async Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash)
+            public async Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash, FTContractPackageOwnershipRequestParameters parameters = null)
             {
-                string endpoint = Endpoints.FT.GetContractPackageFungibleTokenOwnership(_baseUrl, contractPackageHash);
+                string endpoint = Endpoints.FT.GetContractPackageFungibleTokenOwnership(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTOwnershipData>>(endpoint);
             }
             public async Task<Response<NFTTokenData>> GetNFTAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
@@ -1053,10 +1053,11 @@ namespace CSPR.Cloud.Net.Clients
             /// For more information, see <see href="https://docs.cspr.cloud/rest-api/fungible-token-ownership/get-contract-package-fungible-token-ownership">CSPR Cloud API documentation</see>.
             /// </summary>
             /// <param name="contractPackageHash">The hash of the contract package whose fungible token ownership data to retrieve.</param>
+            /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of fungible token ownership data.</returns>
-            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFTOwnershipAsync(string contractPackageHash)
+            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFTOwnershipAsync(string contractPackageHash, FTContractPackageOwnershipRequestParameters parameters = null)
             {
-                return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash);
+                return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash, parameters);
             }
         }
 
