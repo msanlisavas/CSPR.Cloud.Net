@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /CSPR.Cloud.Net/nuget.exe
 /CSPR.Cloud.Net/CSPR.Cloud.Net.nuspec
+/.claude
