@@ -1,6 +1,12 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
+### v1.0.10
+- Added `INetworkEndpoint` interface allowing easy switching between Mainnet and Testnet endpoints with type safety
+
+### v1.0.9
+- Enhanced `GetContractPackageFungibleTokenOwnership` endpoint with sorting by balance and optional parameters
+
 ### v1.0.8
 - Added `contract_package_hash` and `account_hash` filters to `FTAccountActionFilterParameters`
 - Enhanced fungible token action filtering capabilities for `GetAccountFTActionsAsync` methods on both Mainnet and Testnet
@@ -113,7 +119,27 @@ var accountData = await restClient.Testnet.Account.GetAccountAsync("public-key")
 // Accessing the Block endpoint on Mainnet
 var blockData = await restClient.Mainnet.Block.GetBlockAsync("block-hash");
 ```
-### 5. Dependency Injection Example
+
+### 5. Switching Between Networks Using INetworkEndpoint
+
+Both `Mainnet` and `Testnet` implement the `INetworkEndpoint` interface, allowing you to easily switch between networks:
+
+```csharp
+// Choose network based on configuration
+bool useTestnet = true; // or from configuration
+INetworkEndpoint network = useTestnet ? restClient.Testnet : restClient.Mainnet;
+
+// Use the selected network throughout your application
+var account = await network.Account.GetAccountAsync("public-key");
+var block = await network.Block.GetBlockAsync("block-hash");
+```
+
+This is useful when you want to:
+- Switch networks based on environment (development/production)
+- Pass the network endpoint to services without coupling them to a specific network
+- Write reusable code that works with both networks
+
+### 6. Dependency Injection Example
 
 #### appsettings.json
  ```

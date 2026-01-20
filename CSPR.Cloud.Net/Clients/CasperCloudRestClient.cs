@@ -41,6 +41,24 @@ using System.Threading.Tasks;
 
 namespace CSPR.Cloud.Net.Clients
 {
+    public interface INetworkEndpoint
+    {
+        CasperCloudRestClient.Account Account { get; }
+        CasperCloudRestClient.Auction Auction { get; }
+        CasperCloudRestClient.Bidder Bidder { get; }
+        CasperCloudRestClient.Block Block { get; }
+        CasperCloudRestClient.CentralizedAccount CentralizedAccount { get; }
+        CasperCloudRestClient.Contract Contract { get; }
+        CasperCloudRestClient.Delegate Delegate { get; }
+        CasperCloudRestClient.Deploy Deploy { get; }
+        CasperCloudRestClient.FT FT { get; }
+        CasperCloudRestClient.NFT NFT { get; }
+        CasperCloudRestClient.Rate Rate { get; }
+        CasperCloudRestClient.Supply Supply { get; }
+        CasperCloudRestClient.Transfer Transfer { get; }
+        CasperCloudRestClient.Validator Validator { get; }
+    }
+
     public class CasperCloudRestClient
     {
         private readonly string _apiKey;
@@ -100,7 +118,7 @@ namespace CSPR.Cloud.Net.Clients
             }
         }
 
-        public class MainnetEndpoint
+        public class MainnetEndpoint : INetworkEndpoint
         {
             private readonly CommonEndpoint _commonEndpoint;
             public Account Account { get; }
@@ -137,7 +155,7 @@ namespace CSPR.Cloud.Net.Clients
             }
 
         }
-        public class TestnetEndpoint
+        public class TestnetEndpoint : INetworkEndpoint
         {
             private readonly CommonEndpoint _commonEndpoint;
             public Account Account { get; }

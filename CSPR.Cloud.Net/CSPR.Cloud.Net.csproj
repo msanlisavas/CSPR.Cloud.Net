@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>1.0.9</Version>
+    <Version>1.0.10</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>v1.0.9 - Enhanced GetContractPackageFungibleTokenOwnership endpoint with sorting by balance and optional parameters (contract_package, account_info, centralized_account_info, owner_cspr_name). Added FTOwnershipData properties and comprehensive test coverage.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.10 - Added INetworkEndpoint interface allowing easy switching between Mainnet and Testnet endpoints with type safety.</PackageReleaseNotes>
 
   </PropertyGroup>
 
