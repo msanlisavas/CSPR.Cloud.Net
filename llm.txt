@@ -1,184 +1,70 @@
-# CSPR.Cloud.Net - Complete Project Reference for LLMs
+# CSPR.Cloud.Net - Complete Usage Guide
 
-## Quick Summary
-CSPR.Cloud.Net is a .NET Standard 2.0/2.1 client library for the CSPR Cloud API, providing access to Casper blockchain data (Mainnet/Testnet). It features type-safe endpoints, comprehensive parameter systems, and async-first design.
+## What Is This?
+A .NET client library for the CSPR Cloud API - access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, and pagination.
 
-## Project Structure
-```
-CSPR.Cloud.Net/
-├── Clients/
-│   ├── CasperCloudRestClient.cs      # Main entry point - exposes Mainnet/Testnet properties
-│   ├── CasperCloudSocketClient.cs    # WebSocket client for real-time data
-│   └── Api/Endpoints.cs              # All API endpoint URL definitions
-├── Objects/                          # 52 data models
-│   ├── Abstract/                     # Response wrappers: Response<T>, ListResponse<T>, PaginatedResponse<T>, ContractResponse<T>
-│   ├── Account/                      # AccountData
-│   ├── AccountInfo/                  # AccountInfoData, BrandingData, IdentityData, etc.
-│   ├── Auction/                      # AuctionMetricsData
-│   ├── Bidder/                       # BidderData
-│   ├── Block/                        # BlockData
-│   ├── Contract/                     # ContractData, ContractPackageData, EntryPointData, etc.
-│   ├── Delegate/                     # DelegationData, DelegatorRewardData
-│   ├── Deploy/                       # DeployData, DeployExecutionTypesData
-│   ├── Ft/                           # FTOwnershipData, FTTokenActionData
-│   ├── Nft/                          # NFTTokenData, NFTTokenOwnershipData, NFTTokenActionData, etc.
-│   ├── Rate/                         # RateData, CurrencyData
-│   ├── Supply/                       # SupplyData
-│   ├── Transfer/                     # TransferData
-│   ├── Validator/                    # ValidatorData, ValidatorPerformanceData, ValidatorRewardData
-│   └── Config/                       # CasperCloudClientConfig
-├── Parameters/
-│   ├── Filtering/                    # 36 filter classes (by hash, date, status, etc.)
-│   ├── Sorting/                      # 30 sorting classes (with SortType: Ascending/Descending)
-│   ├── OptionalParameters/           # 29 optional inclusion classes
-│   ├── Wrapper/                      # 50 request wrapper classes combining all params
-│   └── General/Paginated.cs          # Base pagination (PageNumber, PageSize)
-├── Enums/
-│   ├── AuctionStatus.cs              # inactive_bidder, active_bidder, active_validator, pending_validator
-│   ├── HashType.cs                   # Account, Contract
-│   ├── OwnerType.cs                  # Account, Contract
-│   └── SortType.cs                   # Ascending (ASC), Descending (DESC)
-├── Errors/                           # Custom exceptions mapped to HTTP status codes
-│   ├── InvalidParamException.cs      # 400
-│   ├── UnauthorizedException.cs      # 401
-│   ├── AccessDeniedException.cs      # 403
-│   ├── NotFoundException.cs          # 404
-│   ├── DuplicateEntryException.cs    # 409
-│   └── InternalServerErrorException.cs # 500
-├── Extensions/EnumExtensions.cs      # GetEnumMemberValue() for enum serialization
-└── Helpers/CasperHelpers.cs          # Query string building, reflection-based param creation
+**Targets:** .NET Standard 2.0 & 2.1 (compatible with .NET Core, .NET 5+, .NET Framework 4.6.1+)
 
-CSPR.Cloud.Net.Tests/
-└── CSPRCloudNetTests.cs              # xUnit test suite (100+ tests)
+## Installation
+```bash
+dotnet add package CSPR.Cloud.Net
 ```
 
-## Core Architecture
-
-### Client Initialization
+## Quick Start
 ```csharp
+using CSPR.Cloud.Net.Clients;
+using CSPR.Cloud.Net.Objects.Config;
+
+// Initialize with your API key
 var config = new CasperCloudClientConfig("your-api-key");
 var client = new CasperCloudRestClient(config);
 
-// Optional: custom HttpClient and logging
-var client = new CasperCloudRestClient(config, httpClient, loggerFactory);
+// Use Mainnet or Testnet
+var account = await client.Mainnet.Account.GetAccountAsync("01abc...");
+var validators = await client.Testnet.Validator.GetValidatorsAsync(new ValidatorsRequestParameters());
 ```
 
-### Network Endpoints (INetworkEndpoint interface)
-```csharp
-client.Mainnet.{Endpoint}.{Method}()   // Base: https://api.cspr.cloud
-client.Testnet.{Endpoint}.{Method}()   // Base: https://api.testnet.cspr.cloud
+## Available Endpoints
+Access via `client.Mainnet.{Endpoint}` or `client.Testnet.{Endpoint}`:
 
-// Available endpoints on both networks:
-.Account    .Auction    .Bidder     .Block
-.CentralizedAccount     .Contract   .Delegate
-.Deploy     .FT         .NFT        .Rate
-.Supply     .Transfer   .Validator
-```
+| Endpoint | Description |
+|----------|-------------|
+| `.Account` | Account data and info |
+| `.Auction` | Auction metrics |
+| `.Bidder` | Bidder/staking data |
+| `.Block` | Block information |
+| `.CentralizedAccount` | Exchange/service account info |
+| `.Contract` | Smart contracts and packages |
+| `.Delegate` | Delegations and rewards |
+| `.Deploy` | Deploy transactions |
+| `.FT` | Fungible tokens (CEP-18) |
+| `.NFT` | Non-fungible tokens (CEP-78) |
+| `.Rate` | CSPR currency rates |
+| `.Supply` | Token supply data |
+| `.Transfer` | CSPR transfers |
+| `.Validator` | Validator info and performance |
 
-## API Methods Reference (50+ async methods)
+---
+
+## API Methods
 
 ### Account
-- `GetAccountAsync(publicKey, optionalParams?)` → AccountData
-- `GetAccountsAsync(requestParams)` → PaginatedResponse<AccountData>
-- `GetAccountInfoAsync(accountHash)` → AccountInfoData
-- `GetAccountInfosAsync(requestParams?)` → PaginatedResponse<AccountInfoData>
-
-### Block
-- `GetBlockAsync(blockHash, optionalParams?)` → BlockData
-- `GetBlocksAsync(requestParams)` → PaginatedResponse<BlockData>
-- `GetValidatorBlocksAsync(validatorPublicKey, requestParams)` → PaginatedResponse<BlockData>
-
-### Bidder
-- `GetBidderAsync(publicKey, requestParams)` → BidderData
-- `GetBiddersAsync(requestParams)` → PaginatedResponse<BidderData>
-
-### Auction
-- `GetAuctionMetricsAsync()` → Response<AuctionMetricsData>
-
-### Contract
-- `GetContractAsync(contractHash, requestParams?)` → ContractData
-- `GetContractsAsync(requestParams)` → PaginatedResponse<ContractData>
-- `GetContractsByContractPackageAsync(packageHash, requestParams?)` → PaginatedResponse<ContractData>
-- `GetContractTypesAsync()` → List<ContractTypeData>
-- `GetContractEntryPointsAsync(contractHash)` → PaginatedResponse<EntryPointData>
-- `GetContractEntryPointCostsAsync(contractHash, entryPointName)` → Response<EntryPointCostData>
-- `GetContractPackageAsync(packageHash)` → ContractResponse<ContractPackageData>
-- `GetContractPackagesAsync(requestParams?)` → PaginatedResponse<ContractPackageData>
-- `GetAccountContractPackagesAsync(publicKey, requestParams?)` → PaginatedResponse<ContractPackageData>
-
-### Delegate
-- `GetAccountDelegationsAsync(publicKey, requestParams?)` → PaginatedResponse<DelegationData>
-- `GetValidatorDelegationsAsync(publicKey, requestParams?)` → PaginatedResponse<DelegationData>
-- `GetAccountDelegatorRewardsAsync(publicKey, requestParams?)` → PaginatedResponse<DelegatorRewardData>
-- `GetTotalAccountDelegationRewardsAsync(publicKey)` → Response<ulong>
-- `GetTotalValidatorDelegatorsRewardsAsync(publicKey)` → Response<ulong>
-
-### Deploy
-- `GetDeployAsync(deployHash, requestParams?)` → Response<DeployData>
-- `GetDeploysAsync(requestParams?)` → PaginatedResponse<DeployData>
-- `GetAccountDeploysAsync(publicKey, requestParams?)` → PaginatedResponse<DeployData>
-- `GetBlockDeploysAsync(blockIdentifier, requestParams?)` → PaginatedResponse<DeployData>
-- `GetDeployExecutionTypesAsync()` → Response<List<DeployExecutionTypesData>>
-
-### Fungible Tokens (FT)
-- `GetFungibleTokenActionsAsync(requestParams?)` → PaginatedResponse<FTTokenActionData>
-- `GetAccountFungibleTokenActionsAsync(accountId, requestParams?)` → PaginatedResponse<FTTokenActionData>
-- `GetContractPackageFungibleTokenActionsAsync(packageHash, requestParams?)` → PaginatedResponse<FTTokenActionData>
-- `GetAccountFungibleTokenOwnershipAsync(accountId, requestParams?)` → PaginatedResponse<FTOwnershipData>
-- `GetContractPackageFungibleTokenOwnershipAsync(packageHash, requestParams?)` → PaginatedResponse<FTOwnershipData>
-
-### NFT
-- `GetNFTAsync(packageHash, tokenId, requestParams?)` → Response<NFTTokenData>
-- `GetAccountNFTsAsync(accountId, requestParams?)` → PaginatedResponse<NFTTokenData>
-- `GetContractPackageNFTsAsync(packageHash, requestParams?)` → PaginatedResponse<NFTTokenData>
-- `GetNFTStandardsAsync()` → ListResponse<NFTStandardData>
-- `GetOffchainNFTMetadataStatusesAsync()` → ListResponse<NFTMetadataStatusData>
-- `GetContractPackageNFTActionsForATokenAsync(packageHash, tokenId, requestParams?)` → PaginatedResponse<NFTTokenActionData>
-- `GetAccountNFTActionsAsync(accountId, requestParams?)` → PaginatedResponse<NFTTokenActionData>
-- `GetContractPackageNFTActionsAsync(packageHash, requestParams?)` → PaginatedResponse<NFTTokenActionData>
-- `GetNFTActionTypesAsync()` → ListResponse<NFTActionTypesData>
-- `GetContractPackageNFTOwnershipAsync(packageHash, requestParams?)` → PaginatedResponse<NFTTokenOwnershipData>
-- `GetAccountNFTOwnershipAsync(accountId, requestParams?)` → PaginatedResponse<NFTTokenOwnershipData>
-
-### Rate
-- `GetCurrentCurrencyRateAsync(currencyId)` → Response<RateData>
-- `GetHistoricalCurrencyRatesAsync(currencyId, requestParams?)` → PaginatedResponse<RateData>
-- `GetCurrenciesAsync(requestParams?)` → PaginatedResponse<CurrencyData>
-
-### Supply
-- `GetSupplyAsync()` → Response<SupplyData>
-
-### Transfer
-- `GetAccountTransfersAsync(accountId, requestParams?)` → PaginatedResponse<TransferData>
-- `GetDeployTransfersAsync(deployHash, requestParams?)` → PaginatedResponse<TransferData>
-
-### Validator
-- `GetValidatorAsync(publicKey, requestParams)` → Response<ValidatorData>
-- `GetValidatorsAsync(requestParams)` → PaginatedResponse<ValidatorData>
-- `GetHistoricalValidatorPerformanceAsync(publicKey, requestParams?)` → PaginatedResponse<RelativeValidatorPerformanceData>
-- `GetHistoricalValidatorAveragePerformanceAsync(publicKey, requestParams?)` → PaginatedResponse<ValidatorPerformanceData>
-- `GetHistoricalValidatorsAveragePerformanceAsync(requestParams?)` → PaginatedResponse<RelativeValidatorPerformanceData>
-- `GetValidatorRewardsAsync(publicKey, requestParams?)` → PaginatedResponse<ValidatorRewardData>
-- `GetValidatorTotalRewardsAsync(publicKey)` → Response<ulong>
-
-## Parameter System
-
-### Three-Part Pattern
-All complex requests use wrapper classes combining:
-1. **FilterParameters** - Filter by hash, date, status, etc.
-2. **SortingParameters** - Order results (property + direction)
-3. **OptionalParameters** - Include extra data fields
-
-### Request Wrapper Example
 ```csharp
-// AccountsRequestParameters inherits from Paginated (PageNumber, PageSize)
-var params = new AccountsRequestParameters
+// Get single account
+var account = await client.Mainnet.Account.GetAccountAsync("01publicKey...");
+
+// Get single account with optional data
+var account = await client.Mainnet.Account.GetAccountAsync("01publicKey...",
+    new AccountsOptionalParameters { DelegatedBalance = true, AccountInfo = true });
+
+// Get multiple accounts with filtering, sorting, pagination
+var accounts = await client.Mainnet.Account.GetAccountsAsync(new AccountsRequestParameters
 {
     PageNumber = 1,
     PageSize = 50,
     FilterParameters = new AccountsFilterParameters
     {
-        AccountHashes = new List<string> { "hash1", "hash2" }
+        AccountHashes = new List<string> { "account-hash-abc...", "account-hash-def..." }
     },
     SortingParameters = new AccountsSortingParameters
     {
@@ -188,107 +74,574 @@ var params = new AccountsRequestParameters
     OptionalParameters = new AccountsOptionalParameters
     {
         AuctionStatus = true,
-        DelegatedBalance = true,
-        AccountInfo = true
+        StakedBalance = true
     }
-};
+});
+
+// Get account info (extended metadata)
+var info = await client.Mainnet.Account.GetAccountInfoAsync("account-hash-abc...");
+
+// Get multiple account infos
+var infos = await client.Mainnet.Account.GetAccountInfosAsync(new AccountInfosRequestParameters());
 ```
 
-### Query String Generation
-CasperHelpers builds query strings via reflection:
-- `?page=1&page_size=50`
-- `&account_hash=hash1,hash2`
-- `&order_by=balance&order_direction=DESC`
-- `&includes=auction_status,delegated_balance,account_info`
+### Block
+```csharp
+// Get block by hash
+var block = await client.Mainnet.Block.GetBlockAsync("block-hash...");
+
+// Get blocks with pagination
+var blocks = await client.Mainnet.Block.GetBlocksAsync(new BlockRequestParameters
+{
+    PageNumber = 1,
+    PageSize = 25,
+    SortingParameters = new BlockSortingParameters
+    {
+        OrderByHeight = true,
+        SortType = SortType.Descending
+    }
+});
+
+// Get blocks proposed by a validator
+var validatorBlocks = await client.Mainnet.Block.GetValidatorBlocksAsync(
+    "01validatorPublicKey...",
+    new BlockRequestParameters());
+```
+
+### Validator
+```csharp
+// Get single validator
+var validator = await client.Mainnet.Validator.GetValidatorAsync(
+    "01publicKey...",
+    new ValidatorRequestParameters());
+
+// Get all validators
+var validators = await client.Mainnet.Validator.GetValidatorsAsync(new ValidatorsRequestParameters
+{
+    PageSize = 100,
+    FilterParameters = new ValidatorsFilterParameters
+    {
+        IsActive = true
+    },
+    SortingParameters = new ValidatorsSortingParameters
+    {
+        OrderByStake = true,
+        SortType = SortType.Descending
+    },
+    OptionalParameters = new ValidatorsOptionalParameters
+    {
+        AccountInfo = true
+    }
+});
+
+// Get validator performance history
+var performance = await client.Mainnet.Validator.GetHistoricalValidatorPerformanceAsync(
+    "01publicKey...",
+    new ValidatorHistoricalPerformanceRequestParameters());
+
+// Get validator rewards
+var rewards = await client.Mainnet.Validator.GetValidatorRewardsAsync(
+    "01publicKey...",
+    new ValidatorRewardsRequestParameters());
+
+// Get total rewards
+var totalRewards = await client.Mainnet.Validator.GetValidatorTotalRewardsAsync("01publicKey...");
+```
+
+### Deploy
+```csharp
+// Get single deploy
+var deploy = await client.Mainnet.Deploy.GetDeployAsync("deploy-hash...");
+
+// Get deploys with filtering
+var deploys = await client.Mainnet.Deploy.GetDeploysAsync(new DeploysRequestParameters
+{
+    FilterParameters = new DeploysFilterParameters
+    {
+        CallerPublicKey = "01abc..."
+    }
+});
+
+// Get account's deploys
+var accountDeploys = await client.Mainnet.Deploy.GetAccountDeploysAsync(
+    "01publicKey...",
+    new AccountDeploysRequestParameters());
+
+// Get block's deploys
+var blockDeploys = await client.Mainnet.Deploy.GetBlockDeploysAsync(
+    "block-hash...",
+    new BlockDeploysRequestParameters());
+
+// Get deploy execution types
+var types = await client.Mainnet.Deploy.GetDeployExecutionTypesAsync();
+```
+
+### Delegate
+```csharp
+// Get account's delegations
+var delegations = await client.Mainnet.Delegate.GetAccountDelegationsAsync(
+    "01publicKey...",
+    new DelegationRequestParameters());
+
+// Get validator's delegators
+var delegators = await client.Mainnet.Delegate.GetValidatorDelegationsAsync(
+    "01validatorPublicKey...",
+    new DelegationRequestParameters());
+
+// Get delegator rewards
+var rewards = await client.Mainnet.Delegate.GetAccountDelegatorRewardsAsync(
+    "01publicKey...",
+    new AccountDelegatorRewardRequestParameters());
+
+// Get total delegation rewards
+var total = await client.Mainnet.Delegate.GetTotalAccountDelegationRewardsAsync("01publicKey...");
+```
+
+### Transfer
+```csharp
+// Get account transfers
+var transfers = await client.Mainnet.Transfer.GetAccountTransfersAsync(
+    "01publicKey...",
+    new TransferAccountRequestParameters
+    {
+        SortingParameters = new TransferSortingParameters
+        {
+            OrderByTimestamp = true,
+            SortType = SortType.Descending
+        }
+    });
+
+// Get deploy transfers
+var deployTransfers = await client.Mainnet.Transfer.GetDeployTransfersAsync(
+    "deploy-hash...",
+    new TransferDeployRequestParameters());
+```
+
+### Contract
+```csharp
+// Get contract by hash
+var contract = await client.Mainnet.Contract.GetContractAsync("contract-hash...");
+
+// Get contracts
+var contracts = await client.Mainnet.Contract.GetContractsAsync(new ContractsRequestParameters());
+
+// Get contract types
+var types = await client.Mainnet.Contract.GetContractTypesAsync();
+
+// Get contract entry points
+var entryPoints = await client.Mainnet.Contract.GetContractEntryPointsAsync("contract-hash...");
+
+// Get entry point costs
+var costs = await client.Mainnet.Contract.GetContractEntryPointCostsAsync(
+    "contract-hash...",
+    "entry_point_name");
+
+// Get contract package
+var package = await client.Mainnet.Contract.GetContractPackageAsync("contract-package-hash...");
+
+// Get account's contract packages
+var packages = await client.Mainnet.Contract.GetAccountContractPackagesAsync("01publicKey...");
+```
+
+### NFT (Non-Fungible Tokens)
+```csharp
+// Get single NFT
+var nft = await client.Mainnet.NFT.GetNFTAsync("contract-package-hash...", "token-id");
+
+// Get account's NFTs
+var nfts = await client.Mainnet.NFT.GetAccountNFTsAsync(
+    "01publicKey...",
+    new NFTAccountRequestParameters
+    {
+        OptionalParameters = new NFTOptionalParameters
+        {
+            OffchainMetadata = true
+        }
+    });
+
+// Get contract package NFTs
+var collectionNfts = await client.Mainnet.NFT.GetContractPackageNFTsAsync(
+    "contract-package-hash...",
+    new NFTContractPackageRequestParameters());
+
+// Get NFT actions (transfers, mints, burns)
+var actions = await client.Mainnet.NFT.GetAccountNFTActionsAsync(
+    "01publicKey...",
+    new NFTAccountActionsRequestParameters());
+
+// Get NFT ownership
+var ownership = await client.Mainnet.NFT.GetAccountNFTOwnershipAsync(
+    "01publicKey...",
+    new NFTAccountOwnershipRequestParameters());
+
+// Get supported NFT standards
+var standards = await client.Mainnet.NFT.GetNFTStandardsAsync();
+
+// Get NFT action types
+var actionTypes = await client.Mainnet.NFT.GetNFTActionTypesAsync();
+```
+
+### FT (Fungible Tokens)
+```csharp
+// Get fungible token actions
+var actions = await client.Mainnet.FT.GetFungibleTokenActionsAsync(
+    new FTActionRequestParameters());
+
+// Get account's FT actions
+var accountActions = await client.Mainnet.FT.GetAccountFungibleTokenActionsAsync(
+    "01publicKey...",
+    new FTAccountActionRequestParameters());
+
+// Get account's FT ownership (balances)
+var balances = await client.Mainnet.FT.GetAccountFungibleTokenOwnershipAsync(
+    "01publicKey...",
+    new FTAccountOwnershipRequestParameters());
+
+// Get contract package FT ownership
+var holders = await client.Mainnet.FT.GetContractPackageFungibleTokenOwnershipAsync(
+    "contract-package-hash...",
+    new FTContractPackageOwnershipRequestParameters());
+```
+
+### Bidder
+```csharp
+// Get bidder info
+var bidder = await client.Mainnet.Bidder.GetBidderAsync(
+    "01publicKey...",
+    new BidderRequestParameters());
+
+// Get all bidders
+var bidders = await client.Mainnet.Bidder.GetBiddersAsync(new BiddersRequestParameters
+{
+    FilterParameters = new BiddersFilterParameters
+    {
+        AuctionStatus = AuctionStatus.ActiveValidator
+    }
+});
+```
+
+### Rate
+```csharp
+// Get current CSPR rate
+var rate = await client.Mainnet.Rate.GetCurrentCurrencyRateAsync("usd");
+
+// Get historical rates
+var history = await client.Mainnet.Rate.GetHistoricalCurrencyRatesAsync(
+    "usd",
+    new RateHistoricalRequestParameters());
+
+// Get supported currencies
+var currencies = await client.Mainnet.Rate.GetCurrenciesAsync();
+```
+
+### Supply
+```csharp
+// Get CSPR supply info
+var supply = await client.Mainnet.Supply.GetSupplyAsync();
+```
+
+### Auction
+```csharp
+// Get auction metrics
+var metrics = await client.Mainnet.Auction.GetAuctionMetricsAsync();
+```
+
+### Centralized Account
+```csharp
+// Get exchange/service account info
+var info = await client.Mainnet.CentralizedAccount.GetCentralizedAccountInfoAsync("account-hash...");
+
+// Get all centralized accounts
+var accounts = await client.Mainnet.CentralizedAccount.GetCentralizedAccountInfosAsync(
+    new CentralizedAccountInfoRequestParameters());
+```
+
+---
 
 ## Response Types
 
-### Response<T> - Single item
+### Single Item Response
 ```csharp
-public class Response<T> { public T Data { get; set; } }
+Response<T> response = await client.Mainnet.Account.GetAccountAsync("01abc...");
+AccountData account = response.Data;
 ```
 
-### ListResponse<T> - Simple list
+### List Response
 ```csharp
-public class ListResponse<T> { public List<T> Data { get; set; } }
+ListResponse<T> response = await client.Mainnet.NFT.GetNFTStandardsAsync();
+List<NFTStandardData> standards = response.Data;
 ```
 
-### PaginatedResponse<T> - Paginated list
+### Paginated Response
 ```csharp
-public class PaginatedResponse<T>
+PaginatedResponse<T> response = await client.Mainnet.Account.GetAccountsAsync(params);
+List<AccountData> accounts = response.Data;
+int totalItems = response.ItemCount;
+int totalPages = response.PageCount;
+```
+
+---
+
+## Parameter System
+
+### Pagination (all list endpoints)
+```csharp
+var params = new AccountsRequestParameters
 {
-    public List<T> Data { get; set; }
-    public int ItemCount { get; set; }
-    public int PageCount { get; set; }
+    PageNumber = 1,      // Default: 1
+    PageSize = 50        // Default: 10, Max: 250
+};
+```
+
+### Filtering
+Filter results by specific criteria:
+```csharp
+FilterParameters = new ValidatorsFilterParameters
+{
+    IsActive = true,
+    PublicKeys = new List<string> { "01abc...", "01def..." }
 }
 ```
+
+### Sorting
+```csharp
+SortingParameters = new AccountsSortingParameters
+{
+    OrderByBalance = true,           // or OrderByTotalBalance
+    SortType = SortType.Descending   // or SortType.Ascending
+}
+```
+
+### Optional Includes
+Request additional data fields:
+```csharp
+OptionalParameters = new AccountsOptionalParameters
+{
+    AuctionStatus = true,
+    DelegatedBalance = true,
+    UndelegatingBalance = true,
+    StakedBalance = true,
+    AccountInfo = true,
+    CentralizedAccountInfo = true
+}
+```
+
+---
 
 ## Key Data Models
 
 ### AccountData
-- PublicKey, AccountHash, Balance, TotalBalance
-- Optional: AuctionStatus, DelegatedBalance, UndelegatingBalance, StakedBalance, AccountInfo
-
-### BlockData
-- BlockHash, BlockHeight, EraId, Proposer, Timestamp, DeployCount, TransferCount
+```csharp
+string PublicKey
+string AccountHash
+ulong Balance
+ulong TotalBalance
+// Optional (when requested):
+string AuctionStatus
+ulong? DelegatedBalance
+ulong? UndelegatingBalance
+ulong? StakedBalance
+AccountInfoData AccountInfo
+```
 
 ### ValidatorData
-- PublicKey, AccountHash, IsActive, Stake, DelegatorCount, DelegationRate
-- FeePercentage, Performance, AccountInfo
+```csharp
+string PublicKey
+string AccountHash
+bool IsActive
+ulong Stake
+int DelegatorCount
+decimal DelegationRate
+int FeePercentage
+decimal Performance
+AccountInfoData AccountInfo
+```
+
+### BlockData
+```csharp
+string BlockHash
+ulong BlockHeight
+ulong EraId
+string Proposer
+DateTime Timestamp
+int DeployCount
+int TransferCount
+```
 
 ### DeployData
-- DeployHash, CallerPublicKey, BlockHash, ContractHash, Cost, Status, Timestamp, ErrorMessage
-
-### ContractData
-- ContractHash, ContractPackageHash, ContractType, Timestamp, DeployHash
+```csharp
+string DeployHash
+string CallerPublicKey
+string BlockHash
+string ContractHash
+ulong Cost
+string Status
+DateTime Timestamp
+string ErrorMessage
+```
 
 ### NFTTokenData
-- TokenId, ContractPackageHash, OwnerPublicKey, OwnerAccountHash, IsOwnerAccount
-- TokenStandardId, OnchainMetadata, OffchainMetadata, Timestamp
+```csharp
+string TokenId
+string ContractPackageHash
+string OwnerPublicKey
+string OwnerAccountHash
+bool IsOwnerAccount
+int TokenStandardId
+object OnchainMetadata
+object OffchainMetadata
+DateTime Timestamp
+```
 
 ### FTOwnershipData
-- OwnerPublicKey, OwnerAccountHash, ContractPackageHash, Balance
+```csharp
+string OwnerPublicKey
+string OwnerAccountHash
+string ContractPackageHash
+string Balance
+```
+
+### DelegationData
+```csharp
+string PublicKey
+string ValidatorPublicKey
+ulong StakedAmount
+ulong BondingPurse
+```
+
+### TransferData
+```csharp
+string DeployHash
+string FromAccount
+string ToAccount
+ulong Amount
+DateTime Timestamp
+```
+
+---
+
+## Enums
+
+### SortType
+```csharp
+SortType.Ascending   // ASC
+SortType.Descending  // DESC
+```
+
+### AuctionStatus
+```csharp
+AuctionStatus.InactiveBidder
+AuctionStatus.ActiveBidder
+AuctionStatus.ActiveValidator
+AuctionStatus.PendingValidator
+```
+
+### HashType / OwnerType
+```csharp
+HashType.Account
+HashType.Contract
+
+OwnerType.Account
+OwnerType.Contract
+```
+
+---
 
 ## Error Handling
+
 ```csharp
-try {
-    var result = await client.Mainnet.Account.GetAccountAsync(publicKey);
-} catch (NotFoundException) { /* 404 */ }
-  catch (UnauthorizedException) { /* 401 - Invalid API key */ }
-  catch (AccessDeniedException) { /* 403 */ }
-  catch (InvalidParamException) { /* 400 */ }
-  catch (InternalServerErrorException) { /* 500 */ }
+using CSPR.Cloud.Net.Errors;
+
+try
+{
+    var account = await client.Mainnet.Account.GetAccountAsync("01abc...");
+}
+catch (UnauthorizedException)
+{
+    // 401 - Invalid or missing API key
+}
+catch (NotFoundException)
+{
+    // 404 - Resource not found
+}
+catch (InvalidParamException)
+{
+    // 400 - Invalid parameters
+}
+catch (AccessDeniedException)
+{
+    // 403 - Access denied
+}
+catch (InternalServerErrorException)
+{
+    // 500 - Server error
+}
 ```
 
-## Build Commands
-```bash
-dotnet build                           # Build solution
-dotnet test                            # Run tests
-dotnet test --logger "console;verbosity=detailed"
-dotnet build -c Release                # Release build
-dotnet pack CSPR.Cloud.Net/CSPR.Cloud.Net.csproj -c Release  # NuGet package
+---
+
+## Advanced Configuration
+
+### Custom HttpClient
+```csharp
+var httpClient = new HttpClient();
+httpClient.Timeout = TimeSpan.FromSeconds(60);
+
+var client = new CasperCloudRestClient(config, httpClient);
 ```
 
-## Design Patterns Used
+### With Logging
+```csharp
+var loggerFactory = LoggerFactory.Create(builder =>
+    builder.AddConsole().SetMinimumLevel(LogLevel.Debug));
 
-1. **Network Separation** - INetworkEndpoint interface for Mainnet/Testnet switching
-2. **Parameter Builder** - Reflection-based query string construction via JsonProperty attributes
-3. **Generic Response** - Type-safe response wrappers for all return types
-4. **Async-First** - All API methods are async Task<T> with Async suffix
-5. **Fluent Configuration** - Properties with sensible defaults, settable via initializers
+var client = new CasperCloudRestClient(config, loggerFactory: loggerFactory);
+```
 
-## Dependencies
-- Newtonsoft.Json (JSON serialization)
-- Microsoft.Extensions.Logging (optional logging)
-- xUnit (testing)
+---
 
-## Statistics
-- 178 C# files
-- 52 data models
-- 50+ API methods
-- 36 filter classes
-- 30 sorting classes
-- 29 optional parameter classes
-- 50 request wrapper classes
-- 6 error types
-- 4 enums
+## Complete Example
+
+```csharp
+using CSPR.Cloud.Net.Clients;
+using CSPR.Cloud.Net.Objects.Config;
+using CSPR.Cloud.Net.Parameters.Wrapper.Validator;
+using CSPR.Cloud.Net.Parameters.Sorting.Validator;
+using CSPR.Cloud.Net.Parameters.OptionalParameters.Validator;
+using CSPR.Cloud.Net.Enums;
+
+var config = new CasperCloudClientConfig("your-api-key");
+var client = new CasperCloudRestClient(config);
+
+// Get top 10 validators by stake with account info
+var validators = await client.Mainnet.Validator.GetValidatorsAsync(new ValidatorsRequestParameters
+{
+    PageNumber = 1,
+    PageSize = 10,
+    SortingParameters = new ValidatorsSortingParameters
+    {
+        OrderByStake = true,
+        SortType = SortType.Descending
+    },
+    OptionalParameters = new ValidatorsOptionalParameters
+    {
+        AccountInfo = true
+    }
+});
+
+foreach (var validator in validators.Data)
+{
+    Console.WriteLine($"{validator.AccountInfo?.Info?.Name ?? validator.PublicKey}");
+    Console.WriteLine($"  Stake: {validator.Stake / 1_000_000_000m} CSPR");
+    Console.WriteLine($"  Delegators: {validator.DelegatorCount}");
+    Console.WriteLine($"  Fee: {validator.FeePercentage}%");
+}
+
+Console.WriteLine($"\nTotal validators: {validators.ItemCount}");
+```
+
+---
+
+## API Reference Links
+- CSPR Cloud API Docs: https://docs.cspr.cloud
+- Casper Network: https://casper.network
