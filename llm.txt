@@ -1,0 +1,294 @@
+# CSPR.Cloud.Net - Complete Project Reference for LLMs
+
+## Quick Summary
+CSPR.Cloud.Net is a .NET Standard 2.0/2.1 client library for the CSPR Cloud API, providing access to Casper blockchain data (Mainnet/Testnet). It features type-safe endpoints, comprehensive parameter systems, and async-first design.
+
+## Project Structure
+```
+CSPR.Cloud.Net/
+├── Clients/
+│   ├── CasperCloudRestClient.cs      # Main entry point - exposes Mainnet/Testnet properties
+│   ├── CasperCloudSocketClient.cs    # WebSocket client for real-time data
+│   └── Api/Endpoints.cs              # All API endpoint URL definitions
+├── Objects/                          # 52 data models
+│   ├── Abstract/                     # Response wrappers: Response<T>, ListResponse<T>, PaginatedResponse<T>, ContractResponse<T>
+│   ├── Account/                      # AccountData
+│   ├── AccountInfo/                  # AccountInfoData, BrandingData, IdentityData, etc.
+│   ├── Auction/                      # AuctionMetricsData
+│   ├── Bidder/                       # BidderData
+│   ├── Block/                        # BlockData
+│   ├── Contract/                     # ContractData, ContractPackageData, EntryPointData, etc.
+│   ├── Delegate/                     # DelegationData, DelegatorRewardData
+│   ├── Deploy/                       # DeployData, DeployExecutionTypesData
+│   ├── Ft/                           # FTOwnershipData, FTTokenActionData
+│   ├── Nft/                          # NFTTokenData, NFTTokenOwnershipData, NFTTokenActionData, etc.
+│   ├── Rate/                         # RateData, CurrencyData
+│   ├── Supply/                       # SupplyData
+│   ├── Transfer/                     # TransferData
+│   ├── Validator/                    # ValidatorData, ValidatorPerformanceData, ValidatorRewardData
+│   └── Config/                       # CasperCloudClientConfig
+├── Parameters/
+│   ├── Filtering/                    # 36 filter classes (by hash, date, status, etc.)
+│   ├── Sorting/                      # 30 sorting classes (with SortType: Ascending/Descending)
+│   ├── OptionalParameters/           # 29 optional inclusion classes
+│   ├── Wrapper/                      # 50 request wrapper classes combining all params
+│   └── General/Paginated.cs          # Base pagination (PageNumber, PageSize)
+├── Enums/
+│   ├── AuctionStatus.cs              # inactive_bidder, active_bidder, active_validator, pending_validator
+│   ├── HashType.cs                   # Account, Contract
+│   ├── OwnerType.cs                  # Account, Contract
+│   └── SortType.cs                   # Ascending (ASC), Descending (DESC)
+├── Errors/                           # Custom exceptions mapped to HTTP status codes
+│   ├── InvalidParamException.cs      # 400
+│   ├── UnauthorizedException.cs      # 401
+│   ├── AccessDeniedException.cs      # 403
+│   ├── NotFoundException.cs          # 404
+│   ├── DuplicateEntryException.cs    # 409
+│   └── InternalServerErrorException.cs # 500
+├── Extensions/EnumExtensions.cs      # GetEnumMemberValue() for enum serialization
+└── Helpers/CasperHelpers.cs          # Query string building, reflection-based param creation
+
+CSPR.Cloud.Net.Tests/
+└── CSPRCloudNetTests.cs              # xUnit test suite (100+ tests)
+```
+
+## Core Architecture
+
+### Client Initialization
+```csharp
+var config = new CasperCloudClientConfig("your-api-key");
+var client = new CasperCloudRestClient(config);
+
+// Optional: custom HttpClient and logging
+var client = new CasperCloudRestClient(config, httpClient, loggerFactory);
+```
+
+### Network Endpoints (INetworkEndpoint interface)
+```csharp
+client.Mainnet.{Endpoint}.{Method}()   // Base: https://api.cspr.cloud
+client.Testnet.{Endpoint}.{Method}()   // Base: https://api.testnet.cspr.cloud
+
+// Available endpoints on both networks:
+.Account    .Auction    .Bidder     .Block
+.CentralizedAccount     .Contract   .Delegate
+.Deploy     .FT         .NFT        .Rate
+.Supply     .Transfer   .Validator
+```
+
+## API Methods Reference (50+ async methods)
+
+### Account
+- `GetAccountAsync(publicKey, optionalParams?)` → AccountData
+- `GetAccountsAsync(requestParams)` → PaginatedResponse<AccountData>
+- `GetAccountInfoAsync(accountHash)` → AccountInfoData
+- `GetAccountInfosAsync(requestParams?)` → PaginatedResponse<AccountInfoData>
+
+### Block
+- `GetBlockAsync(blockHash, optionalParams?)` → BlockData
+- `GetBlocksAsync(requestParams)` → PaginatedResponse<BlockData>
+- `GetValidatorBlocksAsync(validatorPublicKey, requestParams)` → PaginatedResponse<BlockData>
+
+### Bidder
+- `GetBidderAsync(publicKey, requestParams)` → BidderData
+- `GetBiddersAsync(requestParams)` → PaginatedResponse<BidderData>
+
+### Auction
+- `GetAuctionMetricsAsync()` → Response<AuctionMetricsData>
+
+### Contract
+- `GetContractAsync(contractHash, requestParams?)` → ContractData
+- `GetContractsAsync(requestParams)` → PaginatedResponse<ContractData>
+- `GetContractsByContractPackageAsync(packageHash, requestParams?)` → PaginatedResponse<ContractData>
+- `GetContractTypesAsync()` → List<ContractTypeData>
+- `GetContractEntryPointsAsync(contractHash)` → PaginatedResponse<EntryPointData>
+- `GetContractEntryPointCostsAsync(contractHash, entryPointName)` → Response<EntryPointCostData>
+- `GetContractPackageAsync(packageHash)` → ContractResponse<ContractPackageData>
+- `GetContractPackagesAsync(requestParams?)` → PaginatedResponse<ContractPackageData>
+- `GetAccountContractPackagesAsync(publicKey, requestParams?)` → PaginatedResponse<ContractPackageData>
+
+### Delegate
+- `GetAccountDelegationsAsync(publicKey, requestParams?)` → PaginatedResponse<DelegationData>
+- `GetValidatorDelegationsAsync(publicKey, requestParams?)` → PaginatedResponse<DelegationData>
+- `GetAccountDelegatorRewardsAsync(publicKey, requestParams?)` → PaginatedResponse<DelegatorRewardData>
+- `GetTotalAccountDelegationRewardsAsync(publicKey)` → Response<ulong>
+- `GetTotalValidatorDelegatorsRewardsAsync(publicKey)` → Response<ulong>
+
+### Deploy
+- `GetDeployAsync(deployHash, requestParams?)` → Response<DeployData>
+- `GetDeploysAsync(requestParams?)` → PaginatedResponse<DeployData>
+- `GetAccountDeploysAsync(publicKey, requestParams?)` → PaginatedResponse<DeployData>
+- `GetBlockDeploysAsync(blockIdentifier, requestParams?)` → PaginatedResponse<DeployData>
+- `GetDeployExecutionTypesAsync()` → Response<List<DeployExecutionTypesData>>
+
+### Fungible Tokens (FT)
+- `GetFungibleTokenActionsAsync(requestParams?)` → PaginatedResponse<FTTokenActionData>
+- `GetAccountFungibleTokenActionsAsync(accountId, requestParams?)` → PaginatedResponse<FTTokenActionData>
+- `GetContractPackageFungibleTokenActionsAsync(packageHash, requestParams?)` → PaginatedResponse<FTTokenActionData>
+- `GetAccountFungibleTokenOwnershipAsync(accountId, requestParams?)` → PaginatedResponse<FTOwnershipData>
+- `GetContractPackageFungibleTokenOwnershipAsync(packageHash, requestParams?)` → PaginatedResponse<FTOwnershipData>
+
+### NFT
+- `GetNFTAsync(packageHash, tokenId, requestParams?)` → Response<NFTTokenData>
+- `GetAccountNFTsAsync(accountId, requestParams?)` → PaginatedResponse<NFTTokenData>
+- `GetContractPackageNFTsAsync(packageHash, requestParams?)` → PaginatedResponse<NFTTokenData>
+- `GetNFTStandardsAsync()` → ListResponse<NFTStandardData>
+- `GetOffchainNFTMetadataStatusesAsync()` → ListResponse<NFTMetadataStatusData>
+- `GetContractPackageNFTActionsForATokenAsync(packageHash, tokenId, requestParams?)` → PaginatedResponse<NFTTokenActionData>
+- `GetAccountNFTActionsAsync(accountId, requestParams?)` → PaginatedResponse<NFTTokenActionData>
+- `GetContractPackageNFTActionsAsync(packageHash, requestParams?)` → PaginatedResponse<NFTTokenActionData>
+- `GetNFTActionTypesAsync()` → ListResponse<NFTActionTypesData>
+- `GetContractPackageNFTOwnershipAsync(packageHash, requestParams?)` → PaginatedResponse<NFTTokenOwnershipData>
+- `GetAccountNFTOwnershipAsync(accountId, requestParams?)` → PaginatedResponse<NFTTokenOwnershipData>
+
+### Rate
+- `GetCurrentCurrencyRateAsync(currencyId)` → Response<RateData>
+- `GetHistoricalCurrencyRatesAsync(currencyId, requestParams?)` → PaginatedResponse<RateData>
+- `GetCurrenciesAsync(requestParams?)` → PaginatedResponse<CurrencyData>
+
+### Supply
+- `GetSupplyAsync()` → Response<SupplyData>
+
+### Transfer
+- `GetAccountTransfersAsync(accountId, requestParams?)` → PaginatedResponse<TransferData>
+- `GetDeployTransfersAsync(deployHash, requestParams?)` → PaginatedResponse<TransferData>
+
+### Validator
+- `GetValidatorAsync(publicKey, requestParams)` → Response<ValidatorData>
+- `GetValidatorsAsync(requestParams)` → PaginatedResponse<ValidatorData>
+- `GetHistoricalValidatorPerformanceAsync(publicKey, requestParams?)` → PaginatedResponse<RelativeValidatorPerformanceData>
+- `GetHistoricalValidatorAveragePerformanceAsync(publicKey, requestParams?)` → PaginatedResponse<ValidatorPerformanceData>
+- `GetHistoricalValidatorsAveragePerformanceAsync(requestParams?)` → PaginatedResponse<RelativeValidatorPerformanceData>
+- `GetValidatorRewardsAsync(publicKey, requestParams?)` → PaginatedResponse<ValidatorRewardData>
+- `GetValidatorTotalRewardsAsync(publicKey)` → Response<ulong>
+
+## Parameter System
+
+### Three-Part Pattern
+All complex requests use wrapper classes combining:
+1. **FilterParameters** - Filter by hash, date, status, etc.
+2. **SortingParameters** - Order results (property + direction)
+3. **OptionalParameters** - Include extra data fields
+
+### Request Wrapper Example
+```csharp
+// AccountsRequestParameters inherits from Paginated (PageNumber, PageSize)
+var params = new AccountsRequestParameters
+{
+    PageNumber = 1,
+    PageSize = 50,
+    FilterParameters = new AccountsFilterParameters
+    {
+        AccountHashes = new List<string> { "hash1", "hash2" }
+    },
+    SortingParameters = new AccountsSortingParameters
+    {
+        OrderByBalance = true,
+        SortType = SortType.Descending
+    },
+    OptionalParameters = new AccountsOptionalParameters
+    {
+        AuctionStatus = true,
+        DelegatedBalance = true,
+        AccountInfo = true
+    }
+};
+```
+
+### Query String Generation
+CasperHelpers builds query strings via reflection:
+- `?page=1&page_size=50`
+- `&account_hash=hash1,hash2`
+- `&order_by=balance&order_direction=DESC`
+- `&includes=auction_status,delegated_balance,account_info`
+
+## Response Types
+
+### Response<T> - Single item
+```csharp
+public class Response<T> { public T Data { get; set; } }
+```
+
+### ListResponse<T> - Simple list
+```csharp
+public class ListResponse<T> { public List<T> Data { get; set; } }
+```
+
+### PaginatedResponse<T> - Paginated list
+```csharp
+public class PaginatedResponse<T>
+{
+    public List<T> Data { get; set; }
+    public int ItemCount { get; set; }
+    public int PageCount { get; set; }
+}
+```
+
+## Key Data Models
+
+### AccountData
+- PublicKey, AccountHash, Balance, TotalBalance
+- Optional: AuctionStatus, DelegatedBalance, UndelegatingBalance, StakedBalance, AccountInfo
+
+### BlockData
+- BlockHash, BlockHeight, EraId, Proposer, Timestamp, DeployCount, TransferCount
+
+### ValidatorData
+- PublicKey, AccountHash, IsActive, Stake, DelegatorCount, DelegationRate
+- FeePercentage, Performance, AccountInfo
+
+### DeployData
+- DeployHash, CallerPublicKey, BlockHash, ContractHash, Cost, Status, Timestamp, ErrorMessage
+
+### ContractData
+- ContractHash, ContractPackageHash, ContractType, Timestamp, DeployHash
+
+### NFTTokenData
+- TokenId, ContractPackageHash, OwnerPublicKey, OwnerAccountHash, IsOwnerAccount
+- TokenStandardId, OnchainMetadata, OffchainMetadata, Timestamp
+
+### FTOwnershipData
+- OwnerPublicKey, OwnerAccountHash, ContractPackageHash, Balance
+
+## Error Handling
+```csharp
+try {
+    var result = await client.Mainnet.Account.GetAccountAsync(publicKey);
+} catch (NotFoundException) { /* 404 */ }
+  catch (UnauthorizedException) { /* 401 - Invalid API key */ }
+  catch (AccessDeniedException) { /* 403 */ }
+  catch (InvalidParamException) { /* 400 */ }
+  catch (InternalServerErrorException) { /* 500 */ }
+```
+
+## Build Commands
+```bash
+dotnet build                           # Build solution
+dotnet test                            # Run tests
+dotnet test --logger "console;verbosity=detailed"
+dotnet build -c Release                # Release build
+dotnet pack CSPR.Cloud.Net/CSPR.Cloud.Net.csproj -c Release  # NuGet package
+```
+
+## Design Patterns Used
+
+1. **Network Separation** - INetworkEndpoint interface for Mainnet/Testnet switching
+2. **Parameter Builder** - Reflection-based query string construction via JsonProperty attributes
+3. **Generic Response** - Type-safe response wrappers for all return types
+4. **Async-First** - All API methods are async Task<T> with Async suffix
+5. **Fluent Configuration** - Properties with sensible defaults, settable via initializers
+
+## Dependencies
+- Newtonsoft.Json (JSON serialization)
+- Microsoft.Extensions.Logging (optional logging)
+- xUnit (testing)
+
+## Statistics
+- 178 C# files
+- 52 data models
+- 50+ API methods
+- 36 filter classes
+- 30 sorting classes
+- 29 optional parameter classes
+- 50 request wrapper classes
+- 6 error types
+- 4 enums
