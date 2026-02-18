@@ -363,6 +363,25 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data.Count == 250);
 
         }
+        [Fact]
+        public async Task GetBlocksAsync_ReturnsExpectedDataWithEraIdAndIsSwitchBlock()
+        {
+            var parameters = new BlockRequestParameters
+            {
+                FilterParameters = new BlockFilterParameters
+                {
+                    EraId = "21180",
+                    IsSwitchBlock = true
+                }
+            };
+            var result = await _restClient.Testnet.Block.GetBlocksAsync(parameters);
+            Assert.True(result.Data.Count > 0);
+            Assert.All(result.Data, block =>
+            {
+                Assert.Equal((uint)21180, block.EraId);
+                Assert.True(block.IsSwitchBlock);
+            });
+        }
 
         [Fact]
         public async Task GetValidatorBlocksAsync_ReturnsExpectedData()

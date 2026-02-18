@@ -102,6 +102,16 @@ var blocks = await client.Mainnet.Block.GetBlocksAsync(new BlockRequestParameter
     }
 });
 
+// Get blocks filtered by era and switch block status
+var switchBlocks = await client.Mainnet.Block.GetBlocksAsync(new BlockRequestParameters
+{
+    FilterParameters = new BlockFilterParameters
+    {
+        EraId = "12345",
+        IsSwitchBlock = true
+    }
+});
+
 // Get blocks proposed by a validator
 var validatorBlocks = await client.Mainnet.Block.GetValidatorBlocksAsync(
     "01validatorPublicKey...",

@@ -13,5 +13,17 @@ namespace CSPR.Cloud.Net.Parameters.Filtering.Block
         /// </summary>
         [JsonProperty("proposer_public_key")]
         public string ProposerPublicKey { get; set; }
+
+        /// <summary>
+        /// Filters by Era ID
+        /// </summary>
+        [JsonProperty("era_id")]
+        public string EraId { get; set; }
+
+        /// <summary>
+        /// Filters by whether the block is a switch block (last block in an era)
+        /// </summary>
+        [JsonProperty("is_switch_block")]
+        public bool? IsSwitchBlock { get; set; }
     }
 }
