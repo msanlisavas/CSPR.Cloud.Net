@@ -1,6 +1,21 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
+### v1.0.11
+- Added `era_id` and `is_switch_block` filter parameters for the `GetBlocks` endpoint
+- You can now filter blocks by era and switch block status:
+```csharp
+var parameters = new BlockRequestParameters
+{
+    FilterParameters = new BlockFilterParameters
+    {
+        EraId = "21180",
+        IsSwitchBlock = true
+    }
+};
+var result = await restClient.Testnet.Block.GetBlocksAsync(parameters);
+```
+
 ### v1.0.10
 - Added `INetworkEndpoint` interface allowing easy switching between Mainnet and Testnet endpoints with type safety
 
