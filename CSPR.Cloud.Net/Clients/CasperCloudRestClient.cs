@@ -4,19 +4,24 @@ using CSPR.Cloud.Net.Objects.Abstract;
 using CSPR.Cloud.Net.Objects.Account;
 using CSPR.Cloud.Net.Objects.AccountInfo;
 using CSPR.Cloud.Net.Objects.Auction;
+using CSPR.Cloud.Net.Objects.AwaitingDeploy;
 using CSPR.Cloud.Net.Objects.Bidder;
 using CSPR.Cloud.Net.Objects.Block;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Config;
 using CSPR.Cloud.Net.Objects.Contract;
+using CSPR.Cloud.Net.Objects.CsprName;
 using CSPR.Cloud.Net.Objects.Delegate;
 using CSPR.Cloud.Net.Objects.Deploy;
+using CSPR.Cloud.Net.Objects.Dex;
 using CSPR.Cloud.Net.Objects.Ft;
 using CSPR.Cloud.Net.Objects.Nft;
 using CSPR.Cloud.Net.Objects.Rate;
 using CSPR.Cloud.Net.Objects.Supply;
+using CSPR.Cloud.Net.Objects.Swap;
 using CSPR.Cloud.Net.Objects.Transfer;
 using CSPR.Cloud.Net.Objects.Validator;
+using CSPR.Cloud.Net.Parameters.Filtering.Ft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -29,6 +34,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Swap;
 using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
 using CSPR.Cloud.Net.Parameters.Wrapper.Validator;
 using Microsoft.Extensions.Logging;
@@ -37,6 +43,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CSPR.Cloud.Net.Clients
@@ -45,16 +52,20 @@ namespace CSPR.Cloud.Net.Clients
     {
         CasperCloudRestClient.Account Account { get; }
         CasperCloudRestClient.Auction Auction { get; }
+        CasperCloudRestClient.AwaitingDeployEndpoint AwaitingDeploy { get; }
         CasperCloudRestClient.Bidder Bidder { get; }
         CasperCloudRestClient.Block Block { get; }
         CasperCloudRestClient.CentralizedAccount CentralizedAccount { get; }
         CasperCloudRestClient.Contract Contract { get; }
+        CasperCloudRestClient.CsprNameEndpoint CsprName { get; }
         CasperCloudRestClient.Delegate Delegate { get; }
         CasperCloudRestClient.Deploy Deploy { get; }
+        CasperCloudRestClient.DexEndpoint Dex { get; }
         CasperCloudRestClient.FT FT { get; }
         CasperCloudRestClient.NFT NFT { get; }
         CasperCloudRestClient.Rate Rate { get; }
         CasperCloudRestClient.Supply Supply { get; }
+        CasperCloudRestClient.SwapEndpoint Swap { get; }
         CasperCloudRestClient.Transfer Transfer { get; }
         CasperCloudRestClient.Validator Validator { get; }
     }
@@ -118,21 +129,65 @@ namespace CSPR.Cloud.Net.Clients
             }
         }
 
+        public async Task<T> PostDataAsync<T>(string endpoint, object body) where T : class
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{endpoint}");
+            request.Headers.Add("Authorization", _apiKey);
+            request.Headers.Add("Accept", "application/json");
+            request.Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                case HttpStatusCode.Created:
+                    var content = await response.Content.ReadAsStringAsync();
+                    T result = JsonConvert.DeserializeObject<T>(content);
+                    return result ?? throw new Exception("Failed to deserialize response content.");
+
+                case HttpStatusCode.BadRequest:
+                    throw new InvalidParamException($"Invalid Param Error: {await response.Content.ReadAsStringAsync()}", _logger);
+
+                case HttpStatusCode.Unauthorized:
+                    throw new UnauthorizedException($"Unauthorized Error: {await response.Content.ReadAsStringAsync()}", _logger);
+
+                case HttpStatusCode.Forbidden:
+                    throw new AccessDeniedException($"Access Denied Error: {await response.Content.ReadAsStringAsync()}", _logger);
+
+                case HttpStatusCode.NotFound:
+                    throw new NotFoundException($"Not Found Error: {await response.Content.ReadAsStringAsync()}", _logger);
+
+                case HttpStatusCode.Conflict:
+                    throw new DuplicateEntryException($"Duplicate Entry Error: {await response.Content.ReadAsStringAsync()}", _logger);
+
+                case HttpStatusCode.InternalServerError:
+                    throw new InternalServerErrorException($"Internal Server Error: {await response.Content.ReadAsStringAsync()}", _logger);
+
+                default:
+                    throw new HttpRequestException($"Error: {response.StatusCode}");
+            }
+        }
+
         public class MainnetEndpoint : INetworkEndpoint
         {
             private readonly CommonEndpoint _commonEndpoint;
             public Account Account { get; }
             public Auction Auction { get; }
+            public AwaitingDeployEndpoint AwaitingDeploy { get; }
             public Block Block { get; }
             public Bidder Bidder { get; }
             public CentralizedAccount CentralizedAccount { get; }
             public Contract Contract { get; }
+            public CsprNameEndpoint CsprName { get; }
             public Delegate Delegate { get; }
             public Deploy Deploy { get; }
+            public DexEndpoint Dex { get; }
             public FT FT { get; }
             public NFT NFT { get; }
             public Rate Rate { get; }
             public Supply Supply { get; }
+            public SwapEndpoint Swap { get; }
             public Transfer Transfer { get; }
             public Validator Validator { get; }
             public MainnetEndpoint(CasperCloudRestClient casperCloudRestClient)
@@ -140,16 +195,20 @@ namespace CSPR.Cloud.Net.Clients
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Mainnet);
                 Account = new Account(_commonEndpoint);
                 Auction = new Auction(_commonEndpoint);
+                AwaitingDeploy = new AwaitingDeployEndpoint(_commonEndpoint);
                 Block = new Block(_commonEndpoint);
                 Bidder = new Bidder(_commonEndpoint);
                 CentralizedAccount = new CentralizedAccount(_commonEndpoint);
                 Contract = new Contract(_commonEndpoint);
+                CsprName = new CsprNameEndpoint(_commonEndpoint);
                 Delegate = new Delegate(_commonEndpoint);
                 Deploy = new Deploy(_commonEndpoint);
+                Dex = new DexEndpoint(_commonEndpoint);
                 FT = new FT(_commonEndpoint);
                 NFT = new NFT(_commonEndpoint);
                 Rate = new Rate(_commonEndpoint);
                 Supply = new Supply(_commonEndpoint);
+                Swap = new SwapEndpoint(_commonEndpoint);
                 Transfer = new Transfer(_commonEndpoint);
                 Validator = new Validator(_commonEndpoint);
             }
@@ -160,36 +219,43 @@ namespace CSPR.Cloud.Net.Clients
             private readonly CommonEndpoint _commonEndpoint;
             public Account Account { get; }
             public Auction Auction { get; }
+            public AwaitingDeployEndpoint AwaitingDeploy { get; }
             public Block Block { get; }
             public Bidder Bidder { get; }
             public CentralizedAccount CentralizedAccount { get; }
             public Contract Contract { get; }
+            public CsprNameEndpoint CsprName { get; }
             public Delegate Delegate { get; }
             public Deploy Deploy { get; }
+            public DexEndpoint Dex { get; }
             public FT FT { get; }
             public NFT NFT { get; }
             public Rate Rate { get; }
             public Supply Supply { get; }
+            public SwapEndpoint Swap { get; }
             public Transfer Transfer { get; }
             public Validator Validator { get; }
             public TestnetEndpoint(CasperCloudRestClient casperCloudRestClient)
             {
                 _commonEndpoint = new CommonEndpoint(casperCloudRestClient, Endpoints.BaseUrls.Testnet);
                 Account = new Account(_commonEndpoint);
+                Auction = new Auction(_commonEndpoint);
+                AwaitingDeploy = new AwaitingDeployEndpoint(_commonEndpoint);
                 Block = new Block(_commonEndpoint);
                 Bidder = new Bidder(_commonEndpoint);
                 CentralizedAccount = new CentralizedAccount(_commonEndpoint);
                 Contract = new Contract(_commonEndpoint);
+                CsprName = new CsprNameEndpoint(_commonEndpoint);
                 Delegate = new Delegate(_commonEndpoint);
                 Deploy = new Deploy(_commonEndpoint);
+                Dex = new DexEndpoint(_commonEndpoint);
                 FT = new FT(_commonEndpoint);
                 NFT = new NFT(_commonEndpoint);
                 Rate = new Rate(_commonEndpoint);
                 Supply = new Supply(_commonEndpoint);
+                Swap = new SwapEndpoint(_commonEndpoint);
                 Transfer = new Transfer(_commonEndpoint);
                 Validator = new Validator(_commonEndpoint);
-                Auction = new Auction(_commonEndpoint);
-
             }
         }
 
@@ -521,6 +587,122 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.Auction.GetAuctionMetrics(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<Response<AuctionMetricsData>>(endpoint);
+            }
+            // DEX
+            public async Task<ListResponse<DexData>> GetDexesAsync()
+            {
+                string endpoint = Endpoints.Dex.GetDexes(_baseUrl);
+                return await _casperCloudRestClient.GetDataAsync<ListResponse<DexData>>(endpoint);
+            }
+            // FT Action Types
+            public async Task<ListResponse<FTActionTypeData>> GetFTTokenActionTypesAsync()
+            {
+                string endpoint = Endpoints.FT.GetFTTokenActionTypes(_baseUrl);
+                return await _casperCloudRestClient.GetDataAsync<ListResponse<FTActionTypeData>>(endpoint);
+            }
+            // CSPR.name Resolution
+            public async Task<CsprNameResolutionData> GetCsprNameResolutionAsync(string name)
+            {
+                string endpoint = Endpoints.CsprName.GetCsprNameResolution(_baseUrl, name);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<CsprNameResolutionData>>(endpoint);
+                return response.Data;
+            }
+            // Purse Transfers
+            public async Task<PaginatedResponse<TransferData>> GetPurseTransfersAsync(string purseUref, TransferAccountRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Transfer.GetPurseTransfers(_baseUrl, purseUref, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<TransferData>>(endpoint);
+            }
+            // Purse Delegations
+            public async Task<PaginatedResponse<DelegationData>> GetPurseDelegationsAsync(string purseUref, DelegationRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Delegate.GetPurseDelegations(_baseUrl, purseUref, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
+            }
+            // Purse Delegation Rewards
+            public async Task<PaginatedResponse<DelegatorRewardData>> GetPurseDelegationRewardsAsync(string purseUref, AccountDelegatorRewardRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Delegate.GetPurseDelegationRewards(_baseUrl, purseUref, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegatorRewardData>>(endpoint);
+            }
+            public async Task<ulong> GetTotalPurseDelegationRewardsAsync(string purseUref)
+            {
+                string endpoint = Endpoints.Delegate.GetTotalPurseDelegationRewards(_baseUrl, purseUref);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
+                return response.Data;
+            }
+            // Validator Era Rewards
+            public async Task<PaginatedResponse<ValidatorRewardData>> GetValidatorEraRewardsAsync(string publicKey, ValidatorEraRewardsRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Validator.GetValidatorEraRewards(_baseUrl, publicKey, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorRewardData>>(endpoint);
+            }
+            // FT Rate endpoints
+            public async Task<FTRateData> GetFTRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTRateLatest(_baseUrl, contractPackageHash, filterParameters);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<FTRateData>>(endpoint);
+                return response.Data;
+            }
+            public async Task<PaginatedResponse<FTRateData>> GetFTRatesAsync(string contractPackageHash, FTRateRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTRates(_baseUrl, contractPackageHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTRateData>>(endpoint);
+            }
+            public async Task<FTDailyRateData> GetFTDailyRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTDailyRateLatest(_baseUrl, contractPackageHash, filterParameters);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<FTDailyRateData>>(endpoint);
+                return response.Data;
+            }
+            public async Task<PaginatedResponse<FTDailyRateData>> GetFTDailyRatesAsync(string contractPackageHash, FTDailyRateRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTDailyRates(_baseUrl, contractPackageHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTDailyRateData>>(endpoint);
+            }
+            public async Task<FTDexRateData> GetFTDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTDexRateLatest(_baseUrl, contractPackageHash, filterParameters);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<FTDexRateData>>(endpoint);
+                return response.Data;
+            }
+            public async Task<PaginatedResponse<FTDexRateData>> GetFTDexRatesAsync(string contractPackageHash, FTDexRateRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTDexRates(_baseUrl, contractPackageHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTDexRateData>>(endpoint);
+            }
+            public async Task<FTDailyDexRateData> GetFTDailyDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTDailyDexRateLatest(_baseUrl, contractPackageHash, filterParameters);
+                var response = await _casperCloudRestClient.GetDataAsync<Response<FTDailyDexRateData>>(endpoint);
+                return response.Data;
+            }
+            public async Task<PaginatedResponse<FTDailyDexRateData>> GetFTDailyDexRatesAsync(string contractPackageHash, FTDailyDexRateRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.FT.GetFTDailyDexRates(_baseUrl, contractPackageHash, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTDailyDexRateData>>(endpoint);
+            }
+            // Swap
+            public async Task<PaginatedResponse<SwapData>> GetSwapsAsync(SwapRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Swap.GetSwaps(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<SwapData>>(endpoint);
+            }
+            // Awaiting Deploy
+            public async Task<Response<bool>> CreateAwaitingDeployAsync(CreateAwaitingDeployRequest request)
+            {
+                string endpoint = Endpoints.AwaitingDeploy.CreateAwaitingDeploy(_baseUrl);
+                return await _casperCloudRestClient.PostDataAsync<Response<bool>>(endpoint, request.Deploy);
+            }
+            public async Task<Response<bool>> AddAwaitingDeployApprovalsAsync(string deployHash, AddApprovalRequest request)
+            {
+                string endpoint = Endpoints.AwaitingDeploy.AddAwaitingDeployApprovals(_baseUrl, deployHash);
+                return await _casperCloudRestClient.PostDataAsync<Response<bool>>(endpoint, request);
+            }
+            public async Task<AwaitingDeployData> GetAwaitingDeployAsync(string deployHash)
+            {
+                string endpoint = Endpoints.AwaitingDeploy.GetAwaitingDeploy(_baseUrl, deployHash);
+                return await _casperCloudRestClient.GetDataAsync<AwaitingDeployData>(endpoint);
             }
         }
         /// <summary>
@@ -927,6 +1109,21 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
             }
+
+            public Task<PaginatedResponse<DelegationData>> GetPurseDelegationsAsync(string purseUref, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetPurseDelegationsAsync(purseUref, parameters);
+            }
+
+            public Task<PaginatedResponse<DelegatorRewardData>> GetPurseDelegationRewardsAsync(string purseUref, AccountDelegatorRewardRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetPurseDelegationRewardsAsync(purseUref, parameters);
+            }
+
+            public Task<ulong> GetTotalPurseDelegationRewardsAsync(string purseUref)
+            {
+                return _commonEndpoint.GetTotalPurseDelegationRewardsAsync(purseUref);
+            }
         }
 
         /// <summary>
@@ -1076,6 +1273,51 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFTOwnershipAsync(string contractPackageHash, FTContractPackageOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash, parameters);
+            }
+
+            public Task<ListResponse<FTActionTypeData>> GetFTTokenActionTypesAsync()
+            {
+                return _commonEndpoint.GetFTTokenActionTypesAsync();
+            }
+
+            public Task<FTRateData> GetFTRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            {
+                return _commonEndpoint.GetFTRateLatestAsync(contractPackageHash, filterParameters);
+            }
+
+            public Task<PaginatedResponse<FTRateData>> GetFTRatesAsync(string contractPackageHash, FTRateRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetFTRatesAsync(contractPackageHash, parameters);
+            }
+
+            public Task<FTDailyRateData> GetFTDailyRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            {
+                return _commonEndpoint.GetFTDailyRateLatestAsync(contractPackageHash, filterParameters);
+            }
+
+            public Task<PaginatedResponse<FTDailyRateData>> GetFTDailyRatesAsync(string contractPackageHash, FTDailyRateRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetFTDailyRatesAsync(contractPackageHash, parameters);
+            }
+
+            public Task<FTDexRateData> GetFTDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            {
+                return _commonEndpoint.GetFTDexRateLatestAsync(contractPackageHash, filterParameters);
+            }
+
+            public Task<PaginatedResponse<FTDexRateData>> GetFTDexRatesAsync(string contractPackageHash, FTDexRateRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetFTDexRatesAsync(contractPackageHash, parameters);
+            }
+
+            public Task<FTDailyDexRateData> GetFTDailyDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            {
+                return _commonEndpoint.GetFTDailyDexRateLatestAsync(contractPackageHash, filterParameters);
+            }
+
+            public Task<PaginatedResponse<FTDailyDexRateData>> GetFTDailyDexRatesAsync(string contractPackageHash, FTDailyDexRateRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetFTDailyDexRatesAsync(contractPackageHash, parameters);
             }
         }
 
@@ -1342,6 +1584,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetDeployTransfersAsync(deployHash, parameters);
             }
+
+            public Task<PaginatedResponse<TransferData>> GetPurseTransfersAsync(string purseUref, TransferAccountRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetPurseTransfersAsync(purseUref, parameters);
+            }
         }
 
         /// <summary>
@@ -1440,9 +1687,85 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetValidatorTotalRewardsAsync(publicKey);
             }
+
+            public Task<PaginatedResponse<ValidatorRewardData>> GetValidatorEraRewardsAsync(string publicKey, ValidatorEraRewardsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetValidatorEraRewardsAsync(publicKey, parameters);
+            }
         }
 
+        // Add to FT wrapper - FT Rate + Action Type methods
+        // (handled below via new wrapper classes)
 
+        public class DexEndpoint
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public DexEndpoint(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+
+            public Task<ListResponse<DexData>> GetDexesAsync()
+            {
+                return _commonEndpoint.GetDexesAsync();
+            }
+        }
+
+        public class CsprNameEndpoint
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public CsprNameEndpoint(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+
+            public Task<CsprNameResolutionData> GetCsprNameResolutionAsync(string name)
+            {
+                return _commonEndpoint.GetCsprNameResolutionAsync(name);
+            }
+        }
+
+        public class SwapEndpoint
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public SwapEndpoint(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+
+            public Task<PaginatedResponse<SwapData>> GetSwapsAsync(SwapRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetSwapsAsync(parameters);
+            }
+        }
+
+        public class AwaitingDeployEndpoint
+        {
+            private readonly CommonEndpoint _commonEndpoint;
+
+            public AwaitingDeployEndpoint(CommonEndpoint commonEndpoint)
+            {
+                _commonEndpoint = commonEndpoint;
+            }
+
+            public Task<Response<bool>> CreateAwaitingDeployAsync(CreateAwaitingDeployRequest request)
+            {
+                return _commonEndpoint.CreateAwaitingDeployAsync(request);
+            }
+
+            public Task<Response<bool>> AddAwaitingDeployApprovalsAsync(string deployHash, AddApprovalRequest request)
+            {
+                return _commonEndpoint.AddAwaitingDeployApprovalsAsync(deployHash, request);
+            }
+
+            public Task<AwaitingDeployData> GetAwaitingDeployAsync(string deployHash)
+            {
+                return _commonEndpoint.GetAwaitingDeployAsync(deployHash);
+            }
+        }
 
 
     }

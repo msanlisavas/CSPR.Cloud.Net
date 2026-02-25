@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>1.0.11</Version>
+    <Version>1.1.0</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>v1.0.11 - Added era_id and is_switch_block filter parameters for GetBlocks endpoint.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.1.0 - Added 20 new API endpoints: DEX, Swap, FT Rate/Daily Rate/DEX Rate/Daily DEX Rate, CSPR.name Resolution, Awaiting Deploy, Purse Transfers/Delegations/Rewards, Validator Era Rewards, FT Action Types. Added POST support for Awaiting Deploy workflows.</PackageReleaseNotes>
 
   </PropertyGroup>
 

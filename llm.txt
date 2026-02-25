@@ -31,18 +31,22 @@ Access via `client.Mainnet.{Endpoint}` or `client.Testnet.{Endpoint}`:
 |----------|-------------|
 | `.Account` | Account data and info |
 | `.Auction` | Auction metrics |
+| `.AwaitingDeploy` | Awaiting deploys (multisig workflows) |
 | `.Bidder` | Bidder/staking data |
 | `.Block` | Block information |
 | `.CentralizedAccount` | Exchange/service account info |
 | `.Contract` | Smart contracts and packages |
-| `.Delegate` | Delegations and rewards |
+| `.CsprName` | CSPR.name resolution |
+| `.Delegate` | Delegations and rewards (account, validator, purse) |
 | `.Deploy` | Deploy transactions |
-| `.FT` | Fungible tokens (CEP-18) |
+| `.Dex` | DEX platforms |
+| `.FT` | Fungible tokens, rates, and actions |
 | `.NFT` | Non-fungible tokens (CEP-78) |
 | `.Rate` | CSPR currency rates |
 | `.Supply` | Token supply data |
-| `.Transfer` | CSPR transfers |
-| `.Validator` | Validator info and performance |
+| `.Swap` | Fungible token trades/swaps |
+| `.Transfer` | CSPR transfers (account, deploy, purse) |
+| `.Validator` | Validator info, performance, and era rewards |
 
 ---
 
@@ -156,6 +160,15 @@ var rewards = await client.Mainnet.Validator.GetValidatorRewardsAsync(
 
 // Get total rewards
 var totalRewards = await client.Mainnet.Validator.GetValidatorTotalRewardsAsync("01publicKey...");
+
+// Get validator era rewards (aggregated by era)
+var eraRewards = await client.Mainnet.Validator.GetValidatorEraRewardsAsync(
+    "01publicKey...",
+    new ValidatorEraRewardsRequestParameters
+    {
+        SortingParameters = new ValidatorRewardsSortingParameters { OrderByEraId = true },
+        OptionalParameters = new ValidatorRewardsOptionalParameters { Rate = 1 }
+    });
 ```
 
 ### Deploy
@@ -205,6 +218,19 @@ var rewards = await client.Mainnet.Delegate.GetAccountDelegatorRewardsAsync(
 
 // Get total delegation rewards
 var total = await client.Mainnet.Delegate.GetTotalAccountDelegationRewardsAsync("01publicKey...");
+
+// Get purse delegations
+var purseDelegations = await client.Mainnet.Delegate.GetPurseDelegationsAsync(
+    "uref-abc...-007",
+    new DelegationRequestParameters());
+
+// Get purse delegation rewards
+var purseRewards = await client.Mainnet.Delegate.GetPurseDelegationRewardsAsync(
+    "uref-abc...-007",
+    new AccountDelegatorRewardRequestParameters());
+
+// Get total purse delegation rewards
+var purseTotal = await client.Mainnet.Delegate.GetTotalPurseDelegationRewardsAsync("uref-abc...-007");
 ```
 
 ### Transfer
@@ -225,6 +251,11 @@ var transfers = await client.Mainnet.Transfer.GetAccountTransfersAsync(
 var deployTransfers = await client.Mainnet.Transfer.GetDeployTransfersAsync(
     "deploy-hash...",
     new TransferDeployRequestParameters());
+
+// Get purse transfers
+var purseTransfers = await client.Mainnet.Transfer.GetPurseTransfersAsync(
+    "uref-abc...-007",
+    new TransferAccountRequestParameters());
 ```
 
 ### Contract
@@ -311,6 +342,49 @@ var balances = await client.Mainnet.FT.GetAccountFungibleTokenOwnershipAsync(
 var holders = await client.Mainnet.FT.GetContractPackageFungibleTokenOwnershipAsync(
     "contract-package-hash...",
     new FTContractPackageOwnershipRequestParameters());
+
+// Get FT action types (Mint, Transfer, Approve, Burn)
+var actionTypes = await client.Mainnet.FT.GetFTTokenActionTypesAsync();
+
+// Get latest FT rate (currency_id required)
+var latestRate = await client.Mainnet.FT.GetFTRateLatestAsync(
+    "contract-package-hash...",
+    new FTRateFilterParameters { CurrencyId = "1" });
+
+// Get historical FT rates
+var rates = await client.Mainnet.FT.GetFTRatesAsync(
+    "contract-package-hash...",
+    new FTRateRequestParameters { FilterParameters = new FTRateFilterParameters { CurrencyId = "1" } });
+
+// Get latest daily FT rate
+var dailyRate = await client.Mainnet.FT.GetFTDailyRateLatestAsync(
+    "contract-package-hash...",
+    new FTRateFilterParameters { CurrencyId = "1" });
+
+// Get historical daily FT rates
+var dailyRates = await client.Mainnet.FT.GetFTDailyRatesAsync(
+    "contract-package-hash...",
+    new FTDailyRateRequestParameters());
+
+// Get latest FT DEX rate (token-to-token)
+var dexRate = await client.Mainnet.FT.GetFTDexRateLatestAsync(
+    "source-contract-package-hash...",
+    new FTDexRateFilterParameters { TargetContractPackageHash = "target-hash..." });
+
+// Get historical FT DEX rates
+var dexRates = await client.Mainnet.FT.GetFTDexRatesAsync(
+    "source-contract-package-hash...",
+    new FTDexRateRequestParameters());
+
+// Get latest daily FT DEX rate
+var dailyDexRate = await client.Mainnet.FT.GetFTDailyDexRateLatestAsync(
+    "source-contract-package-hash...",
+    new FTDexRateFilterParameters { TargetContractPackageHash = "target-hash..." });
+
+// Get historical daily FT DEX rates
+var dailyDexRates = await client.Mainnet.FT.GetFTDailyDexRatesAsync(
+    "source-contract-package-hash...",
+    new FTDailyDexRateRequestParameters());
 ```
 
 ### Bidder
@@ -364,6 +438,67 @@ var info = await client.Mainnet.CentralizedAccount.GetCentralizedAccountInfoAsyn
 // Get all centralized accounts
 var accounts = await client.Mainnet.CentralizedAccount.GetCentralizedAccountInfosAsync(
     new CentralizedAccountInfoRequestParameters());
+```
+
+### Dex
+```csharp
+// Get list of DEX platforms
+var dexes = await client.Mainnet.Dex.GetDexesAsync();
+// Returns ListResponse<DexData> with id (int?) and name (string)
+```
+
+### Swap
+```csharp
+// Get paginated list of token swaps/trades
+var swaps = await client.Mainnet.Swap.GetSwapsAsync(new SwapRequestParameters
+{
+    PageSize = 25,
+    FilterParameters = new SwapFilterParameters
+    {
+        ContractPackageHash = new List<string> { "contract-package-hash..." },
+        DexIds = new List<string> { "1" }
+    },
+    SortingParameters = new SwapSortingParameters
+    {
+        OrderByTimestamp = true,
+        SortType = SortType.Descending
+    },
+    OptionalParameters = new SwapOptionalParameters
+    {
+        FromTokenContractPackage = true,
+        ToTokenContractPackage = true
+    }
+});
+```
+
+### CsprName
+```csharp
+// Resolve a CSPR.name to an account hash
+var resolution = await client.Mainnet.CsprName.GetCsprNameResolutionAsync("example.cspr");
+// Returns Response<CsprNameResolutionData> with name_token_id, name, resolved_hash, is_primary, expires_at
+```
+
+### AwaitingDeploy
+```csharp
+// Create an awaiting deploy (multisig workflow)
+var createRequest = new CreateAwaitingDeployRequest
+{
+    Deploy = JObject.Parse("{ /* raw deploy JSON */ }")
+};
+var created = await client.Mainnet.AwaitingDeploy.CreateAwaitingDeployAsync(createRequest);
+
+// Add approval signatures to an awaiting deploy
+var approval = new AddApprovalRequest
+{
+    Signer = "01publicKey...",
+    Signature = "signature-hex..."
+};
+var approved = await client.Mainnet.AwaitingDeploy.AddAwaitingDeployApprovalsAsync(
+    "deploy-hash...", approval);
+
+// Get an awaiting deploy by hash
+var deploy = await client.Mainnet.AwaitingDeploy.GetAwaitingDeployAsync("deploy-hash...");
+// Returns Response<AwaitingDeployData> with deploy (JObject)
 ```
 
 ---

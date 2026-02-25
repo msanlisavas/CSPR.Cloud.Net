@@ -1,6 +1,59 @@
 # CSPR.Cloud.Net
 
 ## Release Notes
+### v1.1.0
+Added 20 new API endpoints covering 8 new categories and 6 missing endpoints in existing categories, aligning with CSPR.cloud API v2.9.0.
+
+**New Categories:**
+- **DEX** - Get list of DEXes
+- **Swap** - Get paginated list of fungible token trades with filtering, sorting, and optional properties
+- **FT Rate** - Get latest and historical fungible token rates by currency
+- **FT Daily Rate** - Get latest and historical daily aggregated token rates
+- **FT DEX Rate** - Get latest and historical token-to-token exchange rates
+- **FT Daily DEX Rate** - Get latest and historical daily token-to-token rates
+- **CSPR.name Resolution** - Resolve CSPR.name to account hash
+- **Awaiting Deploy** - Create, add signatures to, and retrieve awaiting deploys (multisig workflows)
+
+**New Endpoints in Existing Categories:**
+- **Purse Transfers** - Get transfers by purse URef
+- **Purse Delegations** - Get delegations by purse URef
+- **Purse Delegation Rewards** - Get delegation rewards and totals by purse URef
+- **Validator Era Rewards** - Get validator rewards aggregated by era
+- **FT Action Types** - Get list of fungible token action types
+
+**Other Changes:**
+- Added `PostDataAsync` support for POST endpoints
+- Added 20 new unit tests
+
+**Usage Examples:**
+
+```csharp
+// Get DEXes
+var dexes = await restClient.Testnet.Dex.GetDexesAsync();
+
+// Get swaps with filtering
+var swapParams = new SwapRequestParameters { PageSize = 25 };
+var swaps = await restClient.Testnet.Swap.GetSwapsAsync(swapParams);
+
+// Get latest FT rate
+var filterParams = new FTRateFilterParameters { CurrencyId = "1" };
+var rate = await restClient.Testnet.FT.GetFTRateLatestAsync("contract-package-hash", filterParams);
+
+// Get historical FT daily rates
+var dailyParams = new FTDailyRateRequestParameters();
+dailyParams.FilterParameters.CurrencyId = "1";
+var dailyRates = await restClient.Testnet.FT.GetFTDailyRatesAsync("contract-package-hash", dailyParams);
+
+// Resolve CSPR.name
+var resolution = await restClient.Testnet.CsprName.GetCsprNameResolutionAsync("cloud.cspr");
+
+// Get validator era rewards
+var eraRewards = await restClient.Testnet.Validator.GetValidatorEraRewardsAsync("validator-public-key");
+
+// Get purse transfers
+var purseTransfers = await restClient.Testnet.Transfer.GetPurseTransfersAsync("uref-...-007");
+```
+
 ### v1.0.11
 - Added `era_id` and `is_switch_block` filter parameters for the `GetBlocks` endpoint
 - You can now filter blocks by era and switch block status:

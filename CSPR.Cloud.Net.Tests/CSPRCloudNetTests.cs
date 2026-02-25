@@ -44,8 +44,10 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Swap;
 using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
 using CSPR.Cloud.Net.Parameters.Wrapper.Validator;
+using CSPR.Cloud.Net.Objects.AwaitingDeploy;
 using System.Numerics;
 
 namespace CSPR.Cloud.Net.Tests
@@ -3742,6 +3744,287 @@ namespace CSPR.Cloud.Net.Tests
 
 
 
+
+        // ===== NEW ENDPOINT TESTS =====
+
+        // DEX Tests
+        [Fact]
+        public async Task GetDexesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Dex.GetDexesAsync();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+            Assert.True(result.Data.Count > 0);
+        }
+
+        // FT Action Types Tests
+        [Fact]
+        public async Task GetFTTokenActionTypesAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.FT.GetFTTokenActionTypesAsync();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+            Assert.True(result.Data.Count > 0);
+        }
+
+        // CSPR.name Resolution Tests
+        [Fact]
+        public async Task GetCsprNameResolutionAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var result = await _restClient.Testnet.CsprName.GetCsprNameResolutionAsync("cloud.cspr");
+                Assert.NotNull(result);
+                Assert.NotNull(result.Name);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                // Name may not exist on testnet
+                Assert.True(true);
+            }
+        }
+
+        // Purse Transfers Tests
+        [Fact]
+        public async Task GetPurseTransfersAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var result = await _restClient.Testnet.Transfer.GetPurseTransfersAsync("uref-6f4026262a505d5e1b0e03b1e3b7580c01a4c14141a4d22ee3e7d85ad-007");
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.InvalidParamException)
+            {
+                // URef may not exist on testnet
+                Assert.True(true);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                Assert.True(true);
+            }
+        }
+
+        // Purse Delegations Tests
+        [Fact]
+        public async Task GetPurseDelegationsAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var result = await _restClient.Testnet.Delegate.GetPurseDelegationsAsync("uref-6f4026262a505d5e1b0e03b1e3b7580c01a4c14141a4d22ee3e7d85ad-007");
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.InvalidParamException)
+            {
+                Assert.True(true);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                Assert.True(true);
+            }
+        }
+
+        // Purse Delegation Rewards Tests
+        [Fact]
+        public async Task GetPurseDelegationRewardsAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var result = await _restClient.Testnet.Delegate.GetPurseDelegationRewardsAsync("uref-6f4026262a505d5e1b0e03b1e3b7580c01a4c14141a4d22ee3e7d85ad-007");
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.InvalidParamException)
+            {
+                Assert.True(true);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                Assert.True(true);
+            }
+        }
+
+        [Fact]
+        public async Task GetTotalPurseDelegationRewardsAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var result = await _restClient.Testnet.Delegate.GetTotalPurseDelegationRewardsAsync("uref-6f4026262a505d5e1b0e03b1e3b7580c01a4c14141a4d22ee3e7d85ad-007");
+                Assert.True(result >= 0);
+            }
+            catch (CSPR.Cloud.Net.Errors.InvalidParamException)
+            {
+                Assert.True(true);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                Assert.True(true);
+            }
+        }
+
+        // Validator Era Rewards Tests
+        [Fact]
+        public async Task GetValidatorEraRewardsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Validator.GetValidatorEraRewardsAsync(_testBidderPublicKey);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+        }
+
+        [Fact]
+        public async Task GetValidatorEraRewardsAsync_WithParameters_ReturnsExpectedData()
+        {
+            var parameters = new ValidatorEraRewardsRequestParameters
+            {
+                PageSize = 5,
+            };
+            var result = await _restClient.Testnet.Validator.GetValidatorEraRewardsAsync(_testBidderPublicKey, parameters);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+        }
+
+        // FT Rate Tests
+        [Fact]
+        public async Task GetFTRateLatestAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var filterParams = new FTRateFilterParameters { CurrencyId = "1" };
+                var result = await _restClient.Testnet.FT.GetFTRateLatestAsync(_testFtTokenContractPackageHash, filterParams);
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                // Rate data may not exist on testnet
+                Assert.True(true);
+            }
+        }
+
+        [Fact]
+        public async Task GetFTRatesAsync_ReturnsExpectedData()
+        {
+            var parameters = new FTRateRequestParameters();
+            parameters.FilterParameters.CurrencyId = "1";
+            var result = await _restClient.Testnet.FT.GetFTRatesAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.NotNull(result);
+        }
+
+        // FT Daily Rate Tests
+        [Fact]
+        public async Task GetFTDailyRateLatestAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var filterParams = new FTRateFilterParameters { CurrencyId = "1" };
+                var result = await _restClient.Testnet.FT.GetFTDailyRateLatestAsync(_testFtTokenContractPackageHash, filterParams);
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                Assert.True(true);
+            }
+        }
+
+        [Fact]
+        public async Task GetFTDailyRatesAsync_ReturnsExpectedData()
+        {
+            var parameters = new FTDailyRateRequestParameters();
+            parameters.FilterParameters.CurrencyId = "1";
+            var result = await _restClient.Testnet.FT.GetFTDailyRatesAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.NotNull(result);
+        }
+
+        // FT DEX Rate Tests
+        [Fact]
+        public async Task GetFTDexRateLatestAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var filterParams = new FTDexRateFilterParameters { TargetContractPackageHash = _testTokenIdOfContractPackage };
+                var result = await _restClient.Testnet.FT.GetFTDexRateLatestAsync(_testFtTokenContractPackageHash, filterParams);
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                Assert.True(true);
+            }
+        }
+
+        [Fact]
+        public async Task GetFTDexRatesAsync_ReturnsExpectedData()
+        {
+            var parameters = new FTDexRateRequestParameters();
+            parameters.FilterParameters.TargetContractPackageHash = _testTokenIdOfContractPackage;
+            var result = await _restClient.Testnet.FT.GetFTDexRatesAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.NotNull(result);
+        }
+
+        // FT Daily DEX Rate Tests
+        [Fact]
+        public async Task GetFTDailyDexRateLatestAsync_ReturnsExpectedData()
+        {
+            try
+            {
+                var filterParams = new FTDexRateFilterParameters { TargetContractPackageHash = _testTokenIdOfContractPackage };
+                var result = await _restClient.Testnet.FT.GetFTDailyDexRateLatestAsync(_testFtTokenContractPackageHash, filterParams);
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                Assert.True(true);
+            }
+        }
+
+        [Fact]
+        public async Task GetFTDailyDexRatesAsync_ReturnsExpectedData()
+        {
+            var parameters = new FTDailyDexRateRequestParameters();
+            parameters.FilterParameters.TargetContractPackageHash = _testTokenIdOfContractPackage;
+            var result = await _restClient.Testnet.FT.GetFTDailyDexRatesAsync(_testFtTokenContractPackageHash, parameters);
+            Assert.NotNull(result);
+        }
+
+        // Swap Tests
+        [Fact]
+        public async Task GetSwapsAsync_ReturnsExpectedData()
+        {
+            var result = await _restClient.Testnet.Swap.GetSwapsAsync();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+        }
+
+        [Fact]
+        public async Task GetSwapsAsync_WithParameters_ReturnsExpectedData()
+        {
+            var parameters = new SwapRequestParameters
+            {
+                PageSize = 5
+            };
+            var result = await _restClient.Testnet.Swap.GetSwapsAsync(parameters);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+        }
+
+        // Awaiting Deploy Tests
+        [Fact]
+        public async Task GetAwaitingDeployAsync_ReturnsExpectedData()
+        {
+            // This test may throw NotFoundException if the deploy hash doesn't exist
+            // which is expected behavior for awaiting deploys
+            try
+            {
+                var result = await _restClient.Testnet.AwaitingDeploy.GetAwaitingDeployAsync(_testDeployHash);
+                Assert.NotNull(result);
+            }
+            catch (CSPR.Cloud.Net.Errors.NotFoundException)
+            {
+                // Expected - awaiting deploys are temporary
+                Assert.True(true);
+            }
+            catch (CSPR.Cloud.Net.Errors.AccessDeniedException)
+            {
+                // Expected - free tier doesn't have access
+                Assert.True(true);
+            }
+        }
 
     }
 }

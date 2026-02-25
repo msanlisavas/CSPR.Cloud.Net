@@ -1,4 +1,5 @@
 ﻿using CSPR.Cloud.Net.Helpers;
+using CSPR.Cloud.Net.Parameters.Filtering.Ft;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Account;
 using CSPR.Cloud.Net.Parameters.OptionalParameters.Block;
 using CSPR.Cloud.Net.Parameters.Wrapper.Accounts;
@@ -11,6 +12,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Deploy;
 using CSPR.Cloud.Net.Parameters.Wrapper.Ft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Nft;
 using CSPR.Cloud.Net.Parameters.Wrapper.Rate;
+using CSPR.Cloud.Net.Parameters.Wrapper.Swap;
 using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
 using CSPR.Cloud.Net.Parameters.Wrapper.Validator;
 using System;
@@ -83,6 +85,42 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetValidatorRewards { get; } = "/validators/{0}/rewards";
             public static string GetValidatorTotalRewards { get; } = "/validators/{0}/total-rewards";
             public static string GetAuctionMetrics { get; } = "/auction-metrics";
+
+            // DEX
+            public static string GetDexes { get; } = "/dexes";
+
+            // FT Action Types
+            public static string GetFTTokenActionTypes { get; } = "/ft-token-action-types";
+
+            // CSPR.name Resolution
+            public static string GetCsprNameResolution { get; } = "/cspr-name-resolutions/{0}";
+
+            // Purse endpoints
+            public static string GetPurseTransfers { get; } = "/purse-urefs/{0}/transfers";
+            public static string GetPurseDelegations { get; } = "/purse-urefs/{0}/delegations";
+            public static string GetPurseDelegationRewards { get; } = "/purse-urefs/{0}/delegation-rewards";
+            public static string GetTotalPurseDelegationRewards { get; } = "/purse-urefs/{0}/total-delegation-rewards";
+
+            // Validator Era Rewards
+            public static string GetValidatorEraRewards { get; } = "/validators/{0}/era-rewards";
+
+            // FT Rates
+            public static string GetFTRateLatest { get; } = "/ft/{0}/rates/latest";
+            public static string GetFTRates { get; } = "/ft/{0}/rates";
+            public static string GetFTDailyRateLatest { get; } = "/ft/{0}/daily-rates/latest";
+            public static string GetFTDailyRates { get; } = "/ft/{0}/daily-rates";
+            public static string GetFTDexRateLatest { get; } = "/ft/{0}/dex-rates/latest";
+            public static string GetFTDexRates { get; } = "/ft/{0}/dex-rates";
+            public static string GetFTDailyDexRateLatest { get; } = "/ft/{0}/daily-dex-rates/latest";
+            public static string GetFTDailyDexRates { get; } = "/ft/{0}/daily-dex-rates";
+
+            // Swap
+            public static string GetSwaps { get; } = "/swaps";
+
+            // Awaiting Deploy
+            public static string CreateAwaitingDeploy { get; } = "/awaiting-deploys";
+            public static string AddAwaitingDeployApprovals { get; } = "/awaiting-deploys/{0}/approvals";
+            public static string GetAwaitingDeploy { get; } = "/awaiting-deploys/{0}";
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
         {
@@ -529,6 +567,55 @@ namespace CSPR.Cloud.Net.Clients.Api
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetTotalValidatorDelegatorsRewards, publicKey);
                 return url;
             }
+            public static string GetPurseDelegations(string baseUrl, string purseUref, DelegationRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetPurseDelegations, purseUref);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetPurseDelegationRewards(string baseUrl, string purseUref, AccountDelegatorRewardRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetPurseDelegationRewards, purseUref);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetTotalPurseDelegationRewards(string baseUrl, string purseUref)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetTotalPurseDelegationRewards, purseUref);
+                return url;
+            }
         }
         public static class Deploy
         {
@@ -727,6 +814,153 @@ namespace CSPR.Cloud.Net.Clients.Api
                     var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
                     var queryString = CasperHelpers.BuildQueryString
                         (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTTokenActionTypes(string baseUrl)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetFTTokenActionTypes}";
+                return url;
+            }
+            public static string GetFTRateLatest(string baseUrl, string contractPackageHash, FTRateFilterParameters filterParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTRateLatest, contractPackageHash);
+                if (filterParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(filterParams);
+                    var queryString = CasperHelpers.BuildQueryString(filteringCriteria: filterParameters);
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTRates(string baseUrl, string contractPackageHash, FTRateRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTRates, contractPackageHash);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTDailyRateLatest(string baseUrl, string contractPackageHash, FTRateFilterParameters filterParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTDailyRateLatest, contractPackageHash);
+                if (filterParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(filterParams);
+                    var queryString = CasperHelpers.BuildQueryString(filteringCriteria: filterParameters);
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTDailyRates(string baseUrl, string contractPackageHash, FTDailyRateRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTDailyRates, contractPackageHash);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTDexRateLatest(string baseUrl, string contractPackageHash, FTDexRateFilterParameters filterParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTDexRateLatest, contractPackageHash);
+                if (filterParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(filterParams);
+                    var queryString = CasperHelpers.BuildQueryString(filteringCriteria: filterParameters);
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTDexRates(string baseUrl, string contractPackageHash, FTDexRateRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTDexRates, contractPackageHash);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTDailyDexRateLatest(string baseUrl, string contractPackageHash, FTDexRateFilterParameters filterParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTDailyDexRateLatest, contractPackageHash);
+                if (filterParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(filterParams);
+                    var queryString = CasperHelpers.BuildQueryString(filteringCriteria: filterParameters);
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+            public static string GetFTDailyDexRates(string baseUrl, string contractPackageHash, FTDailyDexRateRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetFTDailyDexRates, contractPackageHash);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
                         sortingParameters: sortingParameters,
                         paginationParameters: paginationParameters,
                         optionalParameters: optionalParameters
@@ -1035,6 +1269,29 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
+            public static string GetPurseTransfers(string baseUrl, string purseUref, TransferAccountRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetPurseTransfers, purseUref);
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
         }
         public static class Validator
         {
@@ -1169,8 +1426,88 @@ namespace CSPR.Cloud.Net.Clients.Api
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetValidatorTotalRewards, publicKey);
                 return url;
             }
+            public static string GetValidatorEraRewards(string baseUrl, string publicKey, ValidatorEraRewardsRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetValidatorEraRewards, publicKey);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
 
-
+        }
+        public static class Dex
+        {
+            public static string GetDexes(string baseUrl)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetDexes}";
+                return url;
+            }
+        }
+        public static class CsprName
+        {
+            public static string GetCsprNameResolution(string baseUrl, string name)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetCsprNameResolution, name);
+                return url;
+            }
+        }
+        public static class Swap
+        {
+            public static string GetSwaps(string baseUrl, SwapRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetSwaps}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
+        }
+        public static class AwaitingDeploy
+        {
+            public static string CreateAwaitingDeploy(string baseUrl)
+            {
+                var url = $"{baseUrl}{BaseUrls.CreateAwaitingDeploy}";
+                return url;
+            }
+            public static string AddAwaitingDeployApprovals(string baseUrl, string deployHash)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.AddAwaitingDeployApprovals, deployHash);
+                return url;
+            }
+            public static string GetAwaitingDeploy(string baseUrl, string deployHash)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAwaitingDeploy, deployHash);
+                return url;
+            }
         }
     }
 }
