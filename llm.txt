@@ -745,6 +745,136 @@ var client = new CasperCloudRestClient(config, loggerFactory: loggerFactory);
 
 ---
 
+## Streaming API (WebSocket)
+
+Real-time subscriptions via `CasperCloudSocketClient`. Same shape as the REST client: pick a network, pick a stream, call `SubscribeAsync`.
+
+### Quick Start
+```csharp
+using CSPR.Cloud.Net.Clients;
+using CSPR.Cloud.Net.Objects.Config;
+using CSPR.Cloud.Net.Objects.Socket;
+using CSPR.Cloud.Net.Parameters.Socket;
+
+var socket = new CasperCloudSocketClient(new CasperCloudClientConfig("your-api-key"));
+
+using var cts = new CancellationTokenSource();
+await socket.Testnet.Block.SubscribeAsync(
+    parameters: null,
+    onMessage: msg =>
+    {
+        Console.WriteLine($"{msg.Action} @ {msg.Data.BlockHash}");
+        return Task.CompletedTask;
+    },
+    cancellationToken: cts.Token);
+```
+
+### Available Streams
+Access via `socket.Mainnet.{Stream}` or `socket.Testnet.{Stream}`:
+
+| Stream | Actions | Filters | Payload |
+|--------|---------|---------|---------|
+| `.AccountBalance` | `updated` | `AccountHash`, `PublicKey` | `AccountBalanceStreamData` |
+| `.Block` | `created` | `ProposerPublicKey` | `BlockData` |
+| `.Contract` | `created` | `ContractPackageHash`, `DeployHash` | `ContractData` |
+| `.ContractPackage` | `created`, `updated` | `ContractPackageHash`, `OwnerPublicKey` | `ContractPackageData` |
+| `.ContractEvent` | `emitted` | `ContractHash` **or** `ContractPackageHash` (required), `IncludeRawData` | `ContractEventStreamData` |
+| `.Deploy` | `created` | `ContractPackageHash`, `ContractHash`, `CallerPublicKey`, `ContractEntrypointId`, `DeployHash` | `DeployData` |
+| `.FTTokenAction` | `created` | `ContractPackageHash`, `OwnerHash` | `FTTokenActionData` |
+| `.NFT` | `created`, `updated` | `ContractPackageHash`, `OwnerHash` | `NFTTokenData` |
+| `.NFTAction` | `created` | `ContractPackageHash`, `OwnerHash` | `NFTTokenActionData` |
+| `.Transfer` | `created` | `AccountHash`, `PublicKey` | `TransferData` |
+
+### Envelope
+Every message is delivered as `WebSocketMessage<T>`:
+```csharp
+public class WebSocketMessage<T>
+{
+    public string Action { get; set; }        // "created" / "updated" / "emitted"
+    public T Data { get; set; }               // the typed payload
+    public JObject Extra { get; set; }        // per-stream metadata (deploy_hash, event_id, etc.)
+    public DateTime? Timestamp { get; set; }  // when the triggering event occurred
+}
+```
+
+### Filtering
+All filter fields are `List<string>` and comma-joined in the URL. `null` means no filter:
+```csharp
+await socket.Testnet.Deploy.SubscribeAsync(
+    new DeployStreamParameters
+    {
+        CallerPublicKey = new List<string> { "01abc..." },
+        ContractPackageHash = new List<string> { "pkg1...", "pkg2..." }
+    },
+    onMessage: msg => { Handle(msg); return Task.CompletedTask; },
+    cancellationToken: ct);
+```
+
+`ContractEventStreamParameters` requires exactly one of `ContractHash` or `ContractPackageHash` — the client throws `ArgumentException` at `BuildUri` time if neither is provided, so misuse fails fast instead of hitting a 400 on the upgrade.
+
+### Auto-Reconnect
+Opt in via `StreamReconnectPolicy` — matches the CSPR docs' guidance that clients need reconnect logic:
+```csharp
+var socket = new CasperCloudSocketClient(
+    new CasperCloudClientConfig("your-api-key"),
+    persistentSessionId: "my-consumer-id",             // replays queued messages across reconnects (Beta, paid tiers)
+    reconnectPolicy: new StreamReconnectPolicy
+    {
+        Enabled = true,
+        InitialDelay = TimeSpan.FromSeconds(1),        // defaults shown
+        MaxDelay = TimeSpan.FromSeconds(60),
+        BackoffMultiplier = 2.0,
+        JitterFactor = 0.25,                           // ±25% on each computed delay
+        MaxRetries = -1                                // -1 = unlimited
+    });
+
+await socket.Testnet.Transfer.SubscribeAsync(
+    parameters: null,
+    onMessage: msg => { Handle(msg); return Task.CompletedTask; },
+    onError: ex => { Log(ex); return Task.CompletedTask; },                  // parse errors; subscription keeps running
+    onReconnecting: (ex, attempt) =>
+    {
+        Console.WriteLine($"reconnecting attempt {attempt}: {ex?.Message}");
+        return Task.CompletedTask;
+    },
+    cancellationToken: ct);
+```
+
+**Default retry gate:** retries `WebSocketException`, `IOException`, `HttpRequestException`, `TimeoutException`, and clean server disconnects; refuses `ArgumentException` and `InvalidOperationException`. Override with `ShouldReconnect = (ex, attempt) => ...` for custom rules.
+
+**Behavior when policy is disabled (default):** single attempt, returns on clean server close, throws on transport failure — the legacy behavior.
+
+### Runtime Network Selection
+Same pattern as REST — both `Mainnet` and `Testnet` return `INetworkSocketEndpoint`:
+```csharp
+bool useTestnet = true;
+var network = useTestnet ? socket.Testnet : socket.Mainnet;
+await network.Block.SubscribeAsync(parameters: null, onMessage, cancellationToken: ct);
+```
+
+### Stopping a Subscription
+`SubscribeAsync` returns a `Task` that completes only on cancellation (or, if reconnect is off, on server close). Stop by cancelling the CTS:
+```csharp
+cts.Cancel(); // task exits with OperationCanceledException
+```
+
+### Background Execution
+Don't `await` the subscription task if you want it running in the background:
+```csharp
+var cts = new CancellationTokenSource();
+var subscription = socket.Testnet.Block.SubscribeAsync(
+    parameters: null,
+    onMessage: msg => { Handle(msg); return Task.CompletedTask; },
+    cancellationToken: cts.Token);
+
+// ... do other work ...
+
+cts.Cancel();
+try { await subscription; } catch (OperationCanceledException) { /* expected */ }
+```
+
+---
+
 ## Complete Example
 
 ```csharp
