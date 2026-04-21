@@ -78,8 +78,8 @@ namespace CSPR.Cloud.Net.Clients
 
         private readonly ILogger? _logger;
 
-        public MainnetEndpoint Mainnet { get; }
-        public TestnetEndpoint Testnet { get; }
+        public INetworkEndpoint Mainnet { get; }
+        public INetworkEndpoint Testnet { get; }
         // Primary constructor
         public CasperCloudRestClient(CasperCloudClientConfig config, HttpClient? httpClient = null, ILoggerFactory? loggerFactory = null)
         {

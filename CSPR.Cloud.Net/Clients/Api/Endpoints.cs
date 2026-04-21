@@ -121,6 +121,22 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string CreateAwaitingDeploy { get; } = "/awaiting-deploys";
             public static string AddAwaitingDeployApprovals { get; } = "/awaiting-deploys/{0}/approvals";
             public static string GetAwaitingDeploy { get; } = "/awaiting-deploys/{0}";
+
+            // Streaming (WebSocket) Base URLs
+            public static string StreamingMainnet { get; } = "wss://streaming.cspr.cloud";
+            public static string StreamingTestnet { get; } = "wss://streaming.testnet.cspr.cloud";
+
+            // Streaming channels
+            public static string StreamAccountBalances { get; } = "/account-balances";
+            public static string StreamBlocks { get; } = "/blocks";
+            public static string StreamContracts { get; } = "/contracts";
+            public static string StreamContractPackages { get; } = "/contract-packages";
+            public static string StreamContractEvents { get; } = "/contract-events";
+            public static string StreamDeploys { get; } = "/deploys";
+            public static string StreamFTTokenActions { get; } = "/ft-token-actions";
+            public static string StreamNFTTokens { get; } = "/nft-tokens";
+            public static string StreamNFTTokenActions { get; } = "/nft-token-actions";
+            public static string StreamTransfers { get; } = "/transfers";
         }
         public static string FormatUrlWithParameter(string baseUrl, string urlTemplate, params object[] parameters)
         {
