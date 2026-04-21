@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>v1.2.0 - Added Streaming API (WebSocket) via CasperCloudSocketClient with 10 channels: account balance, block, contract, contract package, contract-level events, deploy, fungible token action, NFT, NFT action, transfer. Includes opt-in StreamReconnectPolicy (exponential backoff + jitter), Persistent-Session support, INetworkSocketEndpoint for runtime network selection, and 50 new tests. REST client Mainnet/Testnet properties now return INetworkEndpoint for the same pattern.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.2.1 - Fix: Streaming API pump now tolerates the plaintext "Ping" keepalive text frames that the CSPR Cloud server interleaves between JSON envelopes. v1.2.0 would terminate the subscription with JsonReaderException on the first keepalive (~5s after connect). Non-JSON frames are now skipped via a new IsJsonEnvelope guard. Stricter integration tests added: a strict end-to-end Block test validates a real testnet envelope (BlockHeight, BlockHash) within the window, and the other nine stream tests now fail on UnauthorizedException and parse errors instead of swallowing them. The Contract stream is marked Skipped because streaming.cspr.cloud/contracts and streaming.testnet.cspr.cloud/contracts both return HTTP 404 — server-side issue, not an SDK bug.</PackageReleaseNotes>
 
   </PropertyGroup>
 

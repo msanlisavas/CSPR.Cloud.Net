@@ -190,6 +190,15 @@ namespace CSPR.Cloud.Net.Clients.Socket
 
                         var json = Encoding.UTF8.GetString(payload.ToArray());
 
+                        // The server sends plaintext keepalives (e.g. "Ping") as text frames
+                        // between JSON envelopes. Skip anything that isn't a JSON object/array
+                        // so the pump keeps running instead of throwing a parse error.
+                        if (!IsJsonEnvelope(json))
+                        {
+                            logger?.LogTrace("Skipping non-JSON stream frame: {Payload}", json);
+                            continue;
+                        }
+
                         WebSocketMessage<T> envelope;
                         try
                         {
@@ -215,6 +224,17 @@ namespace CSPR.Cloud.Net.Clients.Socket
                     }
                 }
             }
+        }
+
+        internal static bool IsJsonEnvelope(string payload)
+        {
+            for (int i = 0; i < payload.Length; i++)
+            {
+                char c = payload[i];
+                if (c == ' ' || c == '\t' || c == '\r' || c == '\n') continue;
+                return c == '{' || c == '[';
+            }
+            return false;
         }
     }
 }
