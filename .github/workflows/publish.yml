@@ -1,0 +1,121 @@
+name: Publish to NuGet
+
+# Triggers only when the project file is touched on master. The first step then
+# compares the <Version> tag between HEAD and HEAD~1 — if it bumped, we build,
+# test, pack, push to NuGet, tag the commit, and draft a GitHub release.
+# If the version is unchanged the workflow no-ops.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'CSPR.Cloud.Net/CSPR.Cloud.Net.csproj'
+  workflow_dispatch: # allow manual re-run
+
+permissions:
+  contents: write # needed to push the git tag and create the GitHub release
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # need HEAD~1 for version diff
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Read current <Version>
+        id: current
+        shell: bash
+        run: |
+          VERSION=$(grep -oE '<Version>[^<]+</Version>' CSPR.Cloud.Net/CSPR.Cloud.Net.csproj | sed -E 's|</?Version>||g')
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not read <Version> from csproj"; exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Current version: $VERSION"
+
+      - name: Read previous <Version>
+        id: previous
+        shell: bash
+        run: |
+          if git cat-file -e HEAD~1:CSPR.Cloud.Net/CSPR.Cloud.Net.csproj 2>/dev/null; then
+            PREV=$(git show HEAD~1:CSPR.Cloud.Net/CSPR.Cloud.Net.csproj \
+              | grep -oE '<Version>[^<]+</Version>' \
+              | sed -E 's|</?Version>||g' || true)
+          else
+            PREV=""
+          fi
+          echo "version=$PREV" >> "$GITHUB_OUTPUT"
+          echo "Previous version: ${PREV:-<none>}"
+
+      - name: Decide whether to publish
+        id: decide
+        shell: bash
+        run: |
+          if [ "${{ steps.current.outputs.version }}" = "${{ steps.previous.outputs.version }}" ]; then
+            echo "Version unchanged — nothing to publish."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version changed: ${{ steps.previous.outputs.version }} → ${{ steps.current.outputs.version }}"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore
+        if: steps.decide.outputs.publish == 'true'
+        run: dotnet restore CSPR.Cloud.Net.sln
+
+      - name: Build (Release)
+        if: steps.decide.outputs.publish == 'true'
+        run: dotnet build CSPR.Cloud.Net.sln -c Release --no-restore
+
+      - name: Test (socket suite)
+        if: steps.decide.outputs.publish == 'true'
+        run: >
+          dotnet test CSPR.Cloud.Net.Tests/CSPR.Cloud.Net.Tests.csproj
+          -c Release --no-build
+          --filter "FullyQualifiedName~CSPRCloudNetSocketTests"
+
+      - name: Pack
+        if: steps.decide.outputs.publish == 'true'
+        run: >
+          dotnet pack CSPR.Cloud.Net/CSPR.Cloud.Net.csproj
+          -c Release --no-build
+          -o ./artifacts
+
+      - name: Push to NuGet
+        if: steps.decide.outputs.publish == 'true'
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "::error::NUGET_API_KEY secret is not set. Add it under Settings → Secrets → Actions."
+            exit 1
+          fi
+          dotnet nuget push ./artifacts/*.nupkg \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+      - name: Tag release commit
+        if: steps.decide.outputs.publish == 'true'
+        run: |
+          VERSION="v${{ steps.current.outputs.version }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+
+      - name: Create GitHub release
+        if: steps.decide.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.current.outputs.version }}"
+          gh release create "$VERSION" ./artifacts/*.nupkg \
+            --title "$VERSION" \
+            --generate-notes
