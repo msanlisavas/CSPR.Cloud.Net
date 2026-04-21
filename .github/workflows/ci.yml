@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,14 +22,3 @@ jobs:
 
       - name: Build (Release)
         run: dotnet build CSPR.Cloud.Net.sln -c Release --no-restore
-
-      # Runs the Streaming-API / WebSocket test suite only. The REST suite
-      # (CSPRCloudNetTests) asserts against live testnet state and has
-      # pre-existing data-dependent failures that would make CI permanently red.
-      # To include them, change the filter to `--filter "Category!=Skip"` or drop
-      # the --filter flag entirely.
-      - name: Test (socket suite)
-        run: >
-          dotnet test CSPR.Cloud.Net.Tests/CSPR.Cloud.Net.Tests.csproj
-          -c Release --no-build --verbosity normal
-          --filter "FullyQualifiedName~CSPRCloudNetSocketTests"

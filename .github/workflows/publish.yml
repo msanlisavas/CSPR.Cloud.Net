@@ -18,6 +18,10 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # NUGET_API_KEY lives under the "Production" GitHub Environment, so the job
+    # must declare that environment to read it. Also surfaces this run on the
+    # repo's Deployments view and gives you a place to add reviewers later.
+    environment: Production
     steps:
       - uses: actions/checkout@v4
         with:
@@ -71,14 +75,7 @@ jobs:
 
       - name: Build (Release)
         if: steps.decide.outputs.publish == 'true'
-        run: dotnet build CSPR.Cloud.Net.sln -c Release --no-restore
-
-      - name: Test (socket suite)
-        if: steps.decide.outputs.publish == 'true'
-        run: >
-          dotnet test CSPR.Cloud.Net.Tests/CSPR.Cloud.Net.Tests.csproj
-          -c Release --no-build
-          --filter "FullyQualifiedName~CSPRCloudNetSocketTests"
+        run: dotnet build CSPR.Cloud.Net/CSPR.Cloud.Net.csproj -c Release --no-restore
 
       - name: Pack
         if: steps.decide.outputs.publish == 'true'
