@@ -1,9 +1,11 @@
 # CSPR.Cloud.Net - Complete Usage Guide
 
 ## What Is This?
-A .NET client library for the CSPR Cloud API - access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, and pagination.
+A .NET client library for the CSPR Cloud API - access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
 
 **Targets:** .NET Standard 2.0 & 2.1 (compatible with .NET Core, .NET 5+, .NET Framework 4.6.1+)
+
+**Current version: 2.0.0** — tracks CSPR Cloud API through v2.9.0. See the README's Release Notes for the full v2.0.0 surface and breaking changes (notably: balance/stake fields migrated from `ulong?` to `string` to avoid uint64 overflow on large accounts; `SupplyData.Timestamp` is a Unix-seconds `long?`).
 
 ## Installation
 ```bash
@@ -41,7 +43,7 @@ Access via `client.Mainnet.{Endpoint}` or `client.Testnet.{Endpoint}`:
 | `.Deploy` | Deploy transactions |
 | `.Dex` | DEX platforms |
 | `.FT` | Fungible tokens, rates, and actions |
-| `.NFT` | Non-fungible tokens (CEP-78) |
+| `.NFT` | Non-fungible tokens (CEP-47, CEP-78, CEP-95) |
 | `.Rate` | CSPR currency rates |
 | `.Supply` | Token supply data |
 | `.Swap` | Fungible token trades/swaps |
@@ -139,12 +141,13 @@ var validators = await client.Mainnet.Validator.GetValidatorsAsync(new Validator
     },
     SortingParameters = new ValidatorsSortingParameters
     {
-        OrderByStake = true,
+        OrderByTotalStake = true,
         SortType = SortType.Descending
     },
     OptionalParameters = new ValidatorsOptionalParameters
     {
-        AccountInfo = true
+        AccountInfo = true,
+        CsprName = true                  // v2.1.0 — pull each validator's CSPR.name when available
     }
 });
 
@@ -153,10 +156,22 @@ var performance = await client.Mainnet.Validator.GetHistoricalValidatorPerforman
     "01publicKey...",
     new ValidatorHistoricalPerformanceRequestParameters());
 
-// Get validator rewards
+// Get validator rewards with era-range filter (v2.4.0) and CSPR.name includer (v2.1.0)
 var rewards = await client.Mainnet.Validator.GetValidatorRewardsAsync(
     "01publicKey...",
-    new ValidatorRewardsRequestParameters());
+    new ValidatorRewardsRequestParameters
+    {
+        FilterParameters = new ValidatorRewardsFilterParameters
+        {
+            FromEraId = "21900",
+            ToEraId = "21950"
+        },
+        OptionalParameters = new ValidatorRewardsOptionalParameters
+        {
+            Rate = 1,
+            CsprName = true
+        }
+    });
 
 // Get total rewards
 var totalRewards = await client.Mainnet.Validator.GetValidatorTotalRewardsAsync("01publicKey...");
@@ -166,6 +181,11 @@ var eraRewards = await client.Mainnet.Validator.GetValidatorEraRewardsAsync(
     "01publicKey...",
     new ValidatorEraRewardsRequestParameters
     {
+        FilterParameters = new ValidatorRewardsFilterParameters
+        {
+            FromEraId = "21900",
+            ToEraId = "21950"
+        },
         SortingParameters = new ValidatorRewardsSortingParameters { OrderByEraId = true },
         OptionalParameters = new ValidatorRewardsOptionalParameters { Rate = 1 }
     });
@@ -205,6 +225,13 @@ var types = await client.Mainnet.Deploy.GetDeployExecutionTypesAsync();
 var delegations = await client.Mainnet.Delegate.GetAccountDelegationsAsync(
     "01publicKey...",
     new DelegationRequestParameters());
+
+// Get account's PENDING undelegations (v2.0.0 SDK / v2.5.1 API) — funds in the 7-era unbonding window
+var pending = await client.Mainnet.Delegate.GetAccountUndelegationsAsync(
+    "01publicKey...",
+    new DelegationRequestParameters());
+// Returns PaginatedResponse<UndelegationData>
+// Includes DelegatorIdentifier + DelegatorIdentifierTypeId (0 = account, 1 = purse — v2.1.0 purse delegations)
 
 // Get validator's delegators
 var delegators = await client.Mainnet.Delegate.GetValidatorDelegationsAsync(
@@ -288,6 +315,23 @@ var packages = await client.Mainnet.Contract.GetAccountContractPackagesAsync("01
 ```csharp
 // Get single NFT
 var nft = await client.Mainnet.NFT.GetNFTAsync("contract-package-hash...", "token-id");
+
+// Get unscoped NFT list across the whole network (v2.0.0 SDK)
+var allNfts = await client.Mainnet.NFT.GetNFTsAsync(new NFTsRequestParameters
+{
+    FilterParameters = new NFTsFilterParameters
+    {
+        ContractPackageHash = "pkg1...",  // optional — narrow to a collection
+        OwnerHash = "hash1...",            // optional — filter by owner (account or contract)
+        FromBlockHeight = "7000000",
+        ToBlockHeight = "7600000"
+    },
+    OptionalParameters = new NFTOptionalParameters
+    {
+        ContractPackage = true,
+        OwnerCsprName = true  // new in v2.0.0 — pull the owner's CSPR.name when available
+    }
+});
 
 // Get account's NFTs
 var nfts = await client.Mainnet.NFT.GetAccountNFTsAsync(
@@ -575,92 +619,229 @@ OptionalParameters = new AccountsOptionalParameters
 
 ## Key Data Models
 
+All monetary/stake fields are **strings** on the wire (since API v2.4.3) to preserve uint64 values that overflow `System.UInt64.MaxValue`. Parse via `BigInteger.Parse` when you need to compare or do arithmetic.
+
 ### AccountData
 ```csharp
 string PublicKey
 string AccountHash
-ulong Balance
-ulong TotalBalance
-// Optional (when requested):
+string MainPurseUref
+string Balance                          // main-purse liquid balance, string
 string AuctionStatus
-ulong? DelegatedBalance
-ulong? UndelegatingBalance
-ulong? StakedBalance
+string DelegatedBalance                 // string
+string UndelegatedBalance               // string
+string StakedBalance                    // string
+string UndelegatingBalance              // string — pending-release funds (v2.5.1)
 AccountInfoData AccountInfo
+CentralizedAccountInfoData CentralizedAccountInfo
+string CsprName                         // v2.1.0 — CSPR.name includer
+uint? Rank                              // ranking includer
 ```
 
 ### ValidatorData
 ```csharp
+uint? Rank
+uint? EraId
 string PublicKey
-string AccountHash
 bool IsActive
-ulong Stake
-int DelegatorCount
-decimal DelegationRate
-int FeePercentage
-decimal Performance
+float? Fee
+ulong? DelegatorsNumber
+string SelfStake                        // string
+string DelegatorsStake                  // string
+string TotalStake                       // string
+string BidAmount                        // v2.0.5 — bid without affiliated-account bonus
+uint? ReservedSlots                     // Casper 2.0
+string MinimumDelegationAmount
+string MaximumDelegationAmount
+string PendingUnstakingAmount           // v2.0.5
+string SelfShare                        // string percentage
+string NetworkShare                     // string percentage
 AccountInfoData AccountInfo
+CentralizedAccountInfoData CentralizedAccountInfo
+ValidatorPerformanceData AveragePerformance
+string CsprName                         // v2.1.0
 ```
+
+### BidderData
+Same shape as ValidatorData (string stakes, Casper 2.0 fields, CsprName).
 
 ### BlockData
 ```csharp
+ulong? BlockHeight
 string BlockHash
-ulong BlockHeight
-ulong EraId
-string Proposer
-DateTime Timestamp
-int DeployCount
-int TransferCount
+string ParentBlockHash
+string StateRootHash
+uint? EraId
+string ProposerPublicKey
+ushort? NativeTransfersNumber
+ushort? ContractCallsNumber
+bool IsSwitchBlock
+uint? GasPrice                          // Casper 2.0
+byte? VersionId                         // Casper 2.0 block header
+ushort? AuctionTxnNumber                // Casper 2.0 txn buckets
+ushort? InstallUpgradeTxnNumber
+ushort? SmallTxnNumber
+ushort? MediumTxnNumber
+ushort? LargeTxnNumber
+DateTime? Timestamp
+AccountInfoData ProposerAccountInfo
+CentralizedAccountInfoData ProposerCentralizedAccountInfo
+string ProposerCsprName                 // v2.1.0
 ```
 
 ### DeployData
 ```csharp
 string DeployHash
-string CallerPublicKey
 string BlockHash
+ulong? BlockHeight
+string CallerPublicKey
+string CallerHash                       // v2.0.12
+string CallerCsprName                   // v2.1.0
+byte? ExecutionTypeId
+byte? VersionId                         // Casper 2.0 — 1 = deploy, 2 = transaction
+byte? PricingModeId                     // Casper 2.0
+ulong? GasPriceLimit                    // Casper 2.0
+bool? IsStandardPayment                 // Casper 2.0
+byte? RuntimeTypeId                     // Casper 2.0 — VM v1 / WASM v2
+string ConsumedGas                      // string
+string RefundAmount                     // v2.0.12 — string
+string ContractPackageHash
 string ContractHash
-ulong Cost
-string Status
-DateTime Timestamp
+uint? EntryPointId
+ArgsData Args
+string PaymentAmount                    // string
+string Cost                             // string
 string ErrorMessage
+string Status
+DateTime? Timestamp
+ContractPackageData ContractPackage
+ContractData Contract
+EntryPointData ContractEntrypoint
+float? Rate
+List<TransferData> Transfers
+List<NFTTokenActionData> NFTTokenAction
+List<FTTokenActionData> FTTokenAction
 ```
 
 ### NFTTokenData
 ```csharp
-string TokenId
 string ContractPackageHash
+ulong BlockHeight
+ArgsData OnchainMetadata
+ArgsData OffchainMetadata
+uint OffchainMetadataStatus
+bool IsBurned
+string OwnerHash
+OwnerType OwnerType                     // 0 = account, 1 = contract
+DateTime? Timestamp
+string TokenId
+byte TokenStandardId                    // 1 = CEP-47, 2 = CEP-78, 3 = CEP-95
+string TrackingId
+ContractPackageData ContractPackage
 string OwnerPublicKey
-string OwnerAccountHash
-bool IsOwnerAccount
-int TokenStandardId
-object OnchainMetadata
-object OffchainMetadata
-DateTime Timestamp
 ```
 
 ### FTOwnershipData
 ```csharp
-string OwnerPublicKey
-string OwnerAccountHash
+string OwnerHash                        // account or contract hash
 string ContractPackageHash
-string Balance
+string Balance                          // string
 ```
 
 ### DelegationData
 ```csharp
-string PublicKey
+string PublicKey                        // null when delegator is a purse — check DelegatorIdentifierTypeId
 string ValidatorPublicKey
-ulong StakedAmount
-ulong BondingPurse
+string Stake                            // string
+string BondingPurse
+string DelegatorIdentifier              // v2.1.0 — public key or purse uref
+int? DelegatorIdentifierTypeId          // v2.1.0 — 0 = account, 1 = purse
+AccountInfoData AccountInfo
+AccountInfoData ValidatorAccountInfo
+CentralizedAccountInfoData CentralizedAccountInfo
+BidderData Bidder                       // v2.1.0 — `bidder` includer
+string CsprName                         // v2.1.0
+string ValidatorCsprName                // v2.1.0
+```
+
+### UndelegationData (new in v2.0.0 SDK)
+```csharp
+string PublicKey                        // null for purse delegators
+string ValidatorPublicKey
+string Amount                           // string — motes being undelegated
+string BondingPurse
+string DelegatorIdentifier
+int DelegatorIdentifierTypeId           // 0 = account, 1 = purse
+ulong? EraOfCreation                    // released 7 eras later
+DateTime? Timestamp
+AccountInfoData AccountInfo
+AccountInfoData ValidatorAccountInfo
+CentralizedAccountInfoData CentralizedAccountInfo
 ```
 
 ### TransferData
 ```csharp
+ulong? Id                               // caller-supplied transfer id
 string DeployHash
-string FromAccount
-string ToAccount
-ulong Amount
+ulong? BlockHeight
+string TransformKey
+string InitiatorAccountHash
+string FromPurse
+string ToPurse
+string ToAccountHash
+string Amount                           // string
+DateTime? Timestamp
+string InitiatorPublicKey
+string ToPublicKey
+string FromPursePublicKey
+string ToPursePublicKey
+AccountInfoData ToAccountInfo
+CentralizedAccountInfoData ToCentralizedAccountInfo
+AccountInfoData FromPurseAccountInfo
+CentralizedAccountInfoData FromPurseCentralizedAccountInfo
+AccountInfoData ToPurseAccountInfo
+CentralizedAccountInfoData ToPurseCentralizedAccountInfo
+float? Rate
+ulong? TransferIndex                    // monotonic indexer id (distinct from caller Id)
+string InitiatorCsprName                // v2.1.0 — the 4 CSPR.name fields below
+string ToCsprName
+string FromPurseCsprName
+string ToPurseCsprName
+```
+
+### SupplyData
+```csharp
+string Token                            // "CSPR"
+ulong? Total                            // stays numeric on the wire
+ulong? Circulating
+double? TotalAnnualIssuance             // v2.4.0
+double? AnnualEcosystemSustainIssuance  // v2.8.0
+double? AnnualStakingRewardsIssuance    // v2.8.0
+double? AnnualIssuance                  // kept for backward compatibility
+long? Timestamp                         // Unix seconds (NOT an ISO string)
+```
+
+### ContractPackageData
+```csharp
+string ContractPackageHash
+string OwnerPublicKey
+string OwnerHash                        // v2.0.20 — populated when owner is not identified by public key
+string Name
+string Description
+MetadataData Metadata
+int? LatestVersionContractTypeId
 DateTime Timestamp
+string IconUrl
+string WebsiteUrl                       // v2.0.12
+int? DeploysNumber                      // function includer
+bool? IsContractInfoApproved
+bool? IsFeatured
+string CoingeckoId                      // when tracked by CoinGecko
+string OwnerCsprName                    // v2.1.0
+List<JObject> TokenMarketData           // v2.9.0 — shape depends on currency/dex passed to the includer
+JObject CoingeckoData                   // v2.1.0 — raw CoinGecko payload
+JObject FriendlymarketData              // v2.1.1
+JObject CsprtradeData                   // v2.7.0
 ```
 
 ---
@@ -888,28 +1069,38 @@ using CSPR.Cloud.Net.Enums;
 var config = new CasperCloudClientConfig("your-api-key");
 var client = new CasperCloudRestClient(config);
 
-// Get top 10 validators by stake with account info
+// Get top 10 validators by total stake with account info + CSPR.name
 var validators = await client.Mainnet.Validator.GetValidatorsAsync(new ValidatorsRequestParameters
 {
     PageNumber = 1,
     PageSize = 10,
+    FilterParameters = new ValidatorsFilterParameters { IsActive = true },
     SortingParameters = new ValidatorsSortingParameters
     {
-        OrderByStake = true,
+        OrderByTotalStake = true,
         SortType = SortType.Descending
     },
     OptionalParameters = new ValidatorsOptionalParameters
     {
-        AccountInfo = true
+        AccountInfo = true,
+        CsprName = true            // v2.1.0 — CSPR.name includer
     }
 });
 
 foreach (var validator in validators.Data)
 {
-    Console.WriteLine($"{validator.AccountInfo?.Info?.Name ?? validator.PublicKey}");
-    Console.WriteLine($"  Stake: {validator.Stake / 1_000_000_000m} CSPR");
-    Console.WriteLine($"  Delegators: {validator.DelegatorCount}");
-    Console.WriteLine($"  Fee: {validator.FeePercentage}%");
+    // TotalStake is string on the wire (v2.4.3 — avoids uint64 overflow). Parse via BigInteger.
+    var stakeMotes = System.Numerics.BigInteger.Parse(validator.TotalStake ?? "0");
+    var stakeCspr = (decimal)stakeMotes / 1_000_000_000m;
+
+    var displayName = validator.CsprName
+        ?? validator.AccountInfo?.Info?.Name
+        ?? validator.PublicKey;
+
+    Console.WriteLine($"{displayName}");
+    Console.WriteLine($"  Stake: {stakeCspr:N0} CSPR");
+    Console.WriteLine($"  Delegators: {validator.DelegatorsNumber}");
+    Console.WriteLine($"  Fee: {validator.Fee}%");
 }
 
 Console.WriteLine($"\nTotal validators: {validators.ItemCount}");

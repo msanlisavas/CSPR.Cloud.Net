@@ -8,6 +8,70 @@
 A .NET client library for the CSPR Cloud API — access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
 
 ## Release Notes
+### v2.0.0
+Catches the SDK up with the CSPR Cloud API through **v2.9.0** (2026-02). Covers every changelog entry from v2.0.3 → v2.9.0 and includes Casper 2.0 fields across Deploy / Validator / Bidder / Block / Supply.
+
+**⚠️ Breaking changes**
+- **Balance and stake fields migrated from `ulong?` to `string`** to match the v2.4.3 wire format and avoid uint64 overflow on large accounts.
+  - `AccountData`: `Balance`, `DelegatedBalance`, `UndelegatedBalance`, `StakedBalance`, `UndelegatingBalance`
+  - `ValidatorData`: `SelfStake`, `DelegatorsStake`, `TotalStake`, `SelfShare`, `NetworkShare` (plus new `BidAmount`, `MinimumDelegationAmount`, `MaximumDelegationAmount`, `PendingUnstakingAmount`)
+  - `BidderData`: same set as Validator
+  - `AuctionMetricsData.TotalActiveEraStake`
+  - `ValidatorRewardData.Amount`
+- **`SupplyData.Timestamp`** migrated from `DateTime?` to `long?` (Unix seconds — the endpoint emits it as a number, not ISO-8601).
+- Callers comparing these fields must parse with `BigInteger.Parse` / `decimal.Parse` / `long`.
+
+**New endpoints**
+```csharp
+// Account undelegations (v2.5.1) — pending funds in the 7-era unbonding window
+var pending = await client.Testnet.Delegate.GetAccountUndelegationsAsync("01publicKey...");
+// Returns PaginatedResponse<UndelegationData> with DelegatorIdentifier + DelegatorIdentifierTypeId
+
+// Unscoped NFT listing with filtering across the whole network
+var nfts = await client.Testnet.NFT.GetNFTsAsync(new NFTsRequestParameters
+{
+    FilterParameters = new NFTsFilterParameters
+    {
+        ContractPackageHash = "pkg1...",
+        OwnerHash = "hash1..."
+    }
+});
+```
+
+**New filters**
+- `DeploysFilterParameters.CallerHash` (v2.0.12)
+- `ft_action_type_id` on all three FT-action filter classes (v2.0.20)
+- `nft_action_id` on both NFT-action filter classes (v2.0.20)
+- `owner_hash` on `NFTContractPackageFilterParameters` (v2.0.20)
+- `from_era_id` / `to_era_id` on `AccountDelegatorRewardFilterParameters` and the new `ValidatorRewardsFilterParameters` (v2.4.0) — wired into both `GetValidatorRewardsAsync` and `GetValidatorEraRewardsAsync`
+- `contract_package_hash` on the new `FTAccountOwnershipFilterParameters` (v2.6.0)
+- `GetAccountNFTActionsAsync` URL builder now threads `FilterParameters` (was previously unwired)
+
+**New includers**
+- `ContractPackageOptionalParameters`: `TokenMarketData` (function includer, takes a currency id), `CoingeckoData`, `FriendlymarketData`, `CsprtradeData`, `OwnerCsprName`
+- CSPR.name sweep across Account, Validator, Bidder, Delegation, DelegatorReward, Deploy caller, Transfer, Block proposer, FT/NFT actions & ownership
+- `AccountsOptionalParameters` gains `Rank`
+
+**New response properties**
+- `DeployData` (Casper 2.0): `CallerHash`, `VersionId`, `PricingModeId`, `GasPriceLimit`, `IsStandardPayment`, `RuntimeTypeId`, `ConsumedGas`, `RefundAmount`, `CallerCsprName`
+- `ValidatorData` / `BidderData`: `BidAmount`, `ReservedSlots`, min/max delegation amounts, `PendingUnstakingAmount`, `EraId`, `DelegatorsNumber`, `DelegatorsStake`, `CsprName`
+- `SupplyData`: `TotalAnnualIssuance`, `AnnualEcosystemSustainIssuance`, `AnnualStakingRewardsIssuance`, `AnnualIssuance`
+- `ContractPackageData`: `WebsiteUrl`, `OwnerHash`, `CoingeckoId`, `IsContractInfoApproved`, `IsFeatured`, `OwnerCsprName`, plus raw `JObject` payloads for the four market-data includers
+- `BlockData`: Casper 2.0 transaction buckets (`AuctionTxnNumber`, `InstallUpgradeTxnNumber`, `SmallTxnNumber`, `MediumTxnNumber`, `LargeTxnNumber`), `GasPrice`, `VersionId`, `ProposerCentralizedAccountInfo`, `ProposerCsprName`
+- `TransferData`: `TransferIndex` + four CSPR.name fields (initiator / to / from-purse / to-purse)
+- `DelegationData` / `DelegatorRewardData`: `DelegatorIdentifier` + `DelegatorIdentifierTypeId` (v2.1.0 purse delegation support), plus CSPR.name fields
+- `ValidatorRewardData`: `Type` (Casper 2.0 RewardTypeID) and string-typed `Amount`
+
+**Streaming**
+- Contracts streaming channel (`.Contract`) verified against `streaming.testnet.cspr.cloud/contracts` and unskipped.
+
+**Internal**
+- Added `CSPRCloudNetRestUrlTests.cs` with 40 fast unit tests covering URL construction + deserialization of every new field (sub-100ms run time).
+- Full surface audit saved to `docs/audit-2026-04-22.md`.
+
+### v1.2.1
+Fix: the Streaming API pump now tolerates the plaintext `Ping` keepalive text frames that the CSPR Cloud server interleaves between JSON envelopes. v1.2.0 would terminate the subscription with a `JsonReaderException` on the first keepalive (~5s after connect). Non-JSON frames are now skipped via a new `IsJsonEnvelope` guard.
+
 ### v1.2.0
 Adds the full **Streaming API** — WebSocket-based real-time subscriptions — via the new `CasperCloudSocketClient`.
 
