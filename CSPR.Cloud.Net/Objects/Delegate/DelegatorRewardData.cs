@@ -58,6 +58,36 @@ namespace CSPR.Cloud.Net.Objects.Delegate
         /// </summary>
         [JsonProperty("centralized_account_info")]
         public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
+
+        /// <summary>
+        /// Delegator identifier — either a public key (type 0) or a purse URef (type 1). Added with v2.1.0 purse-delegation support.
+        /// </summary>
+        [JsonProperty("delegator_identifier")]
+        public string DelegatorIdentifier { get; set; }
+
+        /// <summary>
+        /// Delegator identifier type: 0 for public-key delegators, 1 for purse delegators (v2.1.0+).
+        /// </summary>
+        [JsonProperty("delegator_identifier_type_id")]
+        public int? DelegatorIdentifierTypeId { get; set; }
+
+        /// <summary>
+        /// Validator account information when the <c>validator_account_info</c> includer is requested.
+        /// </summary>
+        [JsonProperty("validator_account_info")]
+        public AccountInfoData ValidatorAccountInfo { get; set; }
+
+        /// <summary>
+        /// The delegator's registered CSPR.name when the <c>cspr_name</c> includer is requested (v2.1.0+).
+        /// </summary>
+        [JsonProperty("cspr_name")]
+        public string CsprName { get; set; }
+
+        /// <summary>
+        /// The validator's registered CSPR.name when the <c>validator_cspr_name</c> includer is requested (v2.1.0+).
+        /// </summary>
+        [JsonProperty("validator_cspr_name")]
+        public string ValidatorCsprName { get; set; }
     }
 
 }

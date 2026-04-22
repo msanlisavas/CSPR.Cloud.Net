@@ -76,5 +76,29 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Transfer
         [JsonProperty("rate")]
         public int? Rate { get; set; } = 0;
 
+        /// <summary>
+        /// Includes the transfer initiator's CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("initiator_cspr_name")]
+        public bool InitiatorCsprName { get; set; } = false;
+
+        /// <summary>
+        /// Includes the transfer recipient's CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("to_cspr_name")]
+        public bool ToCsprName { get; set; } = false;
+
+        /// <summary>
+        /// Includes the CSPR.name of the account that owns the transfer source purse (v2.1.0+).
+        /// </summary>
+        [JsonProperty("from_purse_cspr_name")]
+        public bool FromPurseCsprName { get; set; } = false;
+
+        /// <summary>
+        /// Includes the CSPR.name of the account that owns the transfer target purse (v2.1.0+).
+        /// </summary>
+        [JsonProperty("to_purse_cspr_name")]
+        public bool ToPurseCsprName { get; set; } = false;
+
     }
 }

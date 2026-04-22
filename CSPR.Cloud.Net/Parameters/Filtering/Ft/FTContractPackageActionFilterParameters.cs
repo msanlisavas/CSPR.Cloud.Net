@@ -9,6 +9,12 @@ namespace CSPR.Cloud.Net.Parameters.Filtering.Ft
     public class FTContractPackageActionFilterParameters
     {
         /// <summary>
+        /// Filters by fungible-token action type identifier (v2.0.20+). See <c>/ft-token-action-types</c> for valid IDs.
+        /// </summary>
+        [JsonProperty("ft_action_type_id")]
+        public string FtActionTypeId { get; set; }
+
+        /// <summary>
         /// Filters by the starting block height.
         /// </summary>
         [JsonProperty("from_block_height")]

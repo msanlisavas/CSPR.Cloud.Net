@@ -16,5 +16,23 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Validator
         [JsonProperty("rate")]
         public int? Rate { get; set; } = 0;
 
+        /// <summary>
+        /// Includes validator account info on each reward record.
+        /// </summary>
+        [JsonProperty("account_info")]
+        public bool AccountInfo { get; set; } = false;
+
+        /// <summary>
+        /// Includes validator centralized account info on each reward record.
+        /// </summary>
+        [JsonProperty("centralized_account_info")]
+        public bool CentralizedAccountInfo { get; set; } = false;
+
+        /// <summary>
+        /// Includes the validator's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("cspr_name")]
+        public bool CsprName { get; set; } = false;
+
     }
 }

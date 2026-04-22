@@ -377,6 +377,11 @@ namespace CSPR.Cloud.Net.Clients
                 string endpoint = Endpoints.Delegate.GetAccountDelegations(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
             }
+            public async Task<PaginatedResponse<UndelegationData>> GetAccountUndelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.Delegate.GetAccountUndelegations(_baseUrl, publicKey, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<UndelegationData>>(endpoint);
+            }
             public async Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetValidatorDelegations(_baseUrl, publicKey, parameters);
@@ -457,6 +462,11 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.NFT.GetNonFungibleToken(_baseUrl, contractPackageHash, tokenId, parameters);
                 return await _casperCloudRestClient.GetDataAsync<Response<NFTTokenData>>(endpoint);
+            }
+            public async Task<PaginatedResponse<NFTTokenData>> GetNFTsAsync(NFTsRequestParameters parameters = null)
+            {
+                string endpoint = Endpoints.NFT.GetNFTs(_baseUrl, parameters);
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenData>>(endpoint);
             }
             public async Task<PaginatedResponse<NFTTokenData>> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
             {

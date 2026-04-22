@@ -33,10 +33,10 @@ namespace CSPR.Cloud.Net.Objects.Auction
         public uint? ActiveBidsNumber { get; set; }
 
         /// <summary>
-        /// Total sum of all validator stakes from current and next era.
+        /// Total sum of all validator stakes from current and next era. Typed as string to avoid uint64 overflow (v2.4.3+).
         /// </summary>
         [JsonProperty("total_active_era_stake")]
-        public ulong? TotalActiveEraStake { get; set; }
+        public string TotalActiveEraStake { get; set; }
     }
 
 }

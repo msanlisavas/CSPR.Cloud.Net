@@ -46,6 +46,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetContractPackages { get; } = "/contract-packages";
             public static string GetAccountContractPackages { get; } = "/accounts/{0}/contract-packages";
             public static string GetAccountDelegations { get; } = "/accounts/{0}/delegations";
+            public static string GetAccountUndelegations { get; } = "/accounts/{0}/undelegations";
             public static string GetValidatorDelegations { get; } = "/validators/{0}/delegations";
             public static string GetAccountDelegatorRewards { get; } = "/accounts/{0}/delegation-rewards";
             public static string GetTotalAccountDelegationRewards { get; } = "/accounts/{0}/total-delegation-rewards";
@@ -61,6 +62,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string GetAccountFungibleTokenOwnership { get; } = "/accounts/{0}/ft-token-ownership";
             public static string GetContractPackageFungibleTokenOwnership { get; } = "/contract-packages/{0}/ft-token-ownership";
             public static string GetNFT { get; } = "/contract-packages/{0}/nft-tokens/{1}";
+            public static string GetNFTs { get; } = "/nft-tokens";
             public static string GetAccountNFTs { get; } = "/accounts/{0}/nft-tokens";
             public static string GetContractPackageNFTs { get; } = "/contract-packages/{0}/nft-tokens";
             public static string GetNFTStandards { get; } = "/nft-token-standards";
@@ -529,6 +531,27 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
+            public static string GetAccountUndelegations(string baseUrl, string publicKey, DelegationRequestParameters requestParams = null)
+            {
+                var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAccountUndelegations, publicKey);
+                if (requestParams != null)
+                {
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
             public static string GetValidatorDelegations(string baseUrl, string publicKey, DelegationRequestParameters requestParams = null)
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetValidatorDelegations, publicKey);
@@ -808,10 +831,12 @@ namespace CSPR.Cloud.Net.Clients.Api
                 {
                     var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
                     var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
                     var queryString = CasperHelpers.BuildQueryString
                         (
                         paginationParameters: paginationParameters,
-                        optionalParameters: optionalParameters
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))
                     {
@@ -1055,6 +1080,29 @@ namespace CSPR.Cloud.Net.Clients.Api
                 }
                 return url;
             }
+            public static string GetNFTs(string baseUrl, NFTsRequestParameters requestParams = null)
+            {
+                var url = $"{baseUrl}{BaseUrls.GetNFTs}";
+                if (requestParams != null)
+                {
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
+                    var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
+                    var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
+                    var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var queryString = CasperHelpers.BuildQueryString
+                        (
+                        filteringCriteria: filterParameters,
+                        sortingParameters: sortingParameters,
+                        paginationParameters: paginationParameters,
+                        optionalParameters: optionalParameters
+                        );
+                    if (!string.IsNullOrEmpty(queryString))
+                    {
+                        url = $"{url}?{queryString}";
+                    }
+                }
+                return url;
+            }
             public static string GetNFTStandards(string baseUrl)
             {
                 var url = $"{baseUrl}{BaseUrls.GetNFTStandards}";
@@ -1094,11 +1142,13 @@ namespace CSPR.Cloud.Net.Clients.Api
                     var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
                     var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
                     var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
                     var queryString = CasperHelpers.BuildQueryString
                         (
                         sortingParameters: sortingParameters,
                         paginationParameters: paginationParameters,
-                        optionalParameters: optionalParameters
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))
                     {
@@ -1424,11 +1474,13 @@ namespace CSPR.Cloud.Net.Clients.Api
                     var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
                     var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
                     var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
                     var queryString = CasperHelpers.BuildQueryString
                         (
                         sortingParameters: sortingParameters,
                         paginationParameters: paginationParameters,
-                        optionalParameters: optionalParameters
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))
                     {
@@ -1450,11 +1502,13 @@ namespace CSPR.Cloud.Net.Clients.Api
                     var sortingParameters = CasperHelpers.CreateSortingParameters(requestParams.SortingParameters);
                     var paginationParameters = CasperHelpers.CreatePaginationParameters(requestParams.PageNumber, requestParams.PageSize);
                     var optionalParameters = CasperHelpers.CreateOptionalParameters(requestParams.OptionalParameters);
+                    var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
                     var queryString = CasperHelpers.BuildQueryString
                         (
                         sortingParameters: sortingParameters,
                         paginationParameters: paginationParameters,
-                        optionalParameters: optionalParameters
+                        optionalParameters: optionalParameters,
+                        filteringCriteria: filterParameters
                         );
                     if (!string.IsNullOrEmpty(queryString))
                     {

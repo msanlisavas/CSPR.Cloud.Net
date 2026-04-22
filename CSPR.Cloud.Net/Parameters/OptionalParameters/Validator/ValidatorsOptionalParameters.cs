@@ -26,5 +26,11 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Validator
         [JsonProperty("average_performance")]
         public bool AveragePerformance { get; set; } = false;
 
+        /// <summary>
+        /// Includes each validator's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("cspr_name")]
+        public bool CsprName { get; set; } = false;
+
     }
 }

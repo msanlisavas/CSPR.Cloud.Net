@@ -1,15 +1,21 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace CSPR.Cloud.Net.Parameters.Filtering.Nft
 {
     /// <summary>
-    /// Represents filtering parameters
+    /// Filtering parameters for the unscoped NFT listing (<c>/nft-tokens</c>).
     /// <para>For more information, see <see href="https://docs.cspr.cloud/documentation/overview/filtering">CSPR.Cloud API documentation</see>.</para>
     /// </summary>
-    public class NFTContractPackageFilterParameters
+    public class NFTsFilterParameters
     {
         /// <summary>
-        /// Filters NFTs by owner hash (v2.0.20+). Use to list the NFTs within a collection held by a specific owner.
+        /// Filters by contract package hash. Narrows the listing to a specific NFT collection.
+        /// </summary>
+        [JsonProperty("contract_package_hash")]
+        public string ContractPackageHash { get; set; }
+
+        /// <summary>
+        /// Filters by owner hash (account or contract).
         /// </summary>
         [JsonProperty("owner_hash")]
         public string OwnerHash { get; set; }
@@ -25,12 +31,5 @@ namespace CSPR.Cloud.Net.Parameters.Filtering.Nft
         /// </summary>
         [JsonProperty("to_block_height")]
         public string ToBlockHeight { get; set; }
-
-        /// <summary>
-        /// Filters tokens by their burned status: false to get active NFTs, true to get the burned ones. By default, all tokens are returned.
-        /// </summary>
-        [JsonProperty("is_burned")]
-        public bool IsBurned { get; set; }
-
     }
 }

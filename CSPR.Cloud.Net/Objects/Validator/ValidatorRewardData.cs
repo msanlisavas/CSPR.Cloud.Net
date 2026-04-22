@@ -22,10 +22,16 @@ namespace CSPR.Cloud.Net.Objects.Validator
         public uint? EraId { get; set; }
 
         /// <summary>
-        /// Amount of the reward received by the validator.
+        /// Amount of the reward received by the validator, in motes. Typed as string to avoid uint64 overflow.
         /// </summary>
         [JsonProperty("amount")]
-        public ulong? Amount { get; set; }
+        public string Amount { get; set; }
+
+        /// <summary>
+        /// Reward type identifier (Casper 2.0). Distinguishes between seigniorage, block-proposing, and other reward categories.
+        /// </summary>
+        [JsonProperty("type")]
+        public byte? Type { get; set; }
 
         /// <summary>
         /// Timestamp indicating when the last block in the era was proposed.

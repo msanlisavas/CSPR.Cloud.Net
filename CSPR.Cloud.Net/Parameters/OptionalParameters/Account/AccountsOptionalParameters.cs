@@ -43,6 +43,18 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Account
         /// </summary>
         [JsonProperty("centralized_account_info")]
         public bool CentralizedAccountInfo { get; set; } = false;
+
+        /// <summary>
+        /// Includes the account's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("cspr_name")]
+        public bool CsprName { get; set; } = false;
+
+        /// <summary>
+        /// Includes the account's rank in the current listing.
+        /// </summary>
+        [JsonProperty("rank")]
+        public bool Rank { get; set; } = false;
     }
 
 }

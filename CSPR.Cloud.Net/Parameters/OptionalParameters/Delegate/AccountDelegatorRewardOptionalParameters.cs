@@ -28,5 +28,23 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Delegate
         [JsonProperty("centralized_account_info")]
         public bool CentralizedAccountInfo { get; set; } = false;
 
+        /// <summary>
+        /// Includes validator account info on each reward record.
+        /// </summary>
+        [JsonProperty("validator_account_info")]
+        public bool ValidatorAccountInfo { get; set; } = false;
+
+        /// <summary>
+        /// Includes the delegator's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("cspr_name")]
+        public bool CsprName { get; set; } = false;
+
+        /// <summary>
+        /// Includes the validator's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("validator_cspr_name")]
+        public bool ValidatorCsprName { get; set; } = false;
+
     }
 }

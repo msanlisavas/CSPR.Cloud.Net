@@ -9,16 +9,22 @@ namespace CSPR.Cloud.Net.Parameters.Filtering.Nft
     public class NFTContractPackageActionsFilterParameters
     {
         /// <summary>
+        /// Filters by NFT action type identifier (v2.0.20+). See <c>/nft-token-action-types</c> for valid IDs.
+        /// </summary>
+        [JsonProperty("nft_action_id")]
+        public string NftActionId { get; set; }
+
+        /// <summary>
         /// Filters by the starting block height range.
         /// </summary>
         [JsonProperty("from_block_height")]
-        public string FromBlockHeight { get; set; } // From block height range
+        public string FromBlockHeight { get; set; }
 
         /// <summary>
         /// Filters by the ending block height range.
         /// </summary>
         [JsonProperty("to_block_height")]
-        public string ToBlockHeight { get; set; } // To block height range
+        public string ToBlockHeight { get; set; }
 
     }
 }

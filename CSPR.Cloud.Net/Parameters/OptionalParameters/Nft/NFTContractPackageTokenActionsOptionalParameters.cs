@@ -32,5 +32,17 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Nft
         [JsonProperty("to_public_key")]
         public bool ToPublicKey { get; set; } = false;
 
+        /// <summary>
+        /// Includes the 'from' side's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("from_cspr_name")]
+        public bool FromCsprName { get; set; } = false;
+
+        /// <summary>
+        /// Includes the 'to' side's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("to_cspr_name")]
+        public bool ToCsprName { get; set; } = false;
+
     }
 }

@@ -1,4 +1,4 @@
-﻿using CSPR.Cloud.Net.Objects.AccountInfo;
+using CSPR.Cloud.Net.Objects.AccountInfo;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Validator;
 using Newtonsoft.Json;
@@ -8,6 +8,9 @@ namespace CSPR.Cloud.Net.Objects.Bidder
     /// <summary>
     /// The Bidder entity represents an account participating in the auction to become a Validator for the era after the next one.
     /// It has the same properties as the Validator entity, with the network share value being projected instead of actual.
+    /// <para>
+    /// Stake and delegation-amount fields are typed as <see cref="string"/> to avoid uint64 overflow (v2.4.3+).
+    /// </para>
     /// For more information, see <see href="https://docs.cspr.cloud/rest-api/bidder">CSPR Cloud API documentation</see>.
     /// </summary>
     public class BidderData
@@ -23,6 +26,12 @@ namespace CSPR.Cloud.Net.Objects.Bidder
         /// </summary>
         [JsonProperty("is_active")]
         public bool IsActive { get; set; }
+
+        /// <summary>
+        /// Current era identifier in which the bidder is being observed.
+        /// </summary>
+        [JsonProperty("era_id")]
+        public uint? EraId { get; set; }
 
         /// <summary>
         /// Projected network stake share if the bidder becomes a validator.
@@ -49,16 +58,53 @@ namespace CSPR.Cloud.Net.Objects.Bidder
         public string SelfShare { get; set; }
 
         /// <summary>
-        /// Bidder self-stake calculated as a sum of the bidder stake and the stakes of the affiliated accounts provided via the Casper Account Info Standard.
+        /// Bidder self-stake — sum of the bidder's own bid plus stakes of affiliated accounts from the Casper Account Info Standard.
+        /// Typed as string (v2.4.3+).
         /// </summary>
         [JsonProperty("self_stake")]
-        public ulong? SelfStake { get; set; }
+        public string SelfStake { get; set; }
 
         /// <summary>
-        /// Total bidder stake. The sum of the self-stake and the delegator stakes.
+        /// Total bidder stake — the sum of the self-stake and the delegator stakes. Typed as string (v2.4.3+).
         /// </summary>
         [JsonProperty("total_stake")]
-        public ulong? TotalStake { get; set; }
+        public string TotalStake { get; set; }
+
+        /// <summary>
+        /// Raw bid amount in motes (without affiliated-account bonus).
+        /// </summary>
+        [JsonProperty("bid_amount")]
+        public string BidAmount { get; set; }
+
+        /// <summary>
+        /// Number of delegators staked to this bidder.
+        /// </summary>
+        [JsonProperty("delegators_number")]
+        public ulong? DelegatorsNumber { get; set; }
+
+        /// <summary>
+        /// Cumulative stake of all delegators.
+        /// </summary>
+        [JsonProperty("delegators_stake")]
+        public string DelegatorsStake { get; set; }
+
+        /// <summary>
+        /// Number of reserved delegation slots held by the bidder (Casper 2.0).
+        /// </summary>
+        [JsonProperty("reserved_slots")]
+        public uint? ReservedSlots { get; set; }
+
+        /// <summary>
+        /// Minimum delegation amount accepted by the bidder, in motes.
+        /// </summary>
+        [JsonProperty("minimum_delegation_amount")]
+        public string MinimumDelegationAmount { get; set; }
+
+        /// <summary>
+        /// Maximum delegation amount accepted by the bidder, in motes.
+        /// </summary>
+        [JsonProperty("maximum_delegation_amount")]
+        public string MaximumDelegationAmount { get; set; }
 
         /// <summary>
         /// Additional account information.
@@ -77,6 +123,12 @@ namespace CSPR.Cloud.Net.Objects.Bidder
         /// </summary>
         [JsonProperty("centralized_account_info")]
         public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
+
+        /// <summary>
+        /// The bidder's registered CSPR.name when the <c>cspr_name</c> includer is requested (v2.1.0+).
+        /// </summary>
+        [JsonProperty("cspr_name")]
+        public string CsprName { get; set; }
     }
 
 }

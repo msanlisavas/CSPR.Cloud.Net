@@ -14,5 +14,11 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Nft
         [JsonProperty("owner_public_key")]
         public bool OwnerPublicKey { get; set; } = false;
 
+        /// <summary>
+        /// Includes the owner's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("owner_cspr_name")]
+        public bool OwnerCsprName { get; set; } = false;
+
     }
 }

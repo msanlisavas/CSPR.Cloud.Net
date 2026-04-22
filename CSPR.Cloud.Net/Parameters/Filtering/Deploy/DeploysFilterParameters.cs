@@ -15,6 +15,12 @@ namespace CSPR.Cloud.Net.Parameters.Filtering.Deploy
         public string CallerPublicKey { get; set; }
 
         /// <summary>
+        /// Filters by the caller's account hash (v2.0.12+). Useful when only the 32-byte hash is known.
+        /// </summary>
+        [JsonProperty("caller_hash")]
+        public string CallerHash { get; set; }
+
+        /// <summary>
         /// Filters by block hash.
         /// </summary>
         [JsonProperty("block_hash")]

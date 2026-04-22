@@ -43,10 +43,64 @@ namespace CSPR.Cloud.Net.Objects.Deploy
         public string CallerPublicKey { get; set; }
 
         /// <summary>
+        /// Account hash of the deploy caller represented as a hexadecimal string (v2.0.12+).
+        /// </summary>
+        [JsonProperty("caller_hash")]
+        public string CallerHash { get; set; }
+
+        /// <summary>
+        /// The deploy caller's registered CSPR.name when the <c>caller_cspr_name</c> includer is requested (v2.1.0+).
+        /// </summary>
+        [JsonProperty("caller_cspr_name")]
+        public string CallerCsprName { get; set; }
+
+        /// <summary>
         /// DeployExecutionType unique identifier.
         /// </summary>
         [JsonProperty("execution_type_id")]
         public byte? ExecutionTypeId { get; set; }
+
+        /// <summary>
+        /// Casper 2.0 transaction version identifier (1 for deploys, 2 for transactions).
+        /// </summary>
+        [JsonProperty("version_id")]
+        public byte? VersionId { get; set; }
+
+        /// <summary>
+        /// Casper 2.0 pricing mode identifier.
+        /// </summary>
+        [JsonProperty("pricing_mode_id")]
+        public byte? PricingModeId { get; set; }
+
+        /// <summary>
+        /// Casper 2.0 maximum gas price the caller is willing to pay.
+        /// </summary>
+        [JsonProperty("gas_price_limit")]
+        public ulong? GasPriceLimit { get; set; }
+
+        /// <summary>
+        /// Whether the transaction uses the standard payment logic (Casper 2.0).
+        /// </summary>
+        [JsonProperty("is_standard_payment")]
+        public bool? IsStandardPayment { get; set; }
+
+        /// <summary>
+        /// Casper 2.0 runtime type identifier (e.g. VM Casper v1 / WASM v2).
+        /// </summary>
+        [JsonProperty("runtime_type_id")]
+        public byte? RuntimeTypeId { get; set; }
+
+        /// <summary>
+        /// Actual gas consumed by the transaction, in motes. Typed as string to avoid uint64 overflow.
+        /// </summary>
+        [JsonProperty("consumed_gas")]
+        public string ConsumedGas { get; set; }
+
+        /// <summary>
+        /// Refund amount returned to the caller in motes (v2.0.12+). Typed as string to avoid uint64 overflow.
+        /// </summary>
+        [JsonProperty("refund_amount")]
+        public string RefundAmount { get; set; }
 
         /// <summary>
         /// Hash of the contract package called by the deploy represented as a hexadecimal string. null if the deploy had no contract call.

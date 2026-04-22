@@ -64,6 +64,11 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Deploy
         [JsonProperty("ft_token_actions")]
         public bool FTTokenActions { get; set; } = false;
 
+        /// <summary>
+        /// Includes the deploy caller's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("caller_cspr_name")]
+        public bool CallerCsprName { get; set; } = false;
 
     }
 }

@@ -137,6 +137,36 @@ namespace CSPR.Cloud.Net.Objects.Transfer
         /// </summary>
         [JsonProperty("rate")]
         public float? Rate { get; set; }
+
+        /// <summary>
+        /// Monotonic transfer index assigned by the indexer — distinct from <see cref="Id"/>, which is caller-supplied.
+        /// </summary>
+        [JsonProperty("transfer_index")]
+        public ulong? TransferIndex { get; set; }
+
+        /// <summary>
+        /// The transfer initiator's registered CSPR.name when the <c>initiator_cspr_name</c> includer is requested (v2.1.0+).
+        /// </summary>
+        [JsonProperty("initiator_cspr_name")]
+        public string InitiatorCsprName { get; set; }
+
+        /// <summary>
+        /// The recipient's registered CSPR.name when the <c>to_cspr_name</c> includer is requested (v2.1.0+).
+        /// </summary>
+        [JsonProperty("to_cspr_name")]
+        public string ToCsprName { get; set; }
+
+        /// <summary>
+        /// CSPR.name of the account that owns the transfer source purse (v2.1.0+).
+        /// </summary>
+        [JsonProperty("from_purse_cspr_name")]
+        public string FromPurseCsprName { get; set; }
+
+        /// <summary>
+        /// CSPR.name of the account that owns the transfer target purse (v2.1.0+).
+        /// </summary>
+        [JsonProperty("to_purse_cspr_name")]
+        public string ToPurseCsprName { get; set; }
     }
 
 }

@@ -86,6 +86,14 @@ namespace CSPR.Cloud.Net.Tests
             _restClient = new CasperCloudRestClient(new CasperCloudClientConfig("55f79117-fc4d-4d60-9956-65423f39a06a")); // test key
         }
 
+        // Balance/stake fields are typed as string (v2.4.3+) to preserve uint64 values beyond
+        // System.UInt64.MaxValue. Numeric comparisons go through BigInteger to cover that full range.
+        private static BigInteger Big(string s) => string.IsNullOrEmpty(s) ? BigInteger.Zero : BigInteger.Parse(s);
+
+        // Decimal-typed fields on the wire (network_share, self_share). Parsed with InvariantCulture
+        // so the test doesn't depend on the machine's locale.
+        private static decimal Dec(string s) => string.IsNullOrEmpty(s) ? 0m : decimal.Parse(s, System.Globalization.CultureInfo.InvariantCulture);
+
 
         [Fact]
         public async Task GetAccountAsync_ReturnsExpectedData()
@@ -114,7 +122,7 @@ namespace CSPR.Cloud.Net.Tests
             };
             var result = await _restClient.Testnet.Account.GetAccountAsync(_testPublicKey, parameters);
 
-            Assert.True(result.StakedBalance > 0 && result.AuctionStatus == null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
+            Assert.True(Big(result.StakedBalance) > 0 && result.AuctionStatus == null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
         }
         [Fact]
         public async Task GetAccountsAsync_ReturnsOptionalParametersData()
@@ -153,7 +161,7 @@ namespace CSPR.Cloud.Net.Tests
                 }
             };
             var result = await _restClient.Testnet.Account.GetAccountsAsync(parameters);
-            Assert.True(result.ItemCount > 0 && result.Data[0].Balance >= result.Data[1].Balance);
+            Assert.True(result.ItemCount > 0 && Big(result.Data[0].Balance) >= Big(result.Data[1].Balance));
         }
         [Fact]
         public async Task GetAccountsAsync_ReturnsOrderByBalanceAscendingData()
@@ -2477,7 +2485,9 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data != null);
             Assert.True(result.Data.Circulating > 0); // hopefully
             Assert.True(result.Data.Total > 0); // hopefully
-            Assert.True(result.Data.Timestamp > DateTime.UtcNow.AddDays(-1));
+            // SupplyData.Timestamp is a Unix-seconds long (the endpoint emits it as a number, not an ISO string).
+            var yesterdayUnix = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            Assert.True(result.Data.Timestamp > yesterdayUnix);
         }
 
         // Get all account sent and received transfers by the account identifier (public key or account hash) Tests
@@ -2707,7 +2717,7 @@ namespace CSPR.Cloud.Net.Tests
             Assert.True(result.Data != null);
             Assert.True(result.Data.PublicKey == _test2PublicKey);
             Assert.True(result.Data.EraId == uint.Parse(parameters.FilterParameters.EraId));
-            Assert.True(result.Data.TotalStake > 0);
+            Assert.True(Big(result.Data.TotalStake) > 0);
             Assert.True(result.Data.AveragePerformance != null);
             Assert.True(result.Data.AccountInfo != null);
         }
@@ -2804,15 +2814,15 @@ namespace CSPR.Cloud.Net.Tests
             Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
 
             // Verify that the result is sorted in ascending order
-            Assert.True(result.Data[0].TotalStake <= result.Data[1].TotalStake);
-            Assert.True(result.Data[1].TotalStake <= result.Data[2].TotalStake);
-            Assert.True(result.Data[2].TotalStake <= result.Data[3].TotalStake);
-            Assert.True(result.Data[3].TotalStake <= result.Data[4].TotalStake);
-            Assert.True(result.Data[4].TotalStake <= result.Data[5].TotalStake);
-            Assert.True(result.Data[5].TotalStake <= result.Data[6].TotalStake);
-            Assert.True(result.Data[6].TotalStake <= result.Data[7].TotalStake);
-            Assert.True(result.Data[7].TotalStake <= result.Data[8].TotalStake);
-            Assert.True(result.Data[8].TotalStake <= result.Data[9].TotalStake);
+            Assert.True(Big(result.Data[0].TotalStake) <= Big(result.Data[1].TotalStake));
+            Assert.True(Big(result.Data[1].TotalStake) <= Big(result.Data[2].TotalStake));
+            Assert.True(Big(result.Data[2].TotalStake) <= Big(result.Data[3].TotalStake));
+            Assert.True(Big(result.Data[3].TotalStake) <= Big(result.Data[4].TotalStake));
+            Assert.True(Big(result.Data[4].TotalStake) <= Big(result.Data[5].TotalStake));
+            Assert.True(Big(result.Data[5].TotalStake) <= Big(result.Data[6].TotalStake));
+            Assert.True(Big(result.Data[6].TotalStake) <= Big(result.Data[7].TotalStake));
+            Assert.True(Big(result.Data[7].TotalStake) <= Big(result.Data[8].TotalStake));
+            Assert.True(Big(result.Data[8].TotalStake) <= Big(result.Data[9].TotalStake));
         }
         [Fact]
         public async Task GetValidatorsAsync_WithDESCOrdering_OrderByTotalStake_ReturnsExpectedData()
@@ -2839,15 +2849,15 @@ namespace CSPR.Cloud.Net.Tests
             Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
 
             // Verify that the result is sorted in descending order
-            Assert.True(result.Data[0].TotalStake >= result.Data[1].TotalStake);
-            Assert.True(result.Data[1].TotalStake >= result.Data[2].TotalStake);
-            Assert.True(result.Data[2].TotalStake >= result.Data[3].TotalStake);
-            Assert.True(result.Data[3].TotalStake >= result.Data[4].TotalStake);
-            Assert.True(result.Data[4].TotalStake >= result.Data[5].TotalStake);
-            Assert.True(result.Data[5].TotalStake >= result.Data[6].TotalStake);
-            Assert.True(result.Data[6].TotalStake >= result.Data[7].TotalStake);
-            Assert.True(result.Data[7].TotalStake >= result.Data[8].TotalStake);
-            Assert.True(result.Data[8].TotalStake >= result.Data[9].TotalStake);
+            Assert.True(Big(result.Data[0].TotalStake) >= Big(result.Data[1].TotalStake));
+            Assert.True(Big(result.Data[1].TotalStake) >= Big(result.Data[2].TotalStake));
+            Assert.True(Big(result.Data[2].TotalStake) >= Big(result.Data[3].TotalStake));
+            Assert.True(Big(result.Data[3].TotalStake) >= Big(result.Data[4].TotalStake));
+            Assert.True(Big(result.Data[4].TotalStake) >= Big(result.Data[5].TotalStake));
+            Assert.True(Big(result.Data[5].TotalStake) >= Big(result.Data[6].TotalStake));
+            Assert.True(Big(result.Data[6].TotalStake) >= Big(result.Data[7].TotalStake));
+            Assert.True(Big(result.Data[7].TotalStake) >= Big(result.Data[8].TotalStake));
+            Assert.True(Big(result.Data[8].TotalStake) >= Big(result.Data[9].TotalStake));
         }
         [Fact]
         public async Task GetValidatorsAsync_WithASCOrdering_OrderByRank_ReturnsExpectedData()
@@ -3084,15 +3094,15 @@ namespace CSPR.Cloud.Net.Tests
             Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
 
             // Verify that the result is sorted in ascending order
-            Assert.True(result.Data[0].SelfStake <= result.Data[1].SelfStake);
-            Assert.True(result.Data[1].SelfStake <= result.Data[2].SelfStake);
-            Assert.True(result.Data[2].SelfStake <= result.Data[3].SelfStake);
-            Assert.True(result.Data[3].SelfStake <= result.Data[4].SelfStake);
-            Assert.True(result.Data[4].SelfStake <= result.Data[5].SelfStake);
-            Assert.True(result.Data[5].SelfStake <= result.Data[6].SelfStake);
-            Assert.True(result.Data[6].SelfStake <= result.Data[7].SelfStake);
-            Assert.True(result.Data[7].SelfStake <= result.Data[8].SelfStake);
-            Assert.True(result.Data[8].SelfStake <= result.Data[9].SelfStake);
+            Assert.True(Big(result.Data[0].SelfStake) <= Big(result.Data[1].SelfStake));
+            Assert.True(Big(result.Data[1].SelfStake) <= Big(result.Data[2].SelfStake));
+            Assert.True(Big(result.Data[2].SelfStake) <= Big(result.Data[3].SelfStake));
+            Assert.True(Big(result.Data[3].SelfStake) <= Big(result.Data[4].SelfStake));
+            Assert.True(Big(result.Data[4].SelfStake) <= Big(result.Data[5].SelfStake));
+            Assert.True(Big(result.Data[5].SelfStake) <= Big(result.Data[6].SelfStake));
+            Assert.True(Big(result.Data[6].SelfStake) <= Big(result.Data[7].SelfStake));
+            Assert.True(Big(result.Data[7].SelfStake) <= Big(result.Data[8].SelfStake));
+            Assert.True(Big(result.Data[8].SelfStake) <= Big(result.Data[9].SelfStake));
         }
         [Fact]
         public async Task GetValidatorsAsync_WithDESCOrdering_OrderBySelfStake_ReturnsExpectedData()
@@ -3118,16 +3128,16 @@ namespace CSPR.Cloud.Net.Tests
             // Verify that the result contains expected data
             Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
 
-            // Verify that the result is sorted in ascending order
-            Assert.True(result.Data[0].SelfStake >= result.Data[1].SelfStake);
-            Assert.True(result.Data[1].SelfStake >= result.Data[2].SelfStake);
-            Assert.True(result.Data[2].SelfStake >= result.Data[3].SelfStake);
-            Assert.True(result.Data[3].SelfStake >= result.Data[4].SelfStake);
-            Assert.True(result.Data[4].SelfStake >= result.Data[5].SelfStake);
-            Assert.True(result.Data[5].SelfStake >= result.Data[6].SelfStake);
-            Assert.True(result.Data[6].SelfStake >= result.Data[7].SelfStake);
-            Assert.True(result.Data[7].SelfStake >= result.Data[8].SelfStake);
-            Assert.True(result.Data[8].SelfStake >= result.Data[9].SelfStake);
+            // Verify that the result is sorted in descending order
+            Assert.True(Big(result.Data[0].SelfStake) >= Big(result.Data[1].SelfStake));
+            Assert.True(Big(result.Data[1].SelfStake) >= Big(result.Data[2].SelfStake));
+            Assert.True(Big(result.Data[2].SelfStake) >= Big(result.Data[3].SelfStake));
+            Assert.True(Big(result.Data[3].SelfStake) >= Big(result.Data[4].SelfStake));
+            Assert.True(Big(result.Data[4].SelfStake) >= Big(result.Data[5].SelfStake));
+            Assert.True(Big(result.Data[5].SelfStake) >= Big(result.Data[6].SelfStake));
+            Assert.True(Big(result.Data[6].SelfStake) >= Big(result.Data[7].SelfStake));
+            Assert.True(Big(result.Data[7].SelfStake) >= Big(result.Data[8].SelfStake));
+            Assert.True(Big(result.Data[8].SelfStake) >= Big(result.Data[9].SelfStake));
         }
         [Fact]
         public async Task GetValidatorsAsync_WithASCOrdering_OrderByNetworkShare_ReturnsExpectedData()
@@ -3154,15 +3164,15 @@ namespace CSPR.Cloud.Net.Tests
             Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
 
             // Verify that the result is sorted in ascending order
-            Assert.True(result.Data[0].NetworkShare <= result.Data[1].NetworkShare);
-            Assert.True(result.Data[1].NetworkShare <= result.Data[2].NetworkShare);
-            Assert.True(result.Data[2].NetworkShare <= result.Data[3].NetworkShare);
-            Assert.True(result.Data[3].NetworkShare <= result.Data[4].NetworkShare);
-            Assert.True(result.Data[4].NetworkShare <= result.Data[5].NetworkShare);
-            Assert.True(result.Data[5].NetworkShare <= result.Data[6].NetworkShare);
-            Assert.True(result.Data[6].NetworkShare <= result.Data[7].NetworkShare);
-            Assert.True(result.Data[7].NetworkShare <= result.Data[8].NetworkShare);
-            Assert.True(result.Data[8].NetworkShare <= result.Data[9].NetworkShare);
+            Assert.True(Dec(result.Data[0].NetworkShare) <= Dec(result.Data[1].NetworkShare));
+            Assert.True(Dec(result.Data[1].NetworkShare) <= Dec(result.Data[2].NetworkShare));
+            Assert.True(Dec(result.Data[2].NetworkShare) <= Dec(result.Data[3].NetworkShare));
+            Assert.True(Dec(result.Data[3].NetworkShare) <= Dec(result.Data[4].NetworkShare));
+            Assert.True(Dec(result.Data[4].NetworkShare) <= Dec(result.Data[5].NetworkShare));
+            Assert.True(Dec(result.Data[5].NetworkShare) <= Dec(result.Data[6].NetworkShare));
+            Assert.True(Dec(result.Data[6].NetworkShare) <= Dec(result.Data[7].NetworkShare));
+            Assert.True(Dec(result.Data[7].NetworkShare) <= Dec(result.Data[8].NetworkShare));
+            Assert.True(Dec(result.Data[8].NetworkShare) <= Dec(result.Data[9].NetworkShare));
         }
         [Fact]
         public async Task GetValidatorsAsync_WithDESCOrdering_OrderByNetworkShare_ReturnsExpectedData()
@@ -3188,16 +3198,16 @@ namespace CSPR.Cloud.Net.Tests
             // Verify that the result contains expected data
             Assert.NotEmpty(result.Data); // Assuming result.Data is a collection of validators
 
-            // Verify that the result is sorted in ascending order
-            Assert.True(result.Data[0].NetworkShare >= result.Data[1].NetworkShare);
-            Assert.True(result.Data[1].NetworkShare >= result.Data[2].NetworkShare);
-            Assert.True(result.Data[2].NetworkShare >= result.Data[3].NetworkShare);
-            Assert.True(result.Data[3].NetworkShare >= result.Data[4].NetworkShare);
-            Assert.True(result.Data[4].NetworkShare >= result.Data[5].NetworkShare);
-            Assert.True(result.Data[5].NetworkShare >= result.Data[6].NetworkShare);
-            Assert.True(result.Data[6].NetworkShare >= result.Data[7].NetworkShare);
-            Assert.True(result.Data[7].NetworkShare >= result.Data[8].NetworkShare);
-            Assert.True(result.Data[8].NetworkShare >= result.Data[9].NetworkShare);
+            // Verify that the result is sorted in descending order
+            Assert.True(Dec(result.Data[0].NetworkShare) >= Dec(result.Data[1].NetworkShare));
+            Assert.True(Dec(result.Data[1].NetworkShare) >= Dec(result.Data[2].NetworkShare));
+            Assert.True(Dec(result.Data[2].NetworkShare) >= Dec(result.Data[3].NetworkShare));
+            Assert.True(Dec(result.Data[3].NetworkShare) >= Dec(result.Data[4].NetworkShare));
+            Assert.True(Dec(result.Data[4].NetworkShare) >= Dec(result.Data[5].NetworkShare));
+            Assert.True(Dec(result.Data[5].NetworkShare) >= Dec(result.Data[6].NetworkShare));
+            Assert.True(Dec(result.Data[6].NetworkShare) >= Dec(result.Data[7].NetworkShare));
+            Assert.True(Dec(result.Data[7].NetworkShare) >= Dec(result.Data[8].NetworkShare));
+            Assert.True(Dec(result.Data[8].NetworkShare) >= Dec(result.Data[9].NetworkShare));
         }
         [Fact]
         public async Task GetValidatorsAsync_WithPublicKeyList_ReturnsExpectedData()

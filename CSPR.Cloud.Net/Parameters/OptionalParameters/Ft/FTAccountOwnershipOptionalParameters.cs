@@ -14,5 +14,11 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Ft
         [JsonProperty("contract_package")]
         public bool ContractPackage { get; set; } = false;
 
+        /// <summary>
+        /// Includes the owner's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("owner_cspr_name")]
+        public bool OwnerCsprName { get; set; } = false;
+
     }
 }

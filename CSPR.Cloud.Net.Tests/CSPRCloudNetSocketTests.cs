@@ -669,9 +669,7 @@ namespace CSPR.Cloud.Net.Tests
                 });
         }
 
-        [Fact(Skip = "Server returns HTTP 404 ('404 page not found') at streaming.testnet.cspr.cloud/contracts and streaming.cspr.cloud/contracts as of 2026-04-21, " +
-                     "even using the exact URL shown in the docs example (with contract_package_hash filter). /blocks works with identical auth, so the endpoint simply isn't " +
-                     "registered on the server. SDK API surface (Testnet.Contract.SubscribeAsync) preserved; remove this Skip when the provider enables the route.")]
+        [Fact]
         public async Task Contract_SubscribeAsync_StaysHealthyAgainstTestnet()
         {
             await AssertSubscribeStaysHealthyAsync<ContractData>(

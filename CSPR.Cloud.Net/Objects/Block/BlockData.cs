@@ -66,6 +66,48 @@ namespace CSPR.Cloud.Net.Objects.Block
         public bool IsSwitchBlock { get; set; }
 
         /// <summary>
+        /// Gas price at the time the block was proposed (Casper 2.0).
+        /// </summary>
+        [JsonProperty("gas_price")]
+        public uint? GasPrice { get; set; }
+
+        /// <summary>
+        /// Block version identifier (Casper 2.0 block header).
+        /// </summary>
+        [JsonProperty("version_id")]
+        public byte? VersionId { get; set; }
+
+        /// <summary>
+        /// Number of auction transactions in the block (Casper 2.0 transaction bucket).
+        /// </summary>
+        [JsonProperty("auction_txn_number")]
+        public ushort? AuctionTxnNumber { get; set; }
+
+        /// <summary>
+        /// Number of install / upgrade transactions in the block (Casper 2.0 transaction bucket).
+        /// </summary>
+        [JsonProperty("install_upgrade_txn_number")]
+        public ushort? InstallUpgradeTxnNumber { get; set; }
+
+        /// <summary>
+        /// Number of small contract-call transactions in the block (Casper 2.0 transaction bucket).
+        /// </summary>
+        [JsonProperty("small_txn_number")]
+        public ushort? SmallTxnNumber { get; set; }
+
+        /// <summary>
+        /// Number of medium contract-call transactions in the block (Casper 2.0 transaction bucket).
+        /// </summary>
+        [JsonProperty("medium_txn_number")]
+        public ushort? MediumTxnNumber { get; set; }
+
+        /// <summary>
+        /// Number of large contract-call transactions in the block (Casper 2.0 transaction bucket).
+        /// </summary>
+        [JsonProperty("large_txn_number")]
+        public ushort? LargeTxnNumber { get; set; }
+
+        /// <summary>
         /// The timestamp from when the block was proposed.
         /// </summary>
         [JsonProperty("timestamp")]
@@ -76,6 +118,18 @@ namespace CSPR.Cloud.Net.Objects.Block
         /// </summary>
         [JsonProperty("proposer_account_info")]
         public AccountInfoData ProposerAccountInfo { get; set; }
+
+        /// <summary>
+        /// Centralized account info of the proposer when the <c>proposer_centralized_account_info</c> includer is requested.
+        /// </summary>
+        [JsonProperty("proposer_centralized_account_info")]
+        public CentralizedAccountInfo.CentralizedAccountInfoData ProposerCentralizedAccountInfo { get; set; }
+
+        /// <summary>
+        /// The proposer's registered CSPR.name when the <c>proposer_cspr_name</c> includer is requested (v2.1.0+).
+        /// </summary>
+        [JsonProperty("proposer_cspr_name")]
+        public string ProposerCsprName { get; set; }
     }
 
 }

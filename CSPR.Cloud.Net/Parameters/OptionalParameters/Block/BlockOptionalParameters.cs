@@ -14,5 +14,17 @@ namespace CSPR.Cloud.Net.Parameters.OptionalParameters.Block
         [JsonProperty("proposer_account_info")]
         public bool ProposerAccountInfo { get; set; } = false;
 
+        /// <summary>
+        /// Includes proposer centralized account info (v2.1.0+).
+        /// </summary>
+        [JsonProperty("proposer_centralized_account_info")]
+        public bool ProposerCentralizedAccountInfo { get; set; } = false;
+
+        /// <summary>
+        /// Includes the proposer's registered CSPR.name when available (v2.1.0+).
+        /// </summary>
+        [JsonProperty("proposer_cspr_name")]
+        public bool ProposerCsprName { get; set; } = false;
+
     }
 }
