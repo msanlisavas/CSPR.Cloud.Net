@@ -8,6 +8,20 @@
 A .NET client library for the CSPR Cloud API — access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
 
 ## Release Notes
+### v2.9.0
+SDK package version now tracks the CSPR Cloud API version it covers (was 2.0.0). The wire surface itself is unchanged from v2.0.0 — bumping the package number to **2.9.0** so consumers can immediately see which API revision a given SDK release is paired with.
+
+**Gap fix**
+
+The previous v2.0.0 release added `GetAccountUndelegationsAsync` and `GetNFTsAsync` to the internal `CommonEndpoint` and documented them on the public surface, but missed adding the public forwarders on the `Delegate` and `NFT` facades — calling them from user code raised `CS1061`. v2.9.0 wires them through:
+
+```csharp
+client.Mainnet.Delegate.GetAccountUndelegationsAsync(...)  // now compiles
+client.Mainnet.NFT.GetNFTsAsync(...)                       // now compiles
+```
+
+No changes to wire format, parameters, or behavior — only the missing forwarder methods.
+
 ### v2.0.0
 Catches the SDK up with the CSPR Cloud API through **v2.9.0** (2026-02). Covers every changelog entry from v2.0.3 → v2.9.0 and includes Casper 2.0 fields across Deploy / Validator / Bidder / Block / Supply.
 

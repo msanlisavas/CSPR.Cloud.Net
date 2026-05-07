@@ -1134,6 +1134,19 @@ namespace CSPR.Cloud.Net.Clients
             {
                 return _commonEndpoint.GetTotalPurseDelegationRewardsAsync(purseUref);
             }
+
+            /// <summary>
+            /// Retrieves a paginated list of pending undelegations for a specific account asynchronously.
+            /// Funds are released 7 eras after <see cref="UndelegationData.EraOfCreation"/>.
+            /// For more information, see <see href="https://docs.cspr.cloud/rest-api/delegation/get-account-undelegations">CSPR Cloud API documentation</see>.
+            /// </summary>
+            /// <param name="publicKey">The public key of the account whose pending undelegations to retrieve.</param>
+            /// <param name="parameters">Optional parameters for the request.</param>
+            /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of undelegation data.</returns>
+            public Task<PaginatedResponse<UndelegationData>> GetAccountUndelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetAccountUndelegationsAsync(publicKey, parameters);
+            }
         }
 
         /// <summary>
@@ -1473,6 +1486,17 @@ namespace CSPR.Cloud.Net.Clients
             public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
+            }
+
+            /// <summary>
+            /// Retrieves a paginated, network-wide list of NFTs asynchronously, optionally filtered by contract package, owner, or block-height range.
+            /// For more information, see <see href="https://docs.cspr.cloud/rest-api/non-fungible-token/get-tokens">CSPR Cloud API documentation</see>.
+            /// </summary>
+            /// <param name="parameters">Optional parameters for the request (filters, includers, sort, pagination).</param>
+            /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token data.</returns>
+            public Task<PaginatedResponse<NFTTokenData>> GetNFTsAsync(NFTsRequestParameters parameters = null)
+            {
+                return _commonEndpoint.GetNFTsAsync(parameters);
             }
         }
 

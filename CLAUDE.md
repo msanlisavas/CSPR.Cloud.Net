@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CSPR.Cloud.Net is a .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments. The library targets .NET Standard 2.0 and 2.1 for broad compatibility.
 
-Current release: **v2.0.0** — tracks CSPR Cloud API through v2.9.0. See README Release Notes for breaking changes (notably: balance/stake fields typed as `string` to avoid uint64 overflow).
+Current release: **v2.9.0** — SDK package version now tracks the CSPR Cloud API version it covers. v2.9.0 wires `Delegate.GetAccountUndelegationsAsync` and `NFT.GetNFTsAsync` through the public REST facades (these were added to the internal `CommonEndpoint` in v2.0.0 but were missing public forwarders, so calls failed with `CS1061`). See README Release Notes for the v2.0.0 catch-up surface and the breaking changes that came with it (notably: balance/stake fields typed as `string` to avoid uint64 overflow).
 
 ## Build and Test Commands
 
