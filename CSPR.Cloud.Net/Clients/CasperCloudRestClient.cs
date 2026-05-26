@@ -91,45 +91,41 @@ namespace CSPR.Cloud.Net.Clients
         }
 
 
-        public async Task<T> GetDataAsync<T>(string endpoint) where T : class
+        private async Task<T?> HandleResponseAsync<T>(HttpResponseMessage response) where T : class
+        {
+            var code = response.StatusCode;
+            if (code == HttpStatusCode.OK || code == HttpStatusCode.Created)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(content)) return null;
+                return JsonConvert.DeserializeObject<T>(content);
+            }
+            if (code == HttpStatusCode.NotFound) return null;
+
+            var body = await response.Content.ReadAsStringAsync();
+            switch (code)
+            {
+                case HttpStatusCode.BadRequest: throw new InvalidParamException($"Invalid Param Error: {body}", _logger);
+                case HttpStatusCode.Unauthorized: throw new UnauthorizedException($"Unauthorized Error: {body}", _logger);
+                case HttpStatusCode.Forbidden: throw new AccessDeniedException($"Access Denied Error: {body}", _logger);
+                case HttpStatusCode.Conflict: throw new DuplicateEntryException($"Duplicate Entry Error: {body}", _logger);
+                case (HttpStatusCode)429: throw new RateLimitException($"Rate Limit Error: {body}", _logger);
+            }
+            if ((int)code >= 500) throw new InternalServerErrorException($"Server Error ({(int)code}): {body}", _logger);
+            throw new HttpRequestException($"Unexpected response status {(int)code} ({code}): {body}");
+        }
+
+        public async Task<T?> GetDataAsync<T>(string endpoint) where T : class
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{endpoint}");
             request.Headers.Add("Authorization", _apiKey);
             request.Headers.Add("Accept", "application/json");
 
             var response = await _httpClient.SendAsync(request);
-
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.OK:
-                    var content = await response.Content.ReadAsStringAsync();
-                    T result = JsonConvert.DeserializeObject<T>(content);
-                    return result ?? throw new Exception("Failed to deserialize response content.");
-
-                case HttpStatusCode.BadRequest:
-                    throw new InvalidParamException($"Invalid Param Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.Unauthorized:
-                    throw new UnauthorizedException($"Unauthorized Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.Forbidden:
-                    throw new AccessDeniedException($"Access Denied Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.NotFound:
-                    throw new NotFoundException($"Not Found Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.Conflict:
-                    throw new DuplicateEntryException($"Duplicate Entry Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.InternalServerError:
-                    throw new InternalServerErrorException($"Internal Server Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                default:
-                    throw new HttpRequestException($"Error: {response.StatusCode}");
-            }
+            return await HandleResponseAsync<T>(response);
         }
 
-        public async Task<T> PostDataAsync<T>(string endpoint, object body) where T : class
+        public async Task<T?> PostDataAsync<T>(string endpoint, object body) where T : class
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"{endpoint}");
             request.Headers.Add("Authorization", _apiKey);
@@ -137,36 +133,7 @@ namespace CSPR.Cloud.Net.Clients
             request.Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(request);
-
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.OK:
-                case HttpStatusCode.Created:
-                    var content = await response.Content.ReadAsStringAsync();
-                    T result = JsonConvert.DeserializeObject<T>(content);
-                    return result ?? throw new Exception("Failed to deserialize response content.");
-
-                case HttpStatusCode.BadRequest:
-                    throw new InvalidParamException($"Invalid Param Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.Unauthorized:
-                    throw new UnauthorizedException($"Unauthorized Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.Forbidden:
-                    throw new AccessDeniedException($"Access Denied Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.NotFound:
-                    throw new NotFoundException($"Not Found Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.Conflict:
-                    throw new DuplicateEntryException($"Duplicate Entry Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                case HttpStatusCode.InternalServerError:
-                    throw new InternalServerErrorException($"Internal Server Error: {await response.Content.ReadAsStringAsync()}", _logger);
-
-                default:
-                    throw new HttpRequestException($"Error: {response.StatusCode}");
-            }
+            return await HandleResponseAsync<T>(response);
         }
 
         public class MainnetEndpoint : INetworkEndpoint
@@ -270,124 +237,119 @@ namespace CSPR.Cloud.Net.Clients
                 _baseUrl = baseUrl;
             }
 
-            public async Task<AccountData> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters = null)
+            public async Task<AccountData?> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters = null)
             {
                 string endpoint = Endpoints.Account.GetAccount(_baseUrl, publicKey, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<AccountData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters)
+            public async Task<PaginatedResponse<AccountData>?> GetAccountsAsync(AccountsRequestParameters parameters)
             {
 
                 string endpoint = Endpoints.Account.GetAccounts(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<AccountData>>(endpoint);
             }
-            public async Task<BlockData> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
+            public async Task<BlockData?> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
             {
                 string endpoint = Endpoints.Block.GetBlock(_baseUrl, blockHash, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<BlockData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters)
+            public async Task<PaginatedResponse<BlockData>?> GetBlocksAsync(BlockRequestParameters parameters)
             {
                 string endpoint = Endpoints.Block.GetBlocks(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BlockData>>(endpoint);
             }
-            public async Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters)
+            public async Task<PaginatedResponse<BlockData>?> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters)
             {
                 string endpoint = Endpoints.Block.GetValidatorBlocks(_baseUrl, validatorPublicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BlockData>>(endpoint);
             }
-            public async Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
+            public async Task<BidderData?> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
             {
                 string endpoint = Endpoints.Bidder.GetBidder(_baseUrl, publicKey, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<BidderData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
+            public async Task<PaginatedResponse<BidderData>?> GetBiddersAsync(BiddersRequestParameters parameters)
             {
                 string endpoint = Endpoints.Bidder.GetBidders(_baseUrl, parameters);
-                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BidderData>>(endpoint);
-                return response;
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<BidderData>>(endpoint);
             }
-            public async Task<CentralizedAccountInfoData> GetCentralizedAccountInfoAsync(string accountHash)
+            public async Task<CentralizedAccountInfoData?> GetCentralizedAccountInfoAsync(string accountHash)
             {
                 string endpoint = Endpoints.CentralizedAccountInfo.GetCentralizedAccountInfo(_baseUrl, accountHash);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<CentralizedAccountInfoData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<CentralizedAccountInfoData>> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
+            public async Task<PaginatedResponse<CentralizedAccountInfoData>?> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
             {
                 string endpoint = Endpoints.CentralizedAccountInfo.GetCentralizedInfos(_baseUrl, parameters);
-                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<CentralizedAccountInfoData>>(endpoint);
-                return response;
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<CentralizedAccountInfoData>>(endpoint);
             }
-            public async Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
+            public async Task<ContractData?> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Contract.GetContract(_baseUrl, contractHash, parameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<ContractData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters)
+            public async Task<PaginatedResponse<ContractData>?> GetContractsAsync(ContractsRequestParameters parameters)
             {
                 string endpoint = Endpoints.Contract.GetContracts(_baseUrl, parameters);
-                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractData>>(endpoint);
-                return response;
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractData>>(endpoint);
             }
-            public async Task<PaginatedResponse<ContractData>> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
+            public async Task<PaginatedResponse<ContractData>?> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Contract.GetContractsByContractPackage(_baseUrl, contractPackageHash, parameters);
-                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractData>>(endpoint);
-                return response;
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractData>>(endpoint);
             }
-            public async Task<List<ContractTypeData>> GetContractTypesAsync()
+            public async Task<List<ContractTypeData>?> GetContractTypesAsync()
             {
                 string endpoint = Endpoints.Contract.GetContractTypes(_baseUrl);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<List<ContractTypeData>>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
+            public async Task<PaginatedResponse<EntryPointData>?> GetContractEntryPointsAsync(string contractHash)
             {
                 string endpoint = Endpoints.Contract.GetContractEntryPoints(_baseUrl, contractHash);
-                var response = await _casperCloudRestClient.GetDataAsync<PaginatedResponse<EntryPointData>>(endpoint);
-                return response;
+                return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<EntryPointData>>(endpoint);
             }
-            public async Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
+            public async Task<Response<EntryPointCostData>?> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
             {
                 string endpoint = Endpoints.Contract.GetContractEntryPointCosts(_baseUrl, contractHash, entryPointName);
                 return await _casperCloudRestClient.GetDataAsync<Response<EntryPointCostData>>(endpoint);
             }
-            public async Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
+            public async Task<ContractResponse<ContractPackageData>?> GetContractPackageAsync(string contractPackageHash)
             {
                 string endpoint = Endpoints.Contract.GetContractPackage(_baseUrl, contractPackageHash);
                 return await _casperCloudRestClient.GetDataAsync<ContractResponse<ContractPackageData>>(endpoint);
             }
-            public async Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
+            public async Task<PaginatedResponse<ContractPackageData>?> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Contract.GetContractPackages(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractPackageData>>(endpoint);
             }
-            public async Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
+            public async Task<PaginatedResponse<ContractPackageData>?> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Contract.GetAccountContractPackages(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ContractPackageData>>(endpoint);
             }
-            public async Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DelegationData>?> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetAccountDelegations(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
             }
-            public async Task<PaginatedResponse<UndelegationData>> GetAccountUndelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            public async Task<PaginatedResponse<UndelegationData>?> GetAccountUndelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetAccountUndelegations(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<UndelegationData>>(endpoint);
             }
-            public async Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DelegationData>?> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetValidatorDelegations(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
             }
-            public async Task<PaginatedResponse<DelegatorRewardData>> GetAccountDelegatorRewardsAsync(string publicKey, AccountDelegatorRewardRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DelegatorRewardData>?> GetAccountDelegatorRewardsAsync(string publicKey, AccountDelegatorRewardRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetAccountDelegatorRewards(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegatorRewardData>>(endpoint);
@@ -396,241 +358,240 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.Delegate.GetTotalAccountDelegationRewards(_baseUrl, publicKey);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
-                return response.Data;
+                return response?.Data ?? 0;
             }
             public async Task<ulong> GetTotalValidatorDelegationRewards(string publicKey)
             {
                 string endpoint = Endpoints.Delegate.GetTotalValidatorDelegatorsRewards(_baseUrl, publicKey);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
-                return response.Data;
+                return response?.Data ?? 0;
             }
-            public async Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
+            public async Task<Response<DeployData>?> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Deploy.GetDeploy(_baseUrl, deployHash, parameters);
-                var response = await _casperCloudRestClient.GetDataAsync<Response<DeployData>>(endpoint);
-                return response;
+                return await _casperCloudRestClient.GetDataAsync<Response<DeployData>>(endpoint);
             }
-            public async Task<PaginatedResponse<DeployData>> GetDeploysAsync(DeploysRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DeployData>?> GetDeploysAsync(DeploysRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Deploy.GetDeploys(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DeployData>>(endpoint);
             }
-            public async Task<PaginatedResponse<DeployData>> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DeployData>?> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Deploy.GetAccountDeploys(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DeployData>>(endpoint);
             }
-            public async Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DeployData>?> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Deploy.GetBlockDeploys(_baseUrl, blockIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DeployData>>(endpoint);
             }
-            public async Task<Response<List<DeployExecutionTypesData>>> GetDeployExecutionTypesAsync()
+            public async Task<Response<List<DeployExecutionTypesData>>?> GetDeployExecutionTypesAsync()
             {
                 string endpoint = Endpoints.Deploy.GetDeployExecutionTypes(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<Response<List<DeployExecutionTypesData>>>(endpoint);
             }
-            public async Task<PaginatedResponse<FTTokenActionData>> GetFungibleTokenActionsAsync(FTActionRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTTokenActionData>?> GetFungibleTokenActionsAsync(FTActionRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetFungibleTokenActions(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTTokenActionData>>(endpoint);
 
             }
-            public async Task<PaginatedResponse<FTTokenActionData>> GetAccountFungibleTokenActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTTokenActionData>?> GetAccountFungibleTokenActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetAccountFungibleTokenActions(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTTokenActionData>>(endpoint);
 
             }
-            public async Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTTokenActionData>?> GetContractPackageFungibleTokenActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetContractPackageFungibleTokenActions(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTTokenActionData>>(endpoint);
 
             }
-            public async Task<PaginatedResponse<FTOwnershipData>> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTOwnershipData>?> GetAccountFungibleTokenOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetAccountFungibleTokenOwnership(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTOwnershipData>>(endpoint);
             }
-            public async Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash, FTContractPackageOwnershipRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTOwnershipData>?> GetContractPackageFungibleTokenOwnershipAsync(string contractPackageHash, FTContractPackageOwnershipRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetContractPackageFungibleTokenOwnership(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTOwnershipData>>(endpoint);
             }
-            public async Task<Response<NFTTokenData>> GetNFTAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
+            public async Task<Response<NFTTokenData>?> GetNFTAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetNonFungibleToken(_baseUrl, contractPackageHash, tokenId, parameters);
                 return await _casperCloudRestClient.GetDataAsync<Response<NFTTokenData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenData>> GetNFTsAsync(NFTsRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenData>?> GetNFTsAsync(NFTsRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetNFTs(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenData>> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenData>?> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetAccountNFTs(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenData>?> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetContractPackageNFTs(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenData>>(endpoint);
             }
-            public async Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
+            public async Task<ListResponse<NFTStandardData>?> GetNFTStandardsAsync()
             {
                 string endpoint = Endpoints.NFT.GetNFTStandards(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<ListResponse<NFTStandardData>>(endpoint);
             }
-            public async Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
+            public async Task<ListResponse<NFTMetadataStatusData>?> GetOffchainNFTMetadataStatusesAsync()
             {
                 string endpoint = Endpoints.NFT.GetOffchainNFTMetadataStatuses(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<ListResponse<NFTMetadataStatusData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenActionData>?> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetContractPackageActionsForAToken(_baseUrl, contractPackageHash, tokenId, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenActionData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenActionData>?> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetAccountNFTActions(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenActionData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenActionData>?> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetContractPackageNFTActions(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenActionData>>(endpoint);
             }
-            public async Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
+            public async Task<ListResponse<NFTActionTypesData>?> GetNFTActionTypesAsync()
             {
                 string endpoint = Endpoints.NFT.GetNFTActionTypes(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<ListResponse<NFTActionTypesData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenOwnershipData>?> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetContractPackageNFTOwnership(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenOwnershipData>>(endpoint);
             }
-            public async Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
+            public async Task<PaginatedResponse<NFTTokenOwnershipData>?> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.NFT.GetAccountNFTOwnership(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<NFTTokenOwnershipData>>(endpoint);
             }
-            public async Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
+            public async Task<Response<RateData>?> GetCurrentCurrencyRateAsync(string currencyId)
             {
                 string endpoint = Endpoints.Rate.GetCurrentCurrencyRate(_baseUrl, currencyId);
                 return await _casperCloudRestClient.GetDataAsync<Response<RateData>>(endpoint);
             }
-            public async Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
+            public async Task<PaginatedResponse<RateData>?> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Rate.GetHistoricalCurrencyRates(_baseUrl, currencyId, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RateData>>(endpoint);
             }
-            public async Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
+            public async Task<PaginatedResponse<CurrencyData>?> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Rate.GetCurrencies(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<CurrencyData>>(endpoint);
             }
-            public async Task<Response<SupplyData>> GetSupplyAsync()
+            public async Task<Response<SupplyData>?> GetSupplyAsync()
             {
                 string endpoint = Endpoints.Supply.GetSupply(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<Response<SupplyData>>(endpoint);
             }
-            public async Task<PaginatedResponse<TransferData>> GetAccountTransfersAsync(string accountIdentifier, TransferAccountRequestParameters parameters = null)
+            public async Task<PaginatedResponse<TransferData>?> GetAccountTransfersAsync(string accountIdentifier, TransferAccountRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Transfer.GetAccountTransfers(_baseUrl, accountIdentifier, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<TransferData>>(endpoint);
             }
-            public async Task<PaginatedResponse<TransferData>> GetDeployTransfersAsync(string deployHash, TransferDeployRequestParameters parameters = null)
+            public async Task<PaginatedResponse<TransferData>?> GetDeployTransfersAsync(string deployHash, TransferDeployRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Transfer.GetDeployTransfers(_baseUrl, deployHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<TransferData>>(endpoint);
             }
-            public async Task<Response<ValidatorData>> GetValidatorAsync(string publicKey, ValidatorRequestParameters parameters)
+            public async Task<Response<ValidatorData>?> GetValidatorAsync(string publicKey, ValidatorRequestParameters parameters)
             {
                 string endpoint = Endpoints.Validator.GetValidator(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<Response<ValidatorData>>(endpoint);
             }
-            public async Task<PaginatedResponse<ValidatorData>> GetValidatorsAsync(ValidatorsRequestParameters parameters)
+            public async Task<PaginatedResponse<ValidatorData>?> GetValidatorsAsync(ValidatorsRequestParameters parameters)
             {
                 string endpoint = Endpoints.Validator.GetValidators(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorData>>(endpoint);
             }
-            public async Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
+            public async Task<PaginatedResponse<RelativeValidatorPerformanceData>?> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Validator.GetHistoricalValidatorPerformance(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RelativeValidatorPerformanceData>>(endpoint);
             }
-            public async Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorAveragePerformanceAsync(string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters parameters = null)
+            public async Task<PaginatedResponse<ValidatorPerformanceData>?> GetHistoricalValidatorAveragePerformanceAsync(string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Validator.GetHistoricalAverageValidatorPerformance(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorPerformanceData>>(endpoint);
             }
-            public async Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
+            public async Task<PaginatedResponse<RelativeValidatorPerformanceData>?> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Validator.GetHistoricalAverageValidatorsPerformance(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<RelativeValidatorPerformanceData>>(endpoint);
             }
-            public async Task<PaginatedResponse<ValidatorRewardData>> GetValidatorRewardsAsync(string publicKey, ValidatorRewardsRequestParameters parameters = null)
+            public async Task<PaginatedResponse<ValidatorRewardData>?> GetValidatorRewardsAsync(string publicKey, ValidatorRewardsRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Validator.GetValidatorRewards(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorRewardData>>(endpoint);
             }
-            public async Task<Response<ulong>> GetValidatorTotalRewardsAsync(string publicKey)
+            public async Task<Response<ulong>?> GetValidatorTotalRewardsAsync(string publicKey)
             {
                 string endpoint = Endpoints.Validator.GetValidatorTotalRewards(_baseUrl, publicKey);
                 return await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
             }
-            public async Task<Response<AccountInfoData>> GetAccountInfoAsync(string accountHash)
+            public async Task<Response<AccountInfoData>?> GetAccountInfoAsync(string accountHash)
             {
                 string endpoint = Endpoints.Account.GetAccountInfo(_baseUrl, accountHash);
                 return await _casperCloudRestClient.GetDataAsync<Response<AccountInfoData>>(endpoint);
             }
-            public async Task<PaginatedResponse<AccountInfoData>> GetAccountInfosAsync(AccountInfosRequestParameters parameters = null)
+            public async Task<PaginatedResponse<AccountInfoData>?> GetAccountInfosAsync(AccountInfosRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Account.GetAccountInfos(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<AccountInfoData>>(endpoint);
             }
-            public async Task<Response<AuctionMetricsData>> GetAuctionMetricsAsync()
+            public async Task<Response<AuctionMetricsData>?> GetAuctionMetricsAsync()
             {
                 string endpoint = Endpoints.Auction.GetAuctionMetrics(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<Response<AuctionMetricsData>>(endpoint);
             }
             // DEX
-            public async Task<ListResponse<DexData>> GetDexesAsync()
+            public async Task<ListResponse<DexData>?> GetDexesAsync()
             {
                 string endpoint = Endpoints.Dex.GetDexes(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<ListResponse<DexData>>(endpoint);
             }
             // FT Action Types
-            public async Task<ListResponse<FTActionTypeData>> GetFTTokenActionTypesAsync()
+            public async Task<ListResponse<FTActionTypeData>?> GetFTTokenActionTypesAsync()
             {
                 string endpoint = Endpoints.FT.GetFTTokenActionTypes(_baseUrl);
                 return await _casperCloudRestClient.GetDataAsync<ListResponse<FTActionTypeData>>(endpoint);
             }
             // CSPR.name Resolution
-            public async Task<CsprNameResolutionData> GetCsprNameResolutionAsync(string name)
+            public async Task<CsprNameResolutionData?> GetCsprNameResolutionAsync(string name)
             {
                 string endpoint = Endpoints.CsprName.GetCsprNameResolution(_baseUrl, name);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<CsprNameResolutionData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
             // Purse Transfers
-            public async Task<PaginatedResponse<TransferData>> GetPurseTransfersAsync(string purseUref, TransferAccountRequestParameters parameters = null)
+            public async Task<PaginatedResponse<TransferData>?> GetPurseTransfersAsync(string purseUref, TransferAccountRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Transfer.GetPurseTransfers(_baseUrl, purseUref, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<TransferData>>(endpoint);
             }
             // Purse Delegations
-            public async Task<PaginatedResponse<DelegationData>> GetPurseDelegationsAsync(string purseUref, DelegationRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DelegationData>?> GetPurseDelegationsAsync(string purseUref, DelegationRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetPurseDelegations(_baseUrl, purseUref, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegationData>>(endpoint);
             }
             // Purse Delegation Rewards
-            public async Task<PaginatedResponse<DelegatorRewardData>> GetPurseDelegationRewardsAsync(string purseUref, AccountDelegatorRewardRequestParameters parameters = null)
+            public async Task<PaginatedResponse<DelegatorRewardData>?> GetPurseDelegationRewardsAsync(string purseUref, AccountDelegatorRewardRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Delegate.GetPurseDelegationRewards(_baseUrl, purseUref, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<DelegatorRewardData>>(endpoint);
@@ -639,77 +600,77 @@ namespace CSPR.Cloud.Net.Clients
             {
                 string endpoint = Endpoints.Delegate.GetTotalPurseDelegationRewards(_baseUrl, purseUref);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<ulong>>(endpoint);
-                return response.Data;
+                return response?.Data ?? 0;
             }
             // Validator Era Rewards
-            public async Task<PaginatedResponse<ValidatorRewardData>> GetValidatorEraRewardsAsync(string publicKey, ValidatorEraRewardsRequestParameters parameters = null)
+            public async Task<PaginatedResponse<ValidatorRewardData>?> GetValidatorEraRewardsAsync(string publicKey, ValidatorEraRewardsRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Validator.GetValidatorEraRewards(_baseUrl, publicKey, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<ValidatorRewardData>>(endpoint);
             }
             // FT Rate endpoints
-            public async Task<FTRateData> GetFTRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            public async Task<FTRateData?> GetFTRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTRateLatest(_baseUrl, contractPackageHash, filterParameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<FTRateData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<FTRateData>> GetFTRatesAsync(string contractPackageHash, FTRateRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTRateData>?> GetFTRatesAsync(string contractPackageHash, FTRateRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTRates(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTRateData>>(endpoint);
             }
-            public async Task<FTDailyRateData> GetFTDailyRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            public async Task<FTDailyRateData?> GetFTDailyRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTDailyRateLatest(_baseUrl, contractPackageHash, filterParameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<FTDailyRateData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<FTDailyRateData>> GetFTDailyRatesAsync(string contractPackageHash, FTDailyRateRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTDailyRateData>?> GetFTDailyRatesAsync(string contractPackageHash, FTDailyRateRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTDailyRates(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTDailyRateData>>(endpoint);
             }
-            public async Task<FTDexRateData> GetFTDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            public async Task<FTDexRateData?> GetFTDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTDexRateLatest(_baseUrl, contractPackageHash, filterParameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<FTDexRateData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<FTDexRateData>> GetFTDexRatesAsync(string contractPackageHash, FTDexRateRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTDexRateData>?> GetFTDexRatesAsync(string contractPackageHash, FTDexRateRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTDexRates(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTDexRateData>>(endpoint);
             }
-            public async Task<FTDailyDexRateData> GetFTDailyDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            public async Task<FTDailyDexRateData?> GetFTDailyDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTDailyDexRateLatest(_baseUrl, contractPackageHash, filterParameters);
                 var response = await _casperCloudRestClient.GetDataAsync<Response<FTDailyDexRateData>>(endpoint);
-                return response.Data;
+                return response?.Data;
             }
-            public async Task<PaginatedResponse<FTDailyDexRateData>> GetFTDailyDexRatesAsync(string contractPackageHash, FTDailyDexRateRequestParameters parameters = null)
+            public async Task<PaginatedResponse<FTDailyDexRateData>?> GetFTDailyDexRatesAsync(string contractPackageHash, FTDailyDexRateRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.FT.GetFTDailyDexRates(_baseUrl, contractPackageHash, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<FTDailyDexRateData>>(endpoint);
             }
             // Swap
-            public async Task<PaginatedResponse<SwapData>> GetSwapsAsync(SwapRequestParameters parameters = null)
+            public async Task<PaginatedResponse<SwapData>?> GetSwapsAsync(SwapRequestParameters parameters = null)
             {
                 string endpoint = Endpoints.Swap.GetSwaps(_baseUrl, parameters);
                 return await _casperCloudRestClient.GetDataAsync<PaginatedResponse<SwapData>>(endpoint);
             }
             // Awaiting Deploy
-            public async Task<Response<bool>> CreateAwaitingDeployAsync(CreateAwaitingDeployRequest request)
+            public async Task<Response<bool>?> CreateAwaitingDeployAsync(CreateAwaitingDeployRequest request)
             {
                 string endpoint = Endpoints.AwaitingDeploy.CreateAwaitingDeploy(_baseUrl);
                 return await _casperCloudRestClient.PostDataAsync<Response<bool>>(endpoint, request.Deploy);
             }
-            public async Task<Response<bool>> AddAwaitingDeployApprovalsAsync(string deployHash, AddApprovalRequest request)
+            public async Task<Response<bool>?> AddAwaitingDeployApprovalsAsync(string deployHash, AddApprovalRequest request)
             {
                 string endpoint = Endpoints.AwaitingDeploy.AddAwaitingDeployApprovals(_baseUrl, deployHash);
                 return await _casperCloudRestClient.PostDataAsync<Response<bool>>(endpoint, request);
             }
-            public async Task<AwaitingDeployData> GetAwaitingDeployAsync(string deployHash)
+            public async Task<AwaitingDeployData?> GetAwaitingDeployAsync(string deployHash)
             {
                 string endpoint = Endpoints.AwaitingDeploy.GetAwaitingDeploy(_baseUrl, deployHash);
                 return await _casperCloudRestClient.GetDataAsync<AwaitingDeployData>(endpoint);
@@ -733,7 +694,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the account.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>The account data.</returns>
-            public Task<AccountData> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters = null)
+            public Task<AccountData?> GetAccountAsync(string publicKey, AccountsOptionalParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountAsync(publicKey, parameters);
             }
@@ -743,7 +704,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A paginated response containing account data.</returns>
-            public Task<PaginatedResponse<AccountData>> GetAccountsAsync(AccountsRequestParameters parameters = null)
+            public Task<PaginatedResponse<AccountData>?> GetAccountsAsync(AccountsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountsAsync(parameters);
             }
@@ -753,7 +714,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="accountHash">The hash of the account.</param>
             /// <returns>A response containing account info data.</returns>
-            public Task<Response<AccountInfoData>> GetAccountInfoAsync(string accountHash)
+            public Task<Response<AccountInfoData>?> GetAccountInfoAsync(string accountHash)
             {
                 return _commonEndpoint.GetAccountInfoAsync(accountHash);
             }
@@ -763,7 +724,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A paginated response containing account info data.</returns>
-            public Task<PaginatedResponse<AccountInfoData>> GetAccountInfosAsync(AccountInfosRequestParameters parameters = null)
+            public Task<PaginatedResponse<AccountInfoData>?> GetAccountInfosAsync(AccountInfosRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountInfosAsync(parameters);
             }
@@ -790,7 +751,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <para>For more information, see <see href="https://docs.cspr.cloud/rest-api/auction-metrics/get-auction-metrics">CSPR.Cloud API documentation</see>.</para>
             /// </summary>
             /// <returns>A singular response containing auction metrics data.</returns>
-            public Task<Response<AuctionMetricsData>> GetAuctionMetricsAsync()
+            public Task<Response<AuctionMetricsData>?> GetAuctionMetricsAsync()
             {
                 return _commonEndpoint.GetAuctionMetricsAsync();
             }
@@ -819,7 +780,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="blockHash">The hash of the block to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the block data.</returns>
-            public Task<BlockData> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
+            public Task<BlockData?> GetBlockAsync(string blockHash, BlockOptionalParameters parameters = null)
             {
                 return _commonEndpoint.GetBlockAsync(blockHash, parameters);
             }
@@ -830,7 +791,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of block data.</returns>
-            public Task<PaginatedResponse<BlockData>> GetBlocksAsync(BlockRequestParameters parameters = null)
+            public Task<PaginatedResponse<BlockData>?> GetBlocksAsync(BlockRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetBlocksAsync(parameters);
             }
@@ -842,7 +803,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="validatorPublicKey">The public key of the validator whose blocks to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of block data.</returns>
-            public Task<PaginatedResponse<BlockData>> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
+            public Task<PaginatedResponse<BlockData>?> GetValidatorBlocksAsync(string validatorPublicKey, BlockRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetValidatorBlocksAsync(validatorPublicKey, parameters);
             }
@@ -871,7 +832,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the bidder to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the bidder data.</returns>
-            public Task<BidderData> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
+            public Task<BidderData?> GetBidderAsync(string publicKey, BidderRequestParameters parameters)
             {
                 return _commonEndpoint.GetBidderAsync(publicKey, parameters);
             }
@@ -882,7 +843,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of bidder data.</returns>
-            public Task<PaginatedResponse<BidderData>> GetBiddersAsync(BiddersRequestParameters parameters)
+            public Task<PaginatedResponse<BidderData>?> GetBiddersAsync(BiddersRequestParameters parameters)
             {
                 return _commonEndpoint.GetBiddersAsync(parameters);
             }
@@ -910,7 +871,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="accountHash">The hash of the account to retrieve information for.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the centralized account information data.</returns>
-            public Task<CentralizedAccountInfoData> GetCentralizedAccountInfoAsync(string accountHash)
+            public Task<CentralizedAccountInfoData?> GetCentralizedAccountInfoAsync(string accountHash)
             {
                 return _commonEndpoint.GetCentralizedAccountInfoAsync(accountHash);
             }
@@ -921,7 +882,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of centralized account information data.</returns>
-            public Task<PaginatedResponse<CentralizedAccountInfoData>> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
+            public Task<PaginatedResponse<CentralizedAccountInfoData>?> GetCentralizedAccountInfosAsync(CentralizedAccountInfoRequestParameters parameters)
             {
                 return _commonEndpoint.GetCentralizedAccountInfosAsync(parameters);
             }
@@ -950,7 +911,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractHash">The hash of the contract to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the contract data.</returns>
-            public Task<ContractData> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
+            public Task<ContractData?> GetContractAsync(string contractHash, ContractRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractAsync(contractHash, parameters);
             }
@@ -961,7 +922,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of contract data.</returns>
-            public Task<PaginatedResponse<ContractData>> GetContractsAsync(ContractsRequestParameters parameters = null)
+            public Task<PaginatedResponse<ContractData>?> GetContractsAsync(ContractsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractsAsync(parameters);
             }
@@ -973,7 +934,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractPackageHash">The hash of the contract package to retrieve contracts for.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of contract data.</returns>
-            public Task<PaginatedResponse<ContractData>> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
+            public Task<PaginatedResponse<ContractData>?> GetContractsByContractPackageAsync(string contractPackageHash, ByContractRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractsByContractPackageAsync(contractPackageHash, parameters);
             }
@@ -983,7 +944,7 @@ namespace CSPR.Cloud.Net.Clients
             /// For more information, see <see href="https://docs.cspr.cloud/rest-api/contract/get-contract-types">CSPR Cloud API documentation</see>.
             /// </summary>
             /// <returns>A task that represents the asynchronous operation. The task result contains a list of contract type data.</returns>
-            public Task<List<ContractTypeData>> GetContractTypesAsync()
+            public Task<List<ContractTypeData>?> GetContractTypesAsync()
             {
                 return _commonEndpoint.GetContractTypesAsync();
             }
@@ -994,7 +955,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="contractHash">The hash of the contract to retrieve entry points for.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of entry point data.</returns>
-            public Task<PaginatedResponse<EntryPointData>> GetContractEntryPointsAsync(string contractHash)
+            public Task<PaginatedResponse<EntryPointData>?> GetContractEntryPointsAsync(string contractHash)
             {
                 return _commonEndpoint.GetContractEntryPointsAsync(contractHash);
             }
@@ -1006,7 +967,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractHash">The hash of the contract to retrieve entry point costs for.</param>
             /// <param name="entryPointName">The name of the entry point to retrieve costs for.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the entry point cost data.</returns>
-            public Task<Response<EntryPointCostData>> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
+            public Task<Response<EntryPointCostData>?> GetContractEntryPointCostsAsync(string contractHash, string entryPointName)
             {
                 return _commonEndpoint.GetContractEntryPointCostsAsync(contractHash, entryPointName);
             }
@@ -1017,7 +978,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="contractPackageHash">The hash of the contract package to retrieve.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the contract package data.</returns>
-            public Task<ContractResponse<ContractPackageData>> GetContractPackageAsync(string contractPackageHash)
+            public Task<ContractResponse<ContractPackageData>?> GetContractPackageAsync(string contractPackageHash)
             {
                 return _commonEndpoint.GetContractPackageAsync(contractPackageHash);
             }
@@ -1028,7 +989,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of contract package data.</returns>
-            public Task<PaginatedResponse<ContractPackageData>> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
+            public Task<PaginatedResponse<ContractPackageData>?> GetContractPackagesAsync(ContractPackageRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackagesAsync(parameters);
             }
@@ -1040,7 +1001,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the account to retrieve contract packages for.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of contract package data.</returns>
-            public Task<PaginatedResponse<ContractPackageData>> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
+            public Task<PaginatedResponse<ContractPackageData>?> GetAccountContractPackagesAsync(string publicKey, AccountContractPackageRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountContractPackagesAsync(publicKey, parameters);
             }
@@ -1069,7 +1030,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the account whose delegations to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of delegation data.</returns>
-            public Task<PaginatedResponse<DelegationData>> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            public Task<PaginatedResponse<DelegationData>?> GetAccountDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountDelegationsAsync(publicKey, parameters);
             }
@@ -1081,7 +1042,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the validator whose delegations to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of delegation data.</returns>
-            public Task<PaginatedResponse<DelegationData>> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            public Task<PaginatedResponse<DelegationData>?> GetValidatorDelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetValidatorDelegationsAsync(publicKey, parameters);
             }
@@ -1093,7 +1054,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the account whose delegator rewards to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of delegator reward data.</returns>
-            public Task<PaginatedResponse<DelegatorRewardData>> GetAccountDelegatorRewardsAsync(string publicKey, AccountDelegatorRewardRequestParameters parameters = null)
+            public Task<PaginatedResponse<DelegatorRewardData>?> GetAccountDelegatorRewardsAsync(string publicKey, AccountDelegatorRewardRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountDelegatorRewardsAsync(publicKey, parameters);
             }
@@ -1120,12 +1081,12 @@ namespace CSPR.Cloud.Net.Clients
                 return _commonEndpoint.GetTotalValidatorDelegationRewards(publicKey);
             }
 
-            public Task<PaginatedResponse<DelegationData>> GetPurseDelegationsAsync(string purseUref, DelegationRequestParameters parameters = null)
+            public Task<PaginatedResponse<DelegationData>?> GetPurseDelegationsAsync(string purseUref, DelegationRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetPurseDelegationsAsync(purseUref, parameters);
             }
 
-            public Task<PaginatedResponse<DelegatorRewardData>> GetPurseDelegationRewardsAsync(string purseUref, AccountDelegatorRewardRequestParameters parameters = null)
+            public Task<PaginatedResponse<DelegatorRewardData>?> GetPurseDelegationRewardsAsync(string purseUref, AccountDelegatorRewardRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetPurseDelegationRewardsAsync(purseUref, parameters);
             }
@@ -1143,7 +1104,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the account whose pending undelegations to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of undelegation data.</returns>
-            public Task<PaginatedResponse<UndelegationData>> GetAccountUndelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
+            public Task<PaginatedResponse<UndelegationData>?> GetAccountUndelegationsAsync(string publicKey, DelegationRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountUndelegationsAsync(publicKey, parameters);
             }
@@ -1172,7 +1133,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="deployHash">The hash of the deploy to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the deploy data.</returns>
-            public Task<Response<DeployData>> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
+            public Task<Response<DeployData>?> GetDeployAsync(string deployHash, DeployRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetDeployAsync(deployHash, parameters);
             }
@@ -1183,7 +1144,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of deploy data.</returns>
-            public Task<PaginatedResponse<DeployData>> GetDeploysAsync(DeploysRequestParameters parameters = null)
+            public Task<PaginatedResponse<DeployData>?> GetDeploysAsync(DeploysRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetDeploysAsync(parameters);
             }
@@ -1195,7 +1156,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the account whose deploys to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of deploy data.</returns>
-            public Task<PaginatedResponse<DeployData>> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
+            public Task<PaginatedResponse<DeployData>?> GetAccountDeploysAsync(string publicKey, AccountDeploysRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountDeploysAsync(publicKey, parameters);
             }
@@ -1207,7 +1168,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="blockIdentifier">The identifier of the block whose deploys to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of deploy data.</returns>
-            public Task<PaginatedResponse<DeployData>> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
+            public Task<PaginatedResponse<DeployData>?> GetBlockDeploysAsync(string blockIdentifier, BlockDeploysRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetBlockDeploysAsync(blockIdentifier, parameters);
             }
@@ -1217,7 +1178,7 @@ namespace CSPR.Cloud.Net.Clients
             /// For more information, see <see href="https://docs.cspr.cloud/rest-api/deploy/get-deploy-execution-types">CSPR Cloud API documentation</see>.
             /// </summary>
             /// <returns>A task that represents the asynchronous operation. The task result contains a list of deploy execution types data.</returns>
-            public Task<Response<List<DeployExecutionTypesData>>> GetDeployExecutionTypesAsync()
+            public Task<Response<List<DeployExecutionTypesData>>?> GetDeployExecutionTypesAsync()
             {
                 return _commonEndpoint.GetDeployExecutionTypesAsync();
             }
@@ -1245,7 +1206,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of fungible token action data.</returns>
-            public Task<PaginatedResponse<FTTokenActionData>> GetFTActionsAsync(FTActionRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTTokenActionData>?> GetFTActionsAsync(FTActionRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetFungibleTokenActionsAsync(parameters);
             }
@@ -1257,7 +1218,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="accountIdentifier">The identifier of the account whose fungible token actions to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of fungible token action data.</returns>
-            public Task<PaginatedResponse<FTTokenActionData>> GetAccountFTActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTTokenActionData>?> GetAccountFTActionsAsync(string accountIdentifier, FTAccountActionRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountFungibleTokenActionsAsync(accountIdentifier, parameters);
             }
@@ -1269,7 +1230,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractPackageHash">The hash of the contract package whose fungible token actions to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of fungible token action data.</returns>
-            public Task<PaginatedResponse<FTTokenActionData>> GetContractPackageFTActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTTokenActionData>?> GetContractPackageFTActionsAsync(string contractPackageHash, FTContractPackageActionRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageFungibleTokenActionsAsync(contractPackageHash, parameters);
             }
@@ -1281,7 +1242,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="accountIdentifier">The identifier of the account whose fungible token ownership data to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of fungible token ownership data.</returns>
-            public Task<PaginatedResponse<FTOwnershipData>> GetAccountFTOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTOwnershipData>?> GetAccountFTOwnershipAsync(string accountIdentifier, FTAccountOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountFungibleTokenOwnershipAsync(accountIdentifier, parameters);
             }
@@ -1293,52 +1254,52 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractPackageHash">The hash of the contract package whose fungible token ownership data to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of fungible token ownership data.</returns>
-            public Task<PaginatedResponse<FTOwnershipData>> GetContractPackageFTOwnershipAsync(string contractPackageHash, FTContractPackageOwnershipRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTOwnershipData>?> GetContractPackageFTOwnershipAsync(string contractPackageHash, FTContractPackageOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageFungibleTokenOwnershipAsync(contractPackageHash, parameters);
             }
 
-            public Task<ListResponse<FTActionTypeData>> GetFTTokenActionTypesAsync()
+            public Task<ListResponse<FTActionTypeData>?> GetFTTokenActionTypesAsync()
             {
                 return _commonEndpoint.GetFTTokenActionTypesAsync();
             }
 
-            public Task<FTRateData> GetFTRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            public Task<FTRateData?> GetFTRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
             {
                 return _commonEndpoint.GetFTRateLatestAsync(contractPackageHash, filterParameters);
             }
 
-            public Task<PaginatedResponse<FTRateData>> GetFTRatesAsync(string contractPackageHash, FTRateRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTRateData>?> GetFTRatesAsync(string contractPackageHash, FTRateRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetFTRatesAsync(contractPackageHash, parameters);
             }
 
-            public Task<FTDailyRateData> GetFTDailyRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
+            public Task<FTDailyRateData?> GetFTDailyRateLatestAsync(string contractPackageHash, FTRateFilterParameters filterParameters = null)
             {
                 return _commonEndpoint.GetFTDailyRateLatestAsync(contractPackageHash, filterParameters);
             }
 
-            public Task<PaginatedResponse<FTDailyRateData>> GetFTDailyRatesAsync(string contractPackageHash, FTDailyRateRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTDailyRateData>?> GetFTDailyRatesAsync(string contractPackageHash, FTDailyRateRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetFTDailyRatesAsync(contractPackageHash, parameters);
             }
 
-            public Task<FTDexRateData> GetFTDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            public Task<FTDexRateData?> GetFTDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
             {
                 return _commonEndpoint.GetFTDexRateLatestAsync(contractPackageHash, filterParameters);
             }
 
-            public Task<PaginatedResponse<FTDexRateData>> GetFTDexRatesAsync(string contractPackageHash, FTDexRateRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTDexRateData>?> GetFTDexRatesAsync(string contractPackageHash, FTDexRateRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetFTDexRatesAsync(contractPackageHash, parameters);
             }
 
-            public Task<FTDailyDexRateData> GetFTDailyDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
+            public Task<FTDailyDexRateData?> GetFTDailyDexRateLatestAsync(string contractPackageHash, FTDexRateFilterParameters filterParameters = null)
             {
                 return _commonEndpoint.GetFTDailyDexRateLatestAsync(contractPackageHash, filterParameters);
             }
 
-            public Task<PaginatedResponse<FTDailyDexRateData>> GetFTDailyDexRatesAsync(string contractPackageHash, FTDailyDexRateRequestParameters parameters = null)
+            public Task<PaginatedResponse<FTDailyDexRateData>?> GetFTDailyDexRatesAsync(string contractPackageHash, FTDailyDexRateRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetFTDailyDexRatesAsync(contractPackageHash, parameters);
             }
@@ -1368,7 +1329,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="tokenId">The ID of the token to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the NFT token data.</returns>
-            public Task<Response<NFTTokenData>> GetNFTAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
+            public Task<Response<NFTTokenData>?> GetNFTAsync(string contractPackageHash, string tokenId, NFTRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetNFTAsync(contractPackageHash, tokenId, parameters);
             }
@@ -1380,7 +1341,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="accountIdentifier">The identifier of the account whose NFTs to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token data.</returns>
-            public Task<PaginatedResponse<NFTTokenData>> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenData>?> GetAccountNFTsAsync(string accountIdentifier, NFTAccountRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountNFTsAsync(accountIdentifier, parameters);
             }
@@ -1392,7 +1353,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractPackageHash">The hash of the contract package whose NFTs to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token data.</returns>
-            public Task<PaginatedResponse<NFTTokenData>> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenData>?> GetContractPackageNFTsAsync(string contractPackageHash, NFTContractPackageRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTsAsync(contractPackageHash, parameters);
             }
@@ -1402,7 +1363,7 @@ namespace CSPR.Cloud.Net.Clients
             /// For more information, see <see href="https://docs.cspr.cloud/rest-api/non-fungible-token/get-token-standards">CSPR Cloud API documentation</see>.
             /// </summary>
             /// <returns>A task that represents the asynchronous operation. The task result contains a list response of NFT standard data.</returns>
-            public Task<ListResponse<NFTStandardData>> GetNFTStandardsAsync()
+            public Task<ListResponse<NFTStandardData>?> GetNFTStandardsAsync()
             {
                 return _commonEndpoint.GetNFTStandardsAsync();
             }
@@ -1412,7 +1373,7 @@ namespace CSPR.Cloud.Net.Clients
             /// For more information, see <see href="https://docs.cspr.cloud/rest-api/non-fungible-token/get-token-offchain-metadata-statuses">CSPR Cloud API documentation</see>.
             /// </summary>
             /// <returns>A task that represents the asynchronous operation. The task result contains a list response of NFT metadata status data.</returns>
-            public Task<ListResponse<NFTMetadataStatusData>> GetOffchainNFTMetadataStatusesAsync()
+            public Task<ListResponse<NFTMetadataStatusData>?> GetOffchainNFTMetadataStatusesAsync()
             {
                 return _commonEndpoint.GetOffchainNFTMetadataStatusesAsync();
             }
@@ -1425,7 +1386,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="tokenId">The ID of the token whose actions to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token action data.</returns>
-            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenActionData>?> GetContractPackageNFTActionsForATokenAsync(string contractPackageHash, string tokenId, NFTContractPackageTokenActionsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTActionsForATokenAsync(contractPackageHash, tokenId, parameters);
             }
@@ -1437,7 +1398,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="accountIdentifier">The identifier of the account whose NFT actions to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token action data.</returns>
-            public Task<PaginatedResponse<NFTTokenActionData>> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenActionData>?> GetAccountNFTActionsAsync(string accountIdentifier, NFTAccountActionsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountNFTActionsAsync(accountIdentifier, parameters);
             }
@@ -1449,7 +1410,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractPackageHash">The hash of the contract package whose NFT actions to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token action data.</returns>
-            public Task<PaginatedResponse<NFTTokenActionData>> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenActionData>?> GetContractPackageNFTActionsAsync(string contractPackageHash, NFTContractPackageActionsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTActionsAsync(contractPackageHash, parameters);
             }
@@ -1459,7 +1420,7 @@ namespace CSPR.Cloud.Net.Clients
             /// For more information, see <see href="https://docs.cspr.cloud/rest-api/non-fungible-token-action/get-token-actions-types">CSPR Cloud API documentation</see>.
             /// </summary>
             /// <returns>A task that represents the asynchronous operation. The task result contains a list response of NFT action types data.</returns>
-            public Task<ListResponse<NFTActionTypesData>> GetNFTActionTypesAsync()
+            public Task<ListResponse<NFTActionTypesData>?> GetNFTActionTypesAsync()
             {
                 return _commonEndpoint.GetNFTActionTypesAsync();
             }
@@ -1471,7 +1432,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="contractPackageHash">The hash of the contract package whose NFT ownership data to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token ownership data.</returns>
-            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenOwnershipData>?> GetContractPackageNFTOwnershipAsync(string contractPackageHash, NFTContractPackageOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetContractPackageNFTOwnershipAsync(contractPackageHash, parameters);
             }
@@ -1483,7 +1444,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="accountIdentifier">The identifier of the account whose NFT ownership data to retrieve.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token ownership data.</returns>
-            public Task<PaginatedResponse<NFTTokenOwnershipData>> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenOwnershipData>?> GetAccountNFTOwnershipAsync(string accountIdentifier, NFTAccountOwnershipRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountNFTOwnershipAsync(accountIdentifier, parameters);
             }
@@ -1494,7 +1455,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request (filters, includers, sort, pagination).</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of NFT token data.</returns>
-            public Task<PaginatedResponse<NFTTokenData>> GetNFTsAsync(NFTsRequestParameters parameters = null)
+            public Task<PaginatedResponse<NFTTokenData>?> GetNFTsAsync(NFTsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetNFTsAsync(parameters);
             }
@@ -1522,7 +1483,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="currencyId">The ID of the currency for which to retrieve the rate.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the current rate data.</returns>
-            public Task<Response<RateData>> GetCurrentCurrencyRateAsync(string currencyId)
+            public Task<Response<RateData>?> GetCurrentCurrencyRateAsync(string currencyId)
             {
                 return _commonEndpoint.GetCurrentCurrencyRateAsync(currencyId);
             }
@@ -1534,7 +1495,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="currencyId">The ID of the currency for which to retrieve historical rates.</param>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of historical rate data.</returns>
-            public Task<PaginatedResponse<RateData>> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
+            public Task<PaginatedResponse<RateData>?> GetHistoricalCurrencyRatesAsync(string currencyId, RateHistoricalRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalCurrencyRatesAsync(currencyId, parameters);
             }
@@ -1545,7 +1506,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters for the request.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a paginated response of currency data.</returns>
-            public Task<PaginatedResponse<CurrencyData>> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
+            public Task<PaginatedResponse<CurrencyData>?> GetCurrenciesAsync(RateCurrenciesRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetCurrenciesAsync(parameters);
             }
@@ -1572,7 +1533,7 @@ namespace CSPR.Cloud.Net.Clients
             /// For more information, see <see href="https://docs.cspr.cloud/rest-api/cspr-supply/get-supply">CSPR Cloud API documentation</see>.
             /// </summary>
             /// <returns>A task that represents the asynchronous operation. The task result contains the current supply data.</returns>
-            public Task<Response<SupplyData>> GetSupplyAsync()
+            public Task<Response<SupplyData>?> GetSupplyAsync()
             {
                 return _commonEndpoint.GetSupplyAsync();
             }
@@ -1602,7 +1563,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="accountIdentifier">The identifier of the account for which transfers are to be retrieved.</param>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains paginated transfer data for the account.</returns>
-            public Task<PaginatedResponse<TransferData>> GetAccountTransfersAsync(string accountIdentifier, TransferAccountRequestParameters parameters = null)
+            public Task<PaginatedResponse<TransferData>?> GetAccountTransfersAsync(string accountIdentifier, TransferAccountRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetAccountTransfersAsync(accountIdentifier, parameters);
             }
@@ -1614,12 +1575,12 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="deployHash">The hash of the deploy for which transfers are to be retrieved.</param>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains paginated transfer data for the deploy.</returns>
-            public Task<PaginatedResponse<TransferData>> GetDeployTransfersAsync(string deployHash, TransferDeployRequestParameters parameters = null)
+            public Task<PaginatedResponse<TransferData>?> GetDeployTransfersAsync(string deployHash, TransferDeployRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetDeployTransfersAsync(deployHash, parameters);
             }
 
-            public Task<PaginatedResponse<TransferData>> GetPurseTransfersAsync(string purseUref, TransferAccountRequestParameters parameters = null)
+            public Task<PaginatedResponse<TransferData>?> GetPurseTransfersAsync(string purseUref, TransferAccountRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetPurseTransfersAsync(purseUref, parameters);
             }
@@ -1648,7 +1609,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the validator for which details are to be retrieved.</param>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains details of the validator.</returns>
-            public Task<Response<ValidatorData>> GetValidatorAsync(string publicKey, ValidatorRequestParameters parameters)
+            public Task<Response<ValidatorData>?> GetValidatorAsync(string publicKey, ValidatorRequestParameters parameters)
             {
                 return _commonEndpoint.GetValidatorAsync(publicKey, parameters);
             }
@@ -1659,7 +1620,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains a list of validators.</returns>
-            public Task<PaginatedResponse<ValidatorData>> GetValidatorsAsync(ValidatorsRequestParameters parameters)
+            public Task<PaginatedResponse<ValidatorData>?> GetValidatorsAsync(ValidatorsRequestParameters parameters)
             {
                 return _commonEndpoint.GetValidatorsAsync(parameters);
             }
@@ -1671,7 +1632,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the validator for which historical performance is to be retrieved.</param>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains historical performance data of the validator.</returns>
-            public Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
+            public Task<PaginatedResponse<RelativeValidatorPerformanceData>?> GetHistoricalValidatorPerformanceAsync(string publicKey, ValidatorHistoricalPerformanceRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalValidatorPerformanceAsync(publicKey, parameters);
             }
@@ -1683,7 +1644,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the validator for which historical average performance is to be retrieved.</param>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains historical average performance data of the validator.</returns>
-            public Task<PaginatedResponse<ValidatorPerformanceData>> GetHistoricalValidatorAveragePerformanceAsync(string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters parameters = null)
+            public Task<PaginatedResponse<ValidatorPerformanceData>?> GetHistoricalValidatorAveragePerformanceAsync(string publicKey, ValidatorHistoricalAveragePerformanceRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalValidatorAveragePerformanceAsync(publicKey, parameters);
             }
@@ -1694,7 +1655,7 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains historical average performance data of validators.</returns>
-            public Task<PaginatedResponse<RelativeValidatorPerformanceData>> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
+            public Task<PaginatedResponse<RelativeValidatorPerformanceData>?> GetHistoricalValidatorsAveragePerformanceAsync(ValidatorsHistoricalAveragePerformanceRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetHistoricalValidatorsAveragePerformanceAsync(parameters);
             }
@@ -1706,7 +1667,7 @@ namespace CSPR.Cloud.Net.Clients
             /// <param name="publicKey">The public key of the validator for which rewards are to be retrieved.</param>
             /// <param name="parameters">Optional parameters to filter or paginate results.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains validator rewards data.</returns>
-            public Task<PaginatedResponse<ValidatorRewardData>> GetValidatorRewardsAsync(string publicKey, ValidatorRewardsRequestParameters parameters = null)
+            public Task<PaginatedResponse<ValidatorRewardData>?> GetValidatorRewardsAsync(string publicKey, ValidatorRewardsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetValidatorRewardsAsync(publicKey, parameters);
             }
@@ -1717,12 +1678,12 @@ namespace CSPR.Cloud.Net.Clients
             /// </summary>
             /// <param name="publicKey">The public key of the validator for which total rewards are to be retrieved.</param>
             /// <returns>A task that represents the asynchronous operation. The task result contains the total rewards earned by the validator.</returns>
-            public Task<Response<ulong>> GetValidatorTotalRewardsAsync(string publicKey)
+            public Task<Response<ulong>?> GetValidatorTotalRewardsAsync(string publicKey)
             {
                 return _commonEndpoint.GetValidatorTotalRewardsAsync(publicKey);
             }
 
-            public Task<PaginatedResponse<ValidatorRewardData>> GetValidatorEraRewardsAsync(string publicKey, ValidatorEraRewardsRequestParameters parameters = null)
+            public Task<PaginatedResponse<ValidatorRewardData>?> GetValidatorEraRewardsAsync(string publicKey, ValidatorEraRewardsRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetValidatorEraRewardsAsync(publicKey, parameters);
             }
@@ -1740,7 +1701,7 @@ namespace CSPR.Cloud.Net.Clients
                 _commonEndpoint = commonEndpoint;
             }
 
-            public Task<ListResponse<DexData>> GetDexesAsync()
+            public Task<ListResponse<DexData>?> GetDexesAsync()
             {
                 return _commonEndpoint.GetDexesAsync();
             }
@@ -1755,7 +1716,7 @@ namespace CSPR.Cloud.Net.Clients
                 _commonEndpoint = commonEndpoint;
             }
 
-            public Task<CsprNameResolutionData> GetCsprNameResolutionAsync(string name)
+            public Task<CsprNameResolutionData?> GetCsprNameResolutionAsync(string name)
             {
                 return _commonEndpoint.GetCsprNameResolutionAsync(name);
             }
@@ -1770,7 +1731,7 @@ namespace CSPR.Cloud.Net.Clients
                 _commonEndpoint = commonEndpoint;
             }
 
-            public Task<PaginatedResponse<SwapData>> GetSwapsAsync(SwapRequestParameters parameters = null)
+            public Task<PaginatedResponse<SwapData>?> GetSwapsAsync(SwapRequestParameters parameters = null)
             {
                 return _commonEndpoint.GetSwapsAsync(parameters);
             }
@@ -1785,17 +1746,17 @@ namespace CSPR.Cloud.Net.Clients
                 _commonEndpoint = commonEndpoint;
             }
 
-            public Task<Response<bool>> CreateAwaitingDeployAsync(CreateAwaitingDeployRequest request)
+            public Task<Response<bool>?> CreateAwaitingDeployAsync(CreateAwaitingDeployRequest request)
             {
                 return _commonEndpoint.CreateAwaitingDeployAsync(request);
             }
 
-            public Task<Response<bool>> AddAwaitingDeployApprovalsAsync(string deployHash, AddApprovalRequest request)
+            public Task<Response<bool>?> AddAwaitingDeployApprovalsAsync(string deployHash, AddApprovalRequest request)
             {
                 return _commonEndpoint.AddAwaitingDeployApprovalsAsync(deployHash, request);
             }
 
-            public Task<AwaitingDeployData> GetAwaitingDeployAsync(string deployHash)
+            public Task<AwaitingDeployData?> GetAwaitingDeployAsync(string deployHash)
             {
                 return _commonEndpoint.GetAwaitingDeployAsync(deployHash);
             }

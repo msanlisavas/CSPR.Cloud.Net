@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>2.9.0</Version>
+    <Version>3.0.0</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
