@@ -62,7 +62,7 @@ namespace CSPR.Cloud.Net.Tests
         private readonly string _testBlockHash = "bc1a9a481fa3f8b9e83c7cfa0ea87906c214345e20a5d76a5305dfb033d0510e";
         private readonly ulong _testBlockHeight = 2550824;
         private readonly string _testBidderPublicKey = "017d9aa0b86413d7ff9a9169182c53f0bacaa80d34c211adab007ed4876af17077";
-        private readonly string _testCentralizedAccountHash = "fa12d2dd5547714f8c2754d418aa8c9d59dc88780350cb4254d622e2d4ef7e69";
+        private readonly string _testCentralizedAccountHash = "066662e98a983575300cdda045703e2820fdfc57d38db93f70a2376eaf51a145";
         private readonly string _testContractHash = "d950b6fb1e487e054dff551ad1acd0106802bb482bf1e88630b6a1eec2de8ed9";
         private readonly string _testContractPackageHash = "dbb3284da4e20be62aeb332c653bfa715c7fa1ef6a73393cd36804b382f10d4e";
         private readonly string _testContractDeployHash = "94f35bd289abca1f91f34b56b101852d3dffc1f50567d9062a7df4d176070f0f";

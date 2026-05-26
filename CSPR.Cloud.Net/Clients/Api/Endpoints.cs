@@ -359,7 +359,7 @@ namespace CSPR.Cloud.Net.Clients.Api
             }
             public static string GetCentralizedInfos(string baseUrl, CentralizedAccountInfoRequestParameters requestParams)
             {
-                var url = $"{baseUrl}{BaseUrls.GetCentralizedAccountInfo}";
+                var url = $"{baseUrl}{BaseUrls.GetCentralizedAccounts}";
                 if (requestParams != null)
                 {
                     var filterParameters = CasperHelpers.CreateFilteringParameters(requestParams.FilterParameters);
