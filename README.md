@@ -8,6 +8,34 @@
 A .NET client library for the CSPR Cloud API — access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
 
 ## Release Notes
+### v3.0.0
+Standardizes HTTP response handling so the client behaves the way callers expect: **"not found" is a value, not an exception.**
+
+**⚠️ Breaking changes**
+- **`404 Not Found` now returns `null`** instead of throwing `NotFoundException`. A lookup that matches nothing is an expected outcome — null-check the result rather than wrapping calls in `try/catch`. (`NotFoundException` remains as a type but is no longer thrown by the client.)
+- **Read endpoint return types are now nullable** (`Task<T?>`). With nullable reference types enabled, the compiler prompts you to handle the not-found (`null`) case. Methods returning a scalar total (e.g. `GetTotalAccountDelegationRewards`) return `0` when not found.
+- An empty/blank `200 OK` body now returns `null` instead of throwing a generic `Exception`.
+
+**Improved error mapping**
+- **`429 Too Many Requests`** now throws a new typed `RateLimitException` (was an untyped `HttpRequestException`).
+- **All `5xx` statuses** now throw `InternalServerErrorException` (previously only `500`; `502/503/504` fell through untyped).
+- Unmapped status codes throw `HttpRequestException` with `StatusCode` populated, so callers can branch on it.
+- `4xx` client errors keep their typed exceptions: `400 → InvalidParamException`, `401 → UnauthorizedException`, `403 → AccessDeniedException`, `409 → DuplicateEntryException`.
+
+**Fix**
+- Corrected the centralized-accounts **list** endpoint path (`/centralized-account-info`); it previously used a trailing slash and always returned `404`.
+
+**Migration**
+```csharp
+// Before (v2.x): not-found threw
+try { var acct = await client.Mainnet.Account.GetAccountAsync(key); }
+catch (NotFoundException) { /* handle missing */ }
+
+// After (v3.0.0): not-found is null
+var acct = await client.Mainnet.Account.GetAccountAsync(key);
+if (acct is null) { /* handle missing */ }
+```
+
 ### v2.9.0
 SDK package version now tracks the CSPR Cloud API version it covers (was 2.0.0). The wire surface itself is unchanged from v2.0.0 — bumping the package number to **2.9.0** so consumers can immediately see which API revision a given SDK release is paired with.
 
