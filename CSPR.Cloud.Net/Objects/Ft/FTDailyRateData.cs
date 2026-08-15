@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace CSPR.Cloud.Net.Objects.Ft
@@ -12,7 +12,7 @@ namespace CSPR.Cloud.Net.Objects.Ft
         public int? CurrencyId { get; set; }
 
         [JsonProperty("amount")]
-        public double? Amount { get; set; }
+        public decimal? Amount { get; set; }
 
         [JsonProperty("volume")]
         public string Volume { get; set; }

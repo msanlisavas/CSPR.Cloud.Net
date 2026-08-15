@@ -45,7 +45,7 @@ namespace CSPR.Cloud.Net.Objects.Delegate
         /// Rate of the reward.
         /// </summary>
         [JsonProperty("rate")]
-        public float? Rate { get; set; }
+        public decimal? Rate { get; set; }
 
         /// <summary>
         /// Additional account information of the delegator.

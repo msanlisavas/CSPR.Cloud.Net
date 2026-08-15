@@ -1,4 +1,4 @@
-# CSPR.Cloud.Net - Complete Usage Guide
+﻿# CSPR.Cloud.Net - Complete Usage Guide
 
 ## What Is This?
 A .NET client library for the CSPR Cloud API - access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
@@ -567,7 +567,30 @@ PaginatedResponse<T> response = await client.Mainnet.Account.GetAccountsAsync(pa
 List<AccountData> accounts = response.Data;
 int totalItems = response.ItemCount;
 int totalPages = response.PageCount;
+int skipped = response.SkippedItemCount;  // v4.0.0+, see Tolerating malformed rows
 ```
+
+### Tolerating malformed rows (v4.0.0+)
+By default a single row that cannot be deserialized fails the whole response. Opt in to per-row
+tolerance when losing one row is better than losing the page — a poller that would otherwise
+re-fetch, re-fail and never advance:
+
+```csharp
+var config = new CasperCloudClientConfig("your-api-key") { TolerateMalformedRows = true };
+var client = new CasperCloudRestClient(config);
+
+var page = await client.Mainnet.Transfer.GetAccountTransfersAsync(accountHash, params);
+if (page.SkippedItemCount > 0)
+{
+    // The page is INCOMPLETE. Do not advance a high-water mark past it, or the skipped
+    // rows are lost for good.
+}
+```
+
+Rows are deserialized individually, so a bad row costs only itself. Errors in the envelope
+(`item_count`, `page_count`, …) still throw — a broken envelope means the response can't be
+trusted at all. `SkippedItemCount` is `0` when the option is off, and lives on both
+`PaginatedResponse<T>` and `ListResponse<T>`.
 
 ---
 
@@ -644,7 +667,7 @@ uint? Rank
 uint? EraId
 string PublicKey
 bool IsActive
-float? Fee
+decimal? Fee
 ulong? DelegatorsNumber
 string SelfStake                        // string
 string DelegatorsStake                  // string
@@ -717,7 +740,7 @@ DateTime? Timestamp
 ContractPackageData ContractPackage
 ContractData Contract
 EntryPointData ContractEntrypoint
-float? Rate
+decimal? Rate
 List<TransferData> Transfers
 List<NFTTokenActionData> NFTTokenAction
 List<FTTokenActionData> FTTokenAction
@@ -801,7 +824,7 @@ AccountInfoData FromPurseAccountInfo
 CentralizedAccountInfoData FromPurseCentralizedAccountInfo
 AccountInfoData ToPurseAccountInfo
 CentralizedAccountInfoData ToPurseCentralizedAccountInfo
-float? Rate
+decimal? Rate
 ulong? TransferIndex                    // monotonic indexer id (distinct from caller Id)
 string InitiatorCsprName                // v2.1.0 — the 4 CSPR.name fields below
 string ToCsprName
@@ -814,10 +837,10 @@ string ToPurseCsprName
 string Token                            // "CSPR"
 ulong? Total                            // stays numeric on the wire
 ulong? Circulating
-double? TotalAnnualIssuance             // v2.4.0
-double? AnnualEcosystemSustainIssuance  // v2.8.0
-double? AnnualStakingRewardsIssuance    // v2.8.0
-double? AnnualIssuance                  // kept for backward compatibility
+decimal? TotalAnnualIssuance             // v2.4.0
+decimal? AnnualEcosystemSustainIssuance  // v2.8.0
+decimal? AnnualStakingRewardsIssuance    // v2.8.0
+decimal? AnnualIssuance                  // kept for backward compatibility
 long? Timestamp                         // Unix seconds (NOT an ISO string)
 ```
 

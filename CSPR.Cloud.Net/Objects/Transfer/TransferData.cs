@@ -136,7 +136,7 @@ namespace CSPR.Cloud.Net.Objects.Transfer
         /// Rate of the transfer.
         /// </summary>
         [JsonProperty("rate")]
-        public float? Rate { get; set; }
+        public decimal? Rate { get; set; }
 
         /// <summary>
         /// Monotonic transfer index assigned by the indexer — distinct from <see cref="Id"/>, which is caller-supplied.

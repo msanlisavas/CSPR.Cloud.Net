@@ -300,6 +300,21 @@ To create an instance of the `CasperCloudRestClient`, you need to provide your A
        }
    }
    ```
+
+   Optionally set `TolerateMalformedRows` (v4.0.0+) so a single unusable row in a response's
+   `data` array is dropped and counted in `SkippedItemCount` instead of failing the whole
+   response. Errors in the envelope itself still throw. Off by default.
+
+   ```csharp
+   var config = new CasperCloudClientConfig("your-api-key") { TolerateMalformedRows = true };
+
+   var page = await client.Mainnet.Transfer.GetAccountTransfersAsync(accountHash, parameters);
+   if (page.SkippedItemCount > 0)
+   {
+       // The page is INCOMPLETE — don't advance any high-water mark past it.
+   }
+   ```
+
 ### 3. Initialize the Client
 
 Initialize the `CasperCloudRestClient` with your configuration, and optionally pass in a custom `HttpClient` and `ILoggerFactory`.

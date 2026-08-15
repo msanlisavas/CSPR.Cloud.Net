@@ -190,7 +190,7 @@ namespace CSPR.Cloud.Net.Objects.Deploy
         /// Rate of the deploy.
         /// </summary>
         [JsonProperty("rate")]
-        public float? Rate { get; set; }
+        public decimal? Rate { get; set; }
 
         /// <summary>
         /// List of transfer data associated with the deploy.

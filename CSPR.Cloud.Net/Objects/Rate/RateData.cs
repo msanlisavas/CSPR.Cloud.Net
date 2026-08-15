@@ -19,7 +19,7 @@ namespace CSPR.Cloud.Net.Objects.Rate
         /// Rate amount.
         /// </summary>
         [JsonProperty("amount")]
-        public float? Amount { get; set; }
+        public decimal? Amount { get; set; }
 
         /// <summary>
         /// Rate timestamp in the ISO 8601 format.

@@ -32,25 +32,25 @@ namespace CSPR.Cloud.Net.Objects.Supply
         /// Total annual issuance rate of the native token as a fraction of the total supply (v2.4.0+).
         /// </summary>
         [JsonProperty("total_annual_issuance")]
-        public double? TotalAnnualIssuance { get; set; }
+        public decimal? TotalAnnualIssuance { get; set; }
 
         /// <summary>
         /// Portion of the annual issuance allocated to ecosystem sustainability (v2.8.0+).
         /// </summary>
         [JsonProperty("annual_ecosystem_sustain_issuance")]
-        public double? AnnualEcosystemSustainIssuance { get; set; }
+        public decimal? AnnualEcosystemSustainIssuance { get; set; }
 
         /// <summary>
         /// Portion of the annual issuance allocated to staking rewards (v2.8.0+).
         /// </summary>
         [JsonProperty("annual_staking_rewards_issuance")]
-        public double? AnnualStakingRewardsIssuance { get; set; }
+        public decimal? AnnualStakingRewardsIssuance { get; set; }
 
         /// <summary>
         /// Deprecated alias retained for backward compatibility — equivalent to <see cref="TotalAnnualIssuance"/>.
         /// </summary>
         [JsonProperty("annual_issuance")]
-        public double? AnnualIssuance { get; set; }
+        public decimal? AnnualIssuance { get; set; }
 
         /// <summary>
         /// Unix epoch (seconds) of the latest supply update. The Supply endpoint emits this as a

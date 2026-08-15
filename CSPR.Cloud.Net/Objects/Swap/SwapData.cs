@@ -1,4 +1,4 @@
-using CSPR.Cloud.Net.Objects.AccountInfo;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using CSPR.Cloud.Net.Objects.Contract;
 using Newtonsoft.Json;
@@ -71,9 +71,9 @@ namespace CSPR.Cloud.Net.Objects.Swap
         public ContractPackageData Token1ContractPackage { get; set; }
 
         [JsonProperty("token0_ft_rate")]
-        public float? Token0FtRate { get; set; }
+        public decimal? Token0FtRate { get; set; }
 
         [JsonProperty("token1_ft_rate")]
-        public float? Token1FtRate { get; set; }
+        public decimal? Token1FtRate { get; set; }
     }
 }

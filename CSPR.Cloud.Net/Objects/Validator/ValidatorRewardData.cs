@@ -43,7 +43,7 @@ namespace CSPR.Cloud.Net.Objects.Validator
         /// Reward rate.
         /// </summary>
         [JsonProperty("rate")]
-        public float? Rate { get; set; }
+        public decimal? Rate { get; set; }
     }
 
 }

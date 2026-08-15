@@ -1,4 +1,4 @@
-using CSPR.Cloud.Net.Objects.AccountInfo;
+﻿using CSPR.Cloud.Net.Objects.AccountInfo;
 using CSPR.Cloud.Net.Objects.CentralizedAccountInfo;
 using Newtonsoft.Json;
 
@@ -44,7 +44,7 @@ namespace CSPR.Cloud.Net.Objects.Validator
         /// Percentage of the rewards the validator retains for its services.
         /// </summary>
         [JsonProperty("fee")]
-        public float? Fee { get; set; }
+        public decimal? Fee { get; set; }
 
         /// <summary>
         /// Number of delegators staked to validator.

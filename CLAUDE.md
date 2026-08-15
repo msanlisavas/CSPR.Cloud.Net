@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CSPR.Cloud.Net is a .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments. The library targets .NET Standard 2.0 and 2.1 for broad compatibility.
 
-Current release: **v2.9.0** — SDK package version now tracks the CSPR Cloud API version it covers. v2.9.0 wires `Delegate.GetAccountUndelegationsAsync` and `NFT.GetNFTsAsync` through the public REST facades (these were added to the internal `CommonEndpoint` in v2.0.0 but were missing public forwarders, so calls failed with `CS1061`). See README Release Notes for the v2.0.0 catch-up surface and the breaking changes that came with it (notably: balance/stake fields typed as `string` to avoid uint64 overflow).
+Current release: **v4.0.0** — money values are `decimal`, and responses can optionally tolerate a malformed row. BREAKING: every rate/amount/fee property that was `float?`/`double?` is now `decimal?` (binary floating point cannot represent decimal fractions exactly, and the error compounds when a rate is multiplied by a token amount). New: `CasperCloudClientConfig.TolerateMalformedRows` + `SkippedItemCount` on `PaginatedResponse<T>`/`ListResponse<T>`. See the csproj `<PackageReleaseNotes>` for the full list. Earlier: v3.0.0/v2.9.0 wired `Delegate.GetAccountUndelegationsAsync` and `NFT.GetNFTsAsync` through the public REST facades; the v2.0.0 catch-up typed balance/stake fields as `string` to avoid uint64 overflow.
 
 ## Build and Test Commands
 
@@ -75,6 +75,7 @@ dotnet pack CSPR.Cloud.Net/CSPR.Cloud.Net.csproj -c Release
   - `CSPRCloudNetTests.cs` — integration tests against the live REST API using a shared test key. Long-running (minutes).
   - `CSPRCloudNetSocketTests.cs` — URL-construction and deserialization unit tests for the streaming client plus a small set of live-socket integration tests per channel.
   - `CSPRCloudNetRestUrlTests.cs` — fast URL-construction and deserialization unit tests for the REST client (sub-100ms). New in v2.0.0. Add new-endpoint / new-filter / new-includer / new-property tests here rather than in the integration file.
+  - `CSPRCloudNetTolerantRowsTests.cs` — offline client-behaviour tests (new in v4.0.0) for `TolerateMalformedRows` / `SkippedItemCount` and decimal money precision. Separate from the file above because these exercise the client's response handling rather than URL construction: they inject an `HttpClient` with a stub `HttpMessageHandler`, so no key or network is needed. Put tests for how the client *handles a response* here.
 
 - `.github/workflows/`: CI (build on push/PR) + publish-on-version-bump (NuGet push + auto-tag + GitHub release draft, triggered when `CSPR.Cloud.Net.csproj` `<Version>` changes on master).
 

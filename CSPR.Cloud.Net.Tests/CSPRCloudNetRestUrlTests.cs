@@ -1,4 +1,4 @@
-using CSPR.Cloud.Net.Clients.Api;
+﻿using CSPR.Cloud.Net.Clients.Api;
 using CSPR.Cloud.Net.Objects.Account;
 using CSPR.Cloud.Net.Objects.Auction;
 using CSPR.Cloud.Net.Objects.Bidder;
@@ -561,10 +561,10 @@ namespace CSPR.Cloud.Net.Tests
 
             var data = JsonConvert.DeserializeObject<SupplyData>(json);
             Assert.NotNull(data);
-            Assert.Equal(0.003949780196042418, data.TotalAnnualIssuance);
-            Assert.Equal(0.0009874450490106046, data.AnnualEcosystemSustainIssuance);
-            Assert.Equal(0.0029623351470318138, data.AnnualStakingRewardsIssuance);
-            Assert.Equal(0.003949780196042418, data.AnnualIssuance);
+            Assert.Equal(0.003949780196042418m, data.TotalAnnualIssuance);
+            Assert.Equal(0.0009874450490106046m, data.AnnualEcosystemSustainIssuance);
+            Assert.Equal(0.0029623351470318138m, data.AnnualStakingRewardsIssuance);
+            Assert.Equal(0.003949780196042418m, data.AnnualIssuance);
             Assert.Equal(1776884963L, data.Timestamp);
         }
 

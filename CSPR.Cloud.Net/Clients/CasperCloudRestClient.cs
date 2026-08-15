@@ -39,6 +39,7 @@ using CSPR.Cloud.Net.Parameters.Wrapper.Transfer;
 using CSPR.Cloud.Net.Parameters.Wrapper.Validator;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -78,12 +79,15 @@ namespace CSPR.Cloud.Net.Clients
 
         private readonly ILogger? _logger;
 
+        private readonly bool _tolerateMalformedRows;
+
         public INetworkEndpoint Mainnet { get; }
         public INetworkEndpoint Testnet { get; }
         // Primary constructor
         public CasperCloudRestClient(CasperCloudClientConfig config, HttpClient? httpClient = null, ILoggerFactory? loggerFactory = null)
         {
             _apiKey = config.ApiKey;
+            _tolerateMalformedRows = config.TolerateMalformedRows;
             _httpClient = httpClient ?? new HttpClient();
             _logger = loggerFactory?.CreateLogger<CasperCloudRestClient>();
             Mainnet = new MainnetEndpoint(this);
@@ -98,7 +102,7 @@ namespace CSPR.Cloud.Net.Clients
             {
                 var content = await response.Content.ReadAsStringAsync();
                 if (string.IsNullOrWhiteSpace(content)) return null;
-                return JsonConvert.DeserializeObject<T>(content);
+                return Deserialize<T>(content);
             }
             if (code == HttpStatusCode.NotFound) return null;
 
@@ -113,6 +117,35 @@ namespace CSPR.Cloud.Net.Clients
             }
             if ((int)code >= 500) throw new InternalServerErrorException($"Server Error ({(int)code}): {body}", _logger);
             throw new HttpRequestException($"Unexpected response status {(int)code} ({code}): {body}");
+        }
+
+        /// <summary>
+        /// Deserializes a successful response body. With
+        /// <see cref="CasperCloudClientConfig.TolerateMalformedRows"/> off this is a plain
+        /// <see cref="JsonConvert.DeserializeObject{T}(string)"/> call and any bad row throws, as
+        /// before. With it on, the envelope is deserialized with its rows detached and the rows are
+        /// then converted one at a time, so a row that fails costs only itself while a malformed
+        /// envelope still throws — a response whose envelope is broken can't be trusted at all.
+        /// </summary>
+        private T? Deserialize<T>(string content) where T : class
+        {
+            if (!_tolerateMalformedRows) return JsonConvert.DeserializeObject<T>(content);
+
+            // Only envelopes with a data array can lose a row without losing the response. Anything
+            // else (a single object, a bare value) deserializes exactly as it always has.
+            if (!(JToken.Parse(content) is JObject envelope) || !(envelope["data"] is JArray rows))
+                return JsonConvert.DeserializeObject<T>(content);
+
+            // Deserialize the envelope with the rows detached, so a broken envelope still throws —
+            // tolerating rows must not quietly downgrade an untrustworthy response into a partial one.
+            envelope["data"] = new JArray();
+            var serializer = JsonSerializer.CreateDefault();
+            var result = envelope.ToObject<T>(serializer);
+
+            if (result is ISkipTolerantResponse tolerant)
+                tolerant.SkippedItemCount = tolerant.PopulateRows(rows, serializer);
+
+            return result;
         }
 
         public async Task<T?> GetDataAsync<T>(string endpoint) where T : class
