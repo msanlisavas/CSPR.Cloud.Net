@@ -42,6 +42,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -133,19 +134,41 @@ namespace CSPR.Cloud.Net.Clients
 
             // Only envelopes with a data array can lose a row without losing the response. Anything
             // else (a single object, a bare value) deserializes exactly as it always has.
-            if (!(JToken.Parse(content) is JObject envelope) || !(envelope["data"] is JArray rows))
+            if (!(ParseDecimalPreserving(content) is JObject envelope) || !(envelope["data"] is JArray rows))
                 return JsonConvert.DeserializeObject<T>(content);
 
             // Deserialize the envelope with the rows detached, so a broken envelope still throws —
             // tolerating rows must not quietly downgrade an untrustworthy response into a partial one.
             envelope["data"] = new JArray();
             var serializer = JsonSerializer.CreateDefault();
+            serializer.FloatParseHandling = FloatParseHandling.Decimal;
             var result = envelope.ToObject<T>(serializer);
 
             if (result is ISkipTolerantResponse tolerant)
                 tolerant.SkippedItemCount = tolerant.PopulateRows(rows, serializer);
 
             return result;
+        }
+
+        /// <summary>
+        /// Parses a payload into a <see cref="JToken"/> WITHOUT collapsing JSON numbers to
+        /// <see cref="double"/> first.
+        /// <para>Newtonsoft defaults to <see cref="FloatParseHandling.Double"/>, so a plain
+        /// <c>JToken.Parse</c> would round every rate and amount to double precision on the way into
+        /// the tree, and the later conversion to <c>decimal</c> could only preserve the already-lost
+        /// value — silently undoing the decimal typing this library exists to guarantee. Only the
+        /// tolerant path builds a JToken at all, which is why the defect was invisible on the direct
+        /// deserialize path.</para>
+        /// </summary>
+        private static JToken ParseDecimalPreserving(string content)
+        {
+            using (var reader = new JsonTextReader(new StringReader(content))
+            {
+                FloatParseHandling = FloatParseHandling.Decimal
+            })
+            {
+                return JToken.ReadFrom(reader);
+            }
         }
 
         public async Task<T?> GetDataAsync<T>(string endpoint) where T : class

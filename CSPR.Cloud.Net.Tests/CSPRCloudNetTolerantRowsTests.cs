@@ -107,6 +107,27 @@ namespace CSPR.Cloud.Net.Tests
         }
 
         [Fact]
+        public async Task GetDataAsync_HighPrecisionRateWithToleranceEnabled_KeepsFullPrecision()
+        {
+            // Regression: the tolerant path builds a JToken, and Newtonsoft's default
+            // FloatParseHandling.Double would round every number on the way into the tree — so
+            // enabling tolerance silently undid the decimal typing this library exists to provide.
+            // The two features have to hold at the same time, which the direct-deserialize test
+            // below cannot show because it never builds a JToken.
+            const string body = @"{
+                ""data"": [ { ""deploy_hash"": ""aaaa"", ""rate"": 0.10000000000000000555 } ],
+                ""item_count"": 1,
+                ""page_count"": 1
+            }";
+            var client = ClientFor(body, tolerateMalformedRows: true);
+
+            var page = await client.GetDataAsync<PaginatedResponse<TransferData>>("https://example.invalid/transfers");
+
+            Assert.NotNull(page);
+            Assert.Equal(0.10000000000000000555m, page!.Data.Single().Rate);
+        }
+
+        [Fact]
         public void TransferData_HighPrecisionRate_RoundTripsExactly()
         {
             // 0.10000000000000000555 is the double nearest to 0.1 — if Rate were float or double this

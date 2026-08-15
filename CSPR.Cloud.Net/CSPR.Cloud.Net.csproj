@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>4.0.0</Version>
+    <Version>4.0.1</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>v4.0.0 — Money values are now decimal instead of float/double, and responses can optionally tolerate a malformed row instead of failing the whole page. BREAKING: every rate/amount/fee property that was float? or double? is now decimal? — TransferData.Rate, DeployData.Rate, DelegatorRewardData.Rate, ValidatorRewardData.Rate, ValidatorData.Fee, RateData.Amount, FTRateData.Amount, FTDexRateData.Amount, FTDailyRateData.Amount, FTDailyDexRateData.Amount + .FtDailyRate, SwapData.Token0FtRate + .Token1FtRate, and SupplyData's four issuance figures. Binary floating point cannot represent decimal fractions exactly, so these values arrived subtly wrong and the error compounded when multiplied by a token amount — a single-precision rate carries only ~7 significant digits, enough to shift a large transfer's fiat value by a fraction of a cent, systematically. The repository's own SupplyData test fixture pins issuance figures to 19 significant digits, which double could never have round-tripped. Callers doing arithmetic on these properties will need decimal literals (0.05m) and casts; callers only reading or comparing them are unaffected. Non-money floating point is deliberately untouched: latitude/longitude, validator performance scores, and socket reconnect tuning stay double. NEW: CasperCloudClientConfig.TolerateMalformedRows (default false) makes the client deserialize each row of a data array individually, so one unusable row is dropped and counted in the new PaginatedResponse.SkippedItemCount / ListResponse.SkippedItemCount rather than throwing away the whole page. Errors in the envelope itself still throw, because a broken envelope means the response cannot be trusted at all. Intended for pollers that must keep making progress: check SkippedItemCount and treat any non-zero value as an incomplete page — do not advance a high-water mark past it. Default behaviour is unchanged when the flag is left off.</PackageReleaseNotes>
+    <PackageReleaseNotes>v4.0.1 — FIX: TolerateMalformedRows silently defeated the decimal money typing introduced in v4.0.0. The tolerant path builds a JToken before converting rows, and Newtonsoft defaults to FloatParseHandling.Double, so every rate and amount was rounded to double precision on the way into the tree and the later conversion to decimal could only preserve the already-lost value (0.10000000000000000555 came back as 0.1). The tolerant path now reads with FloatParseHandling.Decimal. Anyone who enabled TolerateMalformedRows on v4.0.0 was getting double-precision money values despite the decimal types and should upgrade; the direct deserialize path was never affected, which is why v4.0.0's own precision test passed. Covered by a regression test that exercises precision and tolerance together.</PackageReleaseNotes>
 
   </PropertyGroup>
 
