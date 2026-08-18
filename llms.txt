@@ -5,7 +5,7 @@ A .NET client library for the CSPR Cloud API - access Casper blockchain data (Ma
 
 **Targets:** .NET Standard 2.0 & 2.1 (compatible with .NET Core, .NET 5+, .NET Framework 4.6.1+)
 
-**Current version: 2.9.0** — package version now tracks the CSPR Cloud API version it covers. The v2.9.0 release wires `Delegate.GetAccountUndelegationsAsync` and `NFT.GetNFTsAsync` through the public facades (the implementations existed in v2.0.0 on the internal `CommonEndpoint` but were missing public forwarders). See the README's Release Notes for the full surface delivered in the v2.0.0 catch-up release and the breaking changes that came with it (notably: balance/stake fields migrated from `ulong?` to `string` to avoid uint64 overflow on large accounts; `SupplyData.Timestamp` is a Unix-seconds `long?`).
+**Current version: 4.1.0** — every REST method accepts a trailing optional `CancellationToken` (threaded to `HttpClient.SendAsync`; the streaming client already had tokens). Since this guide's examples were written (v2.9.0): v4.0.x made every rate/amount/fee property `decimal?` (was `float?`/`double?`) and added opt-in `CasperCloudClientConfig.TolerateMalformedRows` with `SkippedItemCount` on paginated/list responses; v3.0.0 made `404` return `null` instead of throwing `NotFoundException` (read endpoints are `Task<T?>` now) and added `RateLimitException` for `429`. The method surface and parameter system below are otherwise current — see the README's Release Notes for details. Long-standing wire notes still apply: balance/stake fields are `string` to avoid uint64 overflow; `SupplyData.Timestamp` is a Unix-seconds `long?`.
 
 ## Installation
 ```bash

@@ -8,6 +8,31 @@
 A .NET client library for the CSPR Cloud API — access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
 
 ## Release Notes
+### v4.1.0
+Every REST method now accepts a trailing optional `CancellationToken`, threaded through to `HttpClient.SendAsync`, so an in-flight request can be aborted (service shutdown, timeout policies) instead of running to the `HttpClient` timeout. The streaming client already accepted tokens; this brings the REST side level.
+
+```csharp
+using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+var transfers = await client.Mainnet.Transfer.GetAccountTransfersAsync(accountId, parameters, cts.Token);
+```
+
+**Compatibility:** every existing method *call* compiles unchanged, and passing no token behaves exactly as before. Adding an optional parameter does change method signatures, so three narrower patterns are affected:
+- **Binary:** assemblies compiled against 4.0.x must be recompiled against 4.1.0 — a plain NuGet restore + build.
+- **Delegates:** method-group conversions (e.g. `Func<string, TransferAccountRequestParameters, Task<...>> f = client.Mainnet.Transfer.GetAccountTransfersAsync;`) need the delegate type extended with `CancellationToken` — optional parameters do not participate in delegate conversion.
+- **Reflection:** `GetMethod(name, types)` lookups using the old exact parameter list must add `typeof(CancellationToken)`, and `Invoke` must supply a value (or `Type.Missing`) for it.
+
+### v4.0.0 / v4.0.1
+Money is `decimal` now, and responses can opt into tolerating malformed rows.
+
+**⚠️ Breaking changes (v4.0.0)**
+- Every rate/amount/fee property that was `float?`/`double?` is now `decimal?` — binary floating point cannot represent decimal fractions exactly, and the error compounds when a rate is multiplied by a token amount.
+
+**New (v4.0.0)**
+- `CasperCloudClientConfig.TolerateMalformedRows` (opt-in, default off): rows are converted individually, a row that fails costs only itself, and the loss is reported via `SkippedItemCount` on `PaginatedResponse<T>`/`ListResponse<T>`. A malformed envelope still throws.
+
+**Fix (v4.0.1)**
+- `TolerateMalformedRows` silently defeated the decimal typing: the tolerant path built its `JToken` with Newtonsoft's default `FloatParseHandling.Double`, rounding every money value to double precision before conversion. It now reads with `FloatParseHandling.Decimal`. Anyone who enabled tolerance on v4.0.0 should upgrade.
+
 ### v3.0.0
 Standardizes HTTP response handling so the client behaves the way callers expect: **"not found" is a value, not an exception.**
 

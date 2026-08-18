@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>4.0.1</Version>
+    <Version>4.1.0</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>v4.0.1 — FIX: TolerateMalformedRows silently defeated the decimal money typing introduced in v4.0.0. The tolerant path builds a JToken before converting rows, and Newtonsoft defaults to FloatParseHandling.Double, so every rate and amount was rounded to double precision on the way into the tree and the later conversion to decimal could only preserve the already-lost value (0.10000000000000000555 came back as 0.1). The tolerant path now reads with FloatParseHandling.Decimal. Anyone who enabled TolerateMalformedRows on v4.0.0 was getting double-precision money values despite the decimal types and should upgrade; the direct deserialize path was never affected, which is why v4.0.0's own precision test passed. Covered by a regression test that exercises precision and tolerance together.</PackageReleaseNotes>
+    <PackageReleaseNotes>v4.1.0 — NEW: every REST method now accepts a trailing optional CancellationToken, threaded through to HttpClient.SendAsync, so an in-flight request can be aborted (shutdown, timeout policies) instead of running to the HttpClient timeout. The streaming client already accepted tokens; this brings the REST side level. Compatibility: all existing method CALLS compile unchanged. Adding an optional parameter does change method signatures, so three narrower patterns are affected: assemblies compiled against 4.0.x must be recompiled against 4.1.0 (binary break — a plain NuGet restore + build fixes it); method-group/delegate conversions over these methods need their delegate type updated (optional parameters do not participate in delegate conversion); and reflection lookups using the old exact parameter list must include the CancellationToken. No behavioral change for callers that pass no token. Earlier: v4.0.1 fixed TolerateMalformedRows silently defeating the decimal money typing (the tolerant path now reads with FloatParseHandling.Decimal); v4.0.0 made money values decimal and added opt-in per-row tolerance with SkippedItemCount.</PackageReleaseNotes>
 
   </PropertyGroup>
 
