@@ -5,7 +5,7 @@ A .NET client library for the CSPR Cloud API - access Casper blockchain data (Ma
 
 **Targets:** .NET Standard 2.0 & 2.1 (compatible with .NET Core, .NET 5+, .NET Framework 4.6.1+)
 
-**Current version: 4.1.0** — every REST method accepts a trailing optional `CancellationToken` (threaded to `HttpClient.SendAsync`; the streaming client already had tokens). Since this guide's examples were written (v2.9.0): v4.0.x made every rate/amount/fee property `decimal?` (was `float?`/`double?`) and added opt-in `CasperCloudClientConfig.TolerateMalformedRows` with `SkippedItemCount` on paginated/list responses; v3.0.0 made `404` return `null` instead of throwing `NotFoundException` (read endpoints are `Task<T?>` now) and added `RateLimitException` for `429`. The method surface and parameter system below are otherwise current — see the README's Release Notes for details. Long-standing wire notes still apply: balance/stake fields are `string` to avoid uint64 overflow; `SupplyData.Timestamp` is a Unix-seconds `long?`.
+**Current version: 4.2.0** — adds `CasperCloudX402Client` (x402 Facilitator API: `GetSupportedAsync`/`VerifyAsync`/`SettleAsync`, Casper "exact" scheme via CEP-3009; protocol JSON is camelCase; the facilitator's `/settle` answers HTTP 200 even on failure — branch on `Success`). See the "x402 Facilitator API" section below. Since 4.1.0: every REST method accepts a trailing optional `CancellationToken` (threaded to `HttpClient.SendAsync`; the streaming client already had tokens). Since this guide's examples were written (v2.9.0): v4.0.x made every rate/amount/fee property `decimal?` (was `float?`/`double?`) and added opt-in `CasperCloudClientConfig.TolerateMalformedRows` with `SkippedItemCount` on paginated/list responses; v3.0.0 made `404` return `null` instead of throwing `NotFoundException` (read endpoints are `Task<T?>` now) and added `RateLimitException` for `429`. The method surface and parameter system below are otherwise current — see the README's Release Notes for details. Long-standing wire notes still apply: balance/stake fields are `string` to avoid uint64 overflow; `SupplyData.Timestamp` is a Unix-seconds `long?`.
 
 ## Installation
 ```bash
@@ -1076,6 +1076,41 @@ var subscription = socket.Testnet.Block.SubscribeAsync(
 cts.Cancel();
 try { await subscription; } catch (OperationCanceledException) { /* expected */ }
 ```
+
+---
+
+## x402 Facilitator API
+
+New in v4.2.0: `CasperCloudX402Client` talks to the CSPR.cloud x402 Facilitator (default host `https://x402-facilitator.cspr.cloud`) — verify/settle x402 v2 machine payments on Casper (CEP-3009 `transfer_with_authorization` over CEP-18 tokens, EIP-712-signed). No `Mainnet`/`Testnet` split: one host serves every network; the CAIP-2 network id (`casper:casper`, `casper:casper-test`) travels inside the payment objects. Auth is the same CSPR.cloud access token, raw in the `Authorization` header.
+
+```csharp
+using CSPR.Cloud.Net.Clients;
+using CSPR.Cloud.Net.Objects.Config;
+using CSPR.Cloud.Net.Objects.X402;
+
+var x402 = new CasperCloudX402Client(new CasperCloudClientConfig("your-access-token"));
+// Self-hosted facilitator: new CasperCloudX402Client(config, httpClient, loggerFactory, baseUrl: "https://my-facilitator.example");
+
+X402SupportedResponse? supported = await x402.GetSupportedAsync();           // (scheme, network) pairs + signers — NOT tokens
+X402VerifyResponse? verdict = await x402.VerifyAsync(request);               // no on-chain effect; IsValid == false is a result, not an exception
+X402SettleResponse? settled = await x402.SettleAsync(request);               // HTTP 200 even on failure — branch on settled.Success
+```
+
+Method signatures:
+
+- `Task<X402SupportedResponse?> GetSupportedAsync(CancellationToken cancellationToken = default)`
+- `Task<X402VerifyResponse?> VerifyAsync(X402FacilitatorRequest request, CancellationToken cancellationToken = default)`
+- `Task<X402SettleResponse?> SettleAsync(X402FacilitatorRequest request, CancellationToken cancellationToken = default)`
+
+Key types (`CSPR.Cloud.Net.Objects.X402`, camelCase JSON, amounts are atomic-unit decimal STRINGS):
+
+- `X402FacilitatorRequest` — `PaymentPayload`, `PaymentRequirements` (the /verify and /settle request body; `x402Version` lives inside `PaymentPayload`).
+- `X402PaymentRequirements` — `Scheme`, `Network` (CAIP-2), `Amount` (string), `Asset` (contract package hash), `PayTo` (33-byte tagged address hex), `MaxTimeoutSeconds`, `Extra { Name, Version, Decimals?, Symbol? }` (`Name`/`Version` are the CEP-3009 EIP-712 signing-domain fields — REQUIRED by the Casper scheme).
+- `X402PaymentRequired` — the 402 challenge envelope: `X402Version` (=2), `Error?`, `Resource { Url, Description?, MimeType?, ServiceName? }`, `Accepts[]`, `Extensions?`.
+- `X402PaymentPayload` — `X402Version`, `Resource?` (tolerated echo), `Accepted` (the chosen requirements), `Payload { Authorization { From, To, Value, ValidAfter, ValidBefore, Nonce }, PublicKey (1-byte alg tag + key, hex), Signature }`.
+- `X402VerifyResponse` — `IsValid`, `Payer` (account-hash form, not a public key), `InvalidReason?`, `InvalidMessage?`, `Extensions?`.
+- `X402SettleResponse` — `Success`, `Transaction` (deploy hash; empty when nothing broadcast), `Network`, `Payer`, `ErrorReason?`, `ErrorMessage?`.
+- `X402SupportedResponse` — `Kinds[] { X402Version, Scheme, Network, Extra { FeePayer } }`, `Extensions`, `Signers` (dictionary of CAIP-2 pattern → account hashes).
 
 ---
 

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CSPR.Cloud.Net is a .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments. The library targets .NET Standard 2.0 and 2.1 for broad compatibility.
 
-Current release: **v4.1.0** — every REST method accepts a trailing optional `CancellationToken`, threaded through to `HttpClient.SendAsync` (the streaming client already had tokens). All existing calls compile unchanged; but optional parameters change signatures, so recompile against 4.1.0 (binary break), and delegate conversions / exact-signature reflection over these methods need updating — the release notes call all three out. Earlier: v4.0.x made money values `decimal` and added `CasperCloudClientConfig.TolerateMalformedRows` + `SkippedItemCount` on `PaginatedResponse<T>`/`ListResponse<T>` (BREAKING: every rate/amount/fee property that was `float?`/`double?` became `decimal?`); v3.0.0/v2.9.0 wired `Delegate.GetAccountUndelegationsAsync` and `NFT.GetNFTsAsync` through the public REST facades; the v2.0.0 catch-up typed balance/stake fields as `string` to avoid uint64 overflow.
+Current release: **v4.2.0** — adds `CasperCloudX402Client`, a third top-level client for the CSPR.cloud x402 Facilitator API (`GetSupportedAsync`/`VerifyAsync`/`SettleAsync`; x402 v2, Casper "exact" scheme via CEP-3009; protocol object model under `Objects/X402/`; protocol JSON is camelCase unlike the snake_case REST API; the facilitator's `/settle` answers HTTP 200 even on failure — branch on `Success`, never the status code). Purely additive. Earlier: v4.1.0 added a trailing optional `CancellationToken` to every REST method, threaded through to `HttpClient.SendAsync` (all existing calls compile unchanged, but recompile against 4.1.0+ — binary break — and delegate conversions / exact-signature reflection need updating); v4.0.x made money values `decimal` and added `CasperCloudClientConfig.TolerateMalformedRows` + `SkippedItemCount` on `PaginatedResponse<T>`/`ListResponse<T>` (BREAKING: every rate/amount/fee property that was `float?`/`double?` became `decimal?`); v3.0.0/v2.9.0 wired `Delegate.GetAccountUndelegationsAsync` and `NFT.GetNFTsAsync` through the public REST facades; the v2.0.0 catch-up typed balance/stake fields as `string` to avoid uint64 overflow.
 
 ## Build and Test Commands
 
@@ -31,9 +31,10 @@ dotnet pack CSPR.Cloud.Net/CSPR.Cloud.Net.csproj -c Release
 
 ### Core Components
 
-1. **Clients**: Two top-level clients, both shaped as `Mainnet` / `Testnet` endpoint properties.
+1. **Clients**: Three top-level clients. The first two are shaped as `Mainnet` / `Testnet` endpoint properties.
    - `CasperCloudRestClient` — the REST client. Entry point: `restClient.Testnet.Account.GetAccountAsync(...)`.
    - `CasperCloudSocketClient` — the WebSocket streaming client (10 channels). Entry point: `socketClient.Testnet.Block.SubscribeAsync(...)`. Supports optional auto-reconnect via `StreamReconnectPolicy` and a `Persistent-Session` header for replaying queued messages across reconnects (paid tiers).
+   - `CasperCloudX402Client` (v4.2.0) — the x402 Facilitator client (`/supported`, `/verify`, `/settle`). NO network split: one host (`Endpoints.BaseUrls.X402Facilitator`) serves every network, the CAIP-2 id travels inside the payment objects; an optional `baseUrl` ctor parameter targets a self-hosted facilitator. Protocol types live in `Objects/X402/` and use camelCase `[JsonProperty]` names (the x402 wire format), not the REST API's snake_case.
 
 2. **Endpoint Organization**: Each endpoint category (Account, Block, Validator, etc.) is accessed through the respective property on `Mainnet` / `Testnet`. Both return an interface (`INetworkEndpoint` for REST, `INetworkSocketEndpoint` for streaming) so runtime network selection works: `var network = useTestnet ? client.Testnet : client.Mainnet;`.
 
@@ -77,6 +78,7 @@ dotnet pack CSPR.Cloud.Net/CSPR.Cloud.Net.csproj -c Release
   - `CSPRCloudNetRestUrlTests.cs` — fast URL-construction and deserialization unit tests for the REST client (sub-100ms). New in v2.0.0. Add new-endpoint / new-filter / new-includer / new-property tests here rather than in the integration file.
   - `CSPRCloudNetTolerantRowsTests.cs` — offline client-behaviour tests (new in v4.0.0) for `TolerateMalformedRows` / `SkippedItemCount` and decimal money precision. Separate from the file above because these exercise the client's response handling rather than URL construction: they inject an `HttpClient` with a stub `HttpMessageHandler`, so no key or network is needed. Put tests for how the client *handles a response* here.
   - `CSPRCloudNetCancellationTests.cs` — offline `CancellationToken` propagation tests (new in v4.1.0), same stub-handler technique. Pins both ends of the facade → CommonEndpoint → GetDataAsync/PostDataAsync → `HttpClient.SendAsync` chain.
+  - `CSPRCloudNetX402Tests.cs` — offline x402 facilitator client tests (new in v4.2.0): protocol-object serialization pinned against the x402 v2 / Casper exact-scheme shapes, URL building, auth-header + camelCase-body assertions via a recording stub handler, settle-failure-body surfacing, and cancellation propagation.
 
 - `.github/workflows/`: CI (build on push/PR) + publish-on-version-bump (NuGet push + auto-tag + GitHub release draft, triggered when `CSPR.Cloud.Net.csproj` `<Version>` changes on master).
 

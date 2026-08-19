@@ -8,6 +8,23 @@
 A .NET client library for the CSPR Cloud API — access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
 
 ## Release Notes
+### v4.2.0
+New client for the [CSPR.cloud x402 Facilitator API](https://docs.cspr.cloud/x402-facilitator-api/reference): verify and settle x402 v2 payment payloads signed per CEP-3009, and query scheme/network support. Purely additive — nothing changes for existing REST/streaming users. See the [x402 Facilitator API](#x402-facilitator-api) section below.
+
+```csharp
+var x402 = new CasperCloudX402Client(new CasperCloudClientConfig("your-access-token"));
+var verdict = await x402.VerifyAsync(new X402FacilitatorRequest
+{
+    PaymentPayload = payload,          // parsed from the PAYMENT-SIGNATURE header
+    PaymentRequirements = requirements // what your 402 challenge published
+});
+if (verdict?.IsValid == true)
+{
+    var settled = await x402.SettleAsync(new X402FacilitatorRequest { PaymentPayload = payload, PaymentRequirements = requirements });
+    // settled.Success is the verdict — the facilitator answers HTTP 200 even on failure.
+}
+```
+
 ### v4.1.0
 Every REST method now accepts a trailing optional `CancellationToken`, threaded through to `HttpClient.SendAsync`, so an in-flight request can be aborted (service shutdown, timeout policies) instead of running to the `HttpClient` timeout. The streaming client already accepted tokens; this brings the REST side level.
 
@@ -529,6 +546,30 @@ The default retry gate retries transport exceptions (`WebSocketException`, `IOEx
 cts.Cancel(); // the subscription task exits with OperationCanceledException
 ```
 
+
+## x402 Facilitator API
+
+`CasperCloudX402Client` (new in v4.2.0) talks to the [CSPR.cloud x402 Facilitator](https://docs.cspr.cloud/x402-facilitator-api/reference) — the hosted service that verifies and settles [x402 v2](https://www.x402.org/) machine payments on Casper. Payments are CEP-3009 `transfer_with_authorization` authorizations over CEP-18 tokens, signed as EIP-712 typed data; the facilitator checks the signature, nonce state, validity window and balance, and broadcasts the settlement deploy.
+
+### Construction
+
+```csharp
+// Hosted facilitator (default: https://x402-facilitator.cspr.cloud), same access token as the REST client:
+var x402 = new CasperCloudX402Client(new CasperCloudClientConfig("your-access-token"));
+
+// Self-hosted facilitator (make-software/casper-x402):
+var selfHosted = new CasperCloudX402Client(config, httpClient, loggerFactory, baseUrl: "https://my-facilitator.example");
+```
+
+Unlike the REST client there is no `Mainnet`/`Testnet` split — one host serves every network, and the CAIP-2 network id (`casper:casper`, `casper:casper-test`) travels inside the payment objects.
+
+### Methods
+
+- `GetSupportedAsync()` — the facilitator's supported `(scheme, network)` pairs and signer accounts. It does **not** list tokens; the settled asset is the resource server's own choice.
+- `VerifyAsync(request)` — validates a `PaymentPayload` against `PaymentRequirements` without committing anything on-chain. An invalid payment is a normal result (`IsValid == false` + `InvalidReason`), not an exception.
+- `SettleAsync(request)` — re-verifies and settles on-chain. **The facilitator answers HTTP 200 even for a failed settlement** — always branch on `X402SettleResponse.Success`, never the status code.
+
+The full x402 v2 protocol object model ships under `CSPR.Cloud.Net.Objects.X402` (`X402PaymentRequired` for building 402 challenges, `X402PaymentPayload`/`X402CasperAuthorization` for parsing `PAYMENT-SIGNATURE` headers, and the facilitator request/response types). Protocol JSON is camelCase; all amounts are atomic-unit decimal **strings**.
 
 ## Using Parameterized Requests on Endpoints
 

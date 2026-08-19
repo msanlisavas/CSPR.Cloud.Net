@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>4.1.0</Version>
+    <Version>4.2.0</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>v4.1.0 — NEW: every REST method now accepts a trailing optional CancellationToken, threaded through to HttpClient.SendAsync, so an in-flight request can be aborted (shutdown, timeout policies) instead of running to the HttpClient timeout. The streaming client already accepted tokens; this brings the REST side level. Compatibility: all existing method CALLS compile unchanged. Adding an optional parameter does change method signatures, so three narrower patterns are affected: assemblies compiled against 4.0.x must be recompiled against 4.1.0 (binary break — a plain NuGet restore + build fixes it); method-group/delegate conversions over these methods need their delegate type updated (optional parameters do not participate in delegate conversion); and reflection lookups using the old exact parameter list must include the CancellationToken. No behavioral change for callers that pass no token. Earlier: v4.0.1 fixed TolerateMalformedRows silently defeating the decimal money typing (the tolerant path now reads with FloatParseHandling.Decimal); v4.0.0 made money values decimal and added opt-in per-row tolerance with SkippedItemCount.</PackageReleaseNotes>
+    <PackageReleaseNotes>v4.2.0 — NEW: CasperCloudX402Client, a client for the CSPR.cloud x402 Facilitator API (https://x402-facilitator.cspr.cloud): GetSupportedAsync, VerifyAsync and SettleAsync over the x402 v2 protocol with the Casper "exact" scheme (CEP-3009 transfer_with_authorization signed authorizations). Ships the full protocol object model under CSPR.Cloud.Net.Objects.X402 (PaymentRequired challenge, PaymentPayload with the Casper authorization/publicKey/signature payload, facilitator request/response types). Amounts are strings end-to-end; protocol JSON is camelCase; every method takes a trailing optional CancellationToken. Note the facilitator answers HTTP 200 even for a failed settlement — branch on X402SettleResponse.Success, never the status code. Purely additive: no changes to existing REST or streaming APIs. Earlier: v4.1.0 added CancellationToken to every REST method; v4.0.x made money values decimal and added opt-in per-row tolerance with SkippedItemCount.</PackageReleaseNotes>
 
   </PropertyGroup>
 
