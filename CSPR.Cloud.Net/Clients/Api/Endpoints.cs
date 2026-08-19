@@ -128,6 +128,10 @@ namespace CSPR.Cloud.Net.Clients.Api
             public static string StreamingMainnet { get; } = "wss://streaming.cspr.cloud";
             public static string StreamingTestnet { get; } = "wss://streaming.testnet.cspr.cloud";
 
+            // x402 Facilitator Base URL — one host serves every network; the CAIP-2 network id
+            // travels inside the payment objects.
+            public static string X402Facilitator { get; } = "https://x402-facilitator.cspr.cloud";
+
             // Streaming channels
             public static string StreamAccountBalances { get; } = "/account-balances";
             public static string StreamBlocks { get; } = "/blocks";
@@ -1577,6 +1581,24 @@ namespace CSPR.Cloud.Net.Clients.Api
             {
                 var url = FormatUrlWithParameter(baseUrl, BaseUrls.GetAwaitingDeploy, deployHash);
                 return url;
+            }
+        }
+
+        public static class X402
+        {
+            public static string GetSupported(string baseUrl)
+            {
+                return $"{baseUrl}/supported";
+            }
+
+            public static string PostVerify(string baseUrl)
+            {
+                return $"{baseUrl}/verify";
+            }
+
+            public static string PostSettle(string baseUrl)
+            {
+                return $"{baseUrl}/settle";
             }
         }
     }
