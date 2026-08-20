@@ -10,7 +10,7 @@
 
     <!-- NuGet Package Information -->
     <PackageId>CSPR.Cloud.Net</PackageId>
-    <Version>4.2.0</Version>
+    <Version>4.2.1</Version>
     <Authors>msanlisavas</Authors>
     <Description>A .NET client library for interacting with the CSPR Cloud API, providing access to Casper blockchain data for both Mainnet and Testnet environments.</Description>
     <PackageProjectUrl>https://github.com/msanlisavas/CSPR.Cloud.Net</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Casper;Blockchain;CSPR;Cloud;API;Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>v4.2.0 — NEW: CasperCloudX402Client, a client for the CSPR.cloud x402 Facilitator API (https://x402-facilitator.cspr.cloud): GetSupportedAsync, VerifyAsync and SettleAsync over the x402 v2 protocol with the Casper "exact" scheme (CEP-3009 transfer_with_authorization signed authorizations). Ships the full protocol object model under CSPR.Cloud.Net.Objects.X402 (PaymentRequired challenge, PaymentPayload with the Casper authorization/publicKey/signature payload, facilitator request/response types). Amounts are strings end-to-end; protocol JSON is camelCase; every method takes a trailing optional CancellationToken. Note the facilitator answers HTTP 200 even for a failed settlement — branch on X402SettleResponse.Success, never the status code. Purely additive: no changes to existing REST or streaming APIs. Earlier: v4.1.0 added CancellationToken to every REST method; v4.0.x made money values decimal and added opt-in per-row tolerance with SkippedItemCount.</PackageReleaseNotes>
+    <PackageReleaseNotes>v4.2.1 — FIX (wire correctness, live-verified against x402-facilitator.cspr.cloud): X402CasperAuthorization.ValidAfter/ValidBefore are now strings, matching the facilitator's Go parser, which types them as decimal-string unix seconds and rejects JSON numbers with invalid_exact_casper_malformed_payload. BREAKING for 4.2.0 code that read these two properties as long? (4.2.0 was released hours earlier; the whole x402 surface is brand new). Earlier: v4.2.0 — NEW: CasperCloudX402Client, a client for the CSPR.cloud x402 Facilitator API (https://x402-facilitator.cspr.cloud): GetSupportedAsync, VerifyAsync and SettleAsync over the x402 v2 protocol with the Casper "exact" scheme (CEP-3009 transfer_with_authorization signed authorizations). Ships the full protocol object model under CSPR.Cloud.Net.Objects.X402 (PaymentRequired challenge, PaymentPayload with the Casper authorization/publicKey/signature payload, facilitator request/response types). Amounts are strings end-to-end; protocol JSON is camelCase; every method takes a trailing optional CancellationToken. Note the facilitator answers HTTP 200 even for a failed settlement — branch on X402SettleResponse.Success, never the status code. Purely additive: no changes to existing REST or streaming APIs. Earlier: v4.1.0 added CancellationToken to every REST method; v4.0.x made money values decimal and added opt-in per-row tolerance with SkippedItemCount.</PackageReleaseNotes>
 
   </PropertyGroup>
 

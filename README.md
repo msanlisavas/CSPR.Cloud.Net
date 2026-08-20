@@ -8,6 +8,9 @@
 A .NET client library for the CSPR Cloud API — access Casper blockchain data (Mainnet & Testnet) with type-safe methods, filtering, sorting, pagination, and a WebSocket Streaming API.
 
 ## Release Notes
+### v4.2.1
+Wire-correctness fix, live-verified against `x402-facilitator.cspr.cloud`: `X402CasperAuthorization.ValidAfter`/`ValidBefore` are now **strings** (decimal unix seconds) — the facilitator's Go parser types them as strings and rejects JSON numbers with `invalid_exact_casper_malformed_payload`. Breaking only for 4.2.0 code that read these two properties as `long?` (released hours earlier).
+
 ### v4.2.0
 New client for the [CSPR.cloud x402 Facilitator API](https://docs.cspr.cloud/x402-facilitator-api/reference): verify and settle x402 v2 payment payloads signed per CEP-3009, and query scheme/network support. Purely additive — nothing changes for existing REST/streaming users. See the [x402 Facilitator API](#x402-facilitator-api) section below.
 

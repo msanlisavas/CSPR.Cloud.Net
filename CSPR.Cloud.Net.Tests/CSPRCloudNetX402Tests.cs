@@ -49,7 +49,7 @@ namespace CSPR.Cloud.Net.Tests
                 "\"payload\":{\"authorization\":{" +
                 "\"from\":\"00aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"," +
                 "\"to\":\"000202020202020202020202020202020202020202020202020202020202020202\"," +
-                "\"value\":\"25000\",\"validAfter\":0,\"validBefore\":1787200000," +
+                "\"value\":\"25000\",\"validAfter\":\"0\",\"validBefore\":\"1787200000\"," +
                 "\"nonce\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"}," +
                 "\"publicKey\":\"01bbbb\",\"signature\":\"dddd\"}}";
 
@@ -60,8 +60,10 @@ namespace CSPR.Cloud.Net.Tests
             Assert.Null(payload.Resource);
             Assert.Equal("25000", payload.Accepted.Amount);
             Assert.Equal("25000", payload.Payload.Authorization.Value);
-            Assert.Equal(0L, payload.Payload.Authorization.ValidAfter);
-            Assert.Equal(1787200000L, payload.Payload.Authorization.ValidBefore);
+            // Unix-second window fields are STRINGS on the wire — the facilitator's Go parser
+            // rejects numbers (live-verified against x402-facilitator.cspr.cloud).
+            Assert.Equal("0", payload.Payload.Authorization.ValidAfter);
+            Assert.Equal("1787200000", payload.Payload.Authorization.ValidBefore);
             Assert.Equal("01bbbb", payload.Payload.PublicKey);
         }
 
@@ -161,7 +163,7 @@ namespace CSPR.Cloud.Net.Tests
                 PaymentPayload = JsonConvert.DeserializeObject<X402PaymentPayload>(
                     "{\"x402Version\":2,\"accepted\":" + CanonicalRequirementsJson + "," +
                     "\"payload\":{\"authorization\":{\"from\":\"00aa\",\"to\":\"00bb\",\"value\":\"25000\"," +
-                    "\"validAfter\":0,\"validBefore\":1787200000,\"nonce\":\"cc\"}," +
+                    "\"validAfter\":\"0\",\"validBefore\":\"1787200000\",\"nonce\":\"cc\"}," +
                     "\"publicKey\":\"01dd\",\"signature\":\"ee\"}}"),
                 PaymentRequirements = JsonConvert.DeserializeObject<X402PaymentRequirements>(CanonicalRequirementsJson),
             };

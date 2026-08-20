@@ -52,13 +52,15 @@ namespace CSPR.Cloud.Net.Objects.X402
         [JsonProperty("value")]
         public string Value { get; set; }
 
-        /// <summary>Unix seconds; 0 = no lower bound.</summary>
+        /// <summary>Unix seconds as a DECIMAL STRING; "0" = no lower bound. The facilitator's Go
+        /// parser types this as a string and rejects JSON numbers with
+        /// invalid_exact_casper_malformed_payload (live-verified 2026-08-20).</summary>
         [JsonProperty("validAfter")]
-        public long? ValidAfter { get; set; }
+        public string ValidAfter { get; set; }
 
-        /// <summary>Unix seconds.</summary>
+        /// <summary>Unix seconds as a DECIMAL STRING — same wire rule as <see cref="ValidAfter"/>.</summary>
         [JsonProperty("validBefore")]
-        public long? ValidBefore { get; set; }
+        public string ValidBefore { get; set; }
 
         /// <summary>32-byte nonce, hex — CEP-3009's per-authorizer replay key.</summary>
         [JsonProperty("nonce")]
