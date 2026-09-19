@@ -70,9 +70,11 @@ namespace CSPR.Cloud.Net.Objects.Swap
         [JsonProperty("token1_contract_package")]
         public ContractPackageData Token1ContractPackage { get; set; }
 
+        [System.Obsolete("Never populated, even when the token0_ft_rate includer is requested. The API silently ignores unknown includer names, so the includer name itself is most likely wrong; pending confirmation with the CSPR.cloud team.")]
         [JsonProperty("token0_ft_rate")]
         public decimal? Token0FtRate { get; set; }
 
+        [System.Obsolete("Never populated, even when the token1_ft_rate includer is requested -- see Token0FtRate.")]
         [JsonProperty("token1_ft_rate")]
         public decimal? Token1FtRate { get; set; }
     }

@@ -111,7 +111,7 @@ namespace CSPR.Cloud.Net.Tests
             var result = await _restClient.Testnet.Account.GetAccountAsync(_testPublicKey, parameters);
 
             Assert.Equal(AuctionStatus.ActiveValidator.GetEnumMemberValue(), result.AuctionStatus);
-            Assert.True(result.StakedBalance == null && result.AuctionStatus != null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
+            Assert.True(result.StakedBalance == null && result.AuctionStatus != null && result.DelegatedBalance == null);
         }
         [Fact]
         public async Task GetAccountAsync_ReturnsExpectedDataWithOptionalParameterStakedBalanceTrue()
@@ -122,7 +122,7 @@ namespace CSPR.Cloud.Net.Tests
             };
             var result = await _restClient.Testnet.Account.GetAccountAsync(_testPublicKey, parameters);
 
-            Assert.True(Big(result.StakedBalance) > 0 && result.AuctionStatus == null && result.DelegatedBalance == null && result.UndelegatedBalance == null);
+            Assert.True(Big(result.StakedBalance) > 0 && result.AuctionStatus == null && result.DelegatedBalance == null);
         }
         [Fact]
         public async Task GetAccountsAsync_ReturnsOptionalParametersData()

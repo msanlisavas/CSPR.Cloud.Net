@@ -43,19 +43,28 @@ namespace CSPR.Cloud.Net.Objects.Delegate
         /// Identifier of the delegator — either a public key (when <see cref="DelegatorIdentifierTypeId"/> is 0)
         /// or a purse URef (when <see cref="DelegatorIdentifierTypeId"/> is 1).
         /// </summary>
-        [JsonProperty("delegator_identifier")]
+        /// <remarks>The wire name is <c>staker_identifier</c>; the endpoint has never emitted
+        /// <c>delegator_identifier</c>, which this bound to before v4.3.0 (always null).</remarks>
+        [JsonProperty("staker_identifier")]
         public string DelegatorIdentifier { get; set; }
 
         /// <summary>
         /// Identifier type: 0 for public-key delegators, 1 for purse delegators (v2.1.0+).
         /// </summary>
-        [JsonProperty("delegator_identifier_type_id")]
+        /// <remarks>The wire name is <c>withdrawal_type_id</c>. Before v4.3.0 this bound to
+        /// <c>delegator_identifier_type_id</c>, which the endpoint does not emit — and because the
+        /// property is non-nullable it read 0 on every row, silently reporting every purse
+        /// withdrawal as a public-key one. (Making it <c>int?</c> so "absent" stays distinguishable
+        /// from a real 0 is deferred: it would be a source-breaking change.)</remarks>
+        [JsonProperty("withdrawal_type_id")]
         public int DelegatorIdentifierTypeId { get; set; }
 
         /// <summary>
         /// Era in which the undelegation was created. Funds are released 7 eras later.
         /// </summary>
-        [JsonProperty("era_of_creation")]
+        /// <remarks>The wire name is <c>era_id</c>; <c>era_of_creation</c> is never emitted, so the
+        /// 7-era release calculation this doc promises was uncomputable before v4.3.0.</remarks>
+        [JsonProperty("era_id")]
         public ulong? EraOfCreation { get; set; }
 
         /// <summary>
@@ -65,8 +74,12 @@ namespace CSPR.Cloud.Net.Objects.Delegate
         public System.DateTime? Timestamp { get; set; }
 
         /// <summary>
-        /// Additional account information of the delegator (included when the <c>account_info</c> flag is set).
+        /// Never populated by this endpoint. Verified live: requesting <c>includes=account_info</c>
+        /// leaves the response unchanged, while <c>includes=validator_account_info</c> does add its
+        /// object — so the includer is unsupported here rather than merely unset.
+        /// Use <see cref="ValidatorAccountInfo"/>, or look the delegator up via the accounts endpoint.
         /// </summary>
+        [System.Obsolete("Never populated: /accounts/{publicKey}/undelegations does not support the account_info includer. Use ValidatorAccountInfo, or fetch the account separately.")]
         [JsonProperty("account_info")]
         public AccountInfoData AccountInfo { get; set; }
 
@@ -77,8 +90,9 @@ namespace CSPR.Cloud.Net.Objects.Delegate
         public AccountInfoData ValidatorAccountInfo { get; set; }
 
         /// <summary>
-        /// Centralized account information (included when the <c>centralized_account_info</c> flag is set).
+        /// Never populated by this endpoint — same verification as <see cref="AccountInfo"/>.
         /// </summary>
+        [System.Obsolete("Never populated: /accounts/{publicKey}/undelegations does not support the centralized_account_info includer.")]
         [JsonProperty("centralized_account_info")]
         public CentralizedAccountInfoData CentralizedAccountInfo { get; set; }
     }

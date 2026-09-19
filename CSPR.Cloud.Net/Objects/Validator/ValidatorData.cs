@@ -98,6 +98,7 @@ namespace CSPR.Cloud.Net.Objects.Validator
         /// <summary>
         /// Pending amount the validator is unstaking in the current unbonding window (v2.0.5+).
         /// </summary>
+        [System.Obsolete("Never populated: /validators and /validators/{publicKey} do not emit pending_unstaking_amount. Read pending withdrawals from /accounts/{publicKey}/undelegations (amount + era_id per withdrawal) instead.")]
         [JsonProperty("pending_unstaking_amount")]
         public string PendingUnstakingAmount { get; set; }
 

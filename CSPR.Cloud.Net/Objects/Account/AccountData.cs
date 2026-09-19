@@ -56,6 +56,7 @@ namespace CSPR.Cloud.Net.Objects.Account
         /// <summary>
         /// The undelegated balance of the account, in motes — funds that will return to the main purse after the lockup period ends.
         /// </summary>
+        [System.Obsolete("Never populated: the API emits undelegating_balance, which UndelegatingBalance already binds. This property's key has never appeared in a response.")]
         [JsonProperty("undelegated_balance")]
         public string UndelegatedBalance { get; set; }
 

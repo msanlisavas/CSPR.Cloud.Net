@@ -30,6 +30,9 @@ namespace CSPR.Cloud.Net.Objects.Validator
         /// <summary>
         /// Reward type identifier (Casper 2.0). Distinguishes between seigniorage, block-proposing, and other reward categories.
         /// </summary>
+        /// <remarks>Not emitted by mainnet or testnet as of 2026-09-19 — verified live against both.
+        /// The binding name matches the documented field, so this will populate if and when
+        /// CSPR.cloud ships it; until then it is null on every row and must not be branched on.</remarks>
         [JsonProperty("type")]
         public byte? Type { get; set; }
 

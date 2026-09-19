@@ -116,38 +116,69 @@ namespace CSPR.Cloud.Net.Tests
         // =================================================================================
 
         [Fact]
+        public void ValidatorPerformanceData_Deserializes_ScoreFromRelativeAveragePerformances()
+        {
+            // Captured verbatim from GET /validators/{pk}/relative-average-performances, the endpoint
+            // GetHistoricalValidatorAveragePerformanceAsync calls. It emits "score"; the model bound
+            // "average_score", so AverageScore was null for every era of every validator.
+            const string json = @"{
+                ""public_key"": ""011143c66e8e567bc46e7108736d363dfbbeeb8d0dfbd78aa9728646824999a5e5"",
+                ""era_id"": 23899,
+                ""score"": 99.96
+            }";
+
+            var data = JsonConvert.DeserializeObject<ValidatorPerformanceData>(json);
+            Assert.NotNull(data);
+            Assert.Equal(23899U, data.EraId);
+            Assert.Equal(99.96, data.AverageScore);
+        }
+
+        [Fact]
         public void UndelegationData_Deserializes_AllFields()
         {
+            // Captured verbatim from GET /accounts/{publicKey}/undelegations on mainnet.
+            // The previous fixture invented "delegator_identifier", "delegator_identifier_type_id"
+            // and "era_of_creation" -- keys this endpoint has never emitted -- so it passed against a
+            // shape that does not exist and hid three always-null properties.
             const string json = @"{
-                ""public_key"": ""018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02"",
-                ""validator_public_key"": ""0106ca7c39cd272dbf21a86eeb3b36b7c26e2e9b94af64292419f7862936bca2ca"",
-                ""amount"": ""500000000000"",
-                ""bonding_purse"": ""uref-917e1aeba7e7d3a322e89069e88b6e0877a59d781840c0ce8223e990e0342d42-007"",
-                ""delegator_identifier"": ""018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02"",
-                ""delegator_identifier_type_id"": 0,
-                ""era_of_creation"": 21940,
-                ""timestamp"": ""2026-04-22T10:00:00Z""
+                ""amount"": 105000496266499,
+                ""block_height"": 0,
+                ""bonding_purse"": ""uref-cb58c86b572a95452bab047fcb65ffa393602e8f0dec6c4bf49bcd2baa02bd84-007"",
+                ""deploy_hash"": null,
+                ""era_id"": 23896,
+                ""public_key"": ""0203a6e4da7d50ef8d9f4f59d9d9b8695f74660729c8b0f9dcebfc648f22f2b820e5"",
+                ""staker_identifier"": ""0203a6e4da7d50ef8d9f4f59d9d9b8695f74660729c8b0f9dcebfc648f22f2b820e5"",
+                ""timestamp"": ""2026-09-19T09:29:59Z"",
+                ""validator_public_key"": ""01c377281132044bd3278b039925eeb3efdb9d99dd5f46d9ec6a764add34581af7"",
+                ""withdrawal_type_id"": 0
             }";
 
             var data = JsonConvert.DeserializeObject<UndelegationData>(json);
             Assert.NotNull(data);
-            Assert.Equal("018afa98ca4be12d613617f7339a2d576950a2f9a92102ca4d6508ee31b54d2c02", data.PublicKey);
-            Assert.Equal("500000000000", data.Amount);
+            Assert.Equal("0203a6e4da7d50ef8d9f4f59d9d9b8695f74660729c8b0f9dcebfc648f22f2b820e5", data.PublicKey);
+            Assert.Equal("105000496266499", data.Amount);
+            Assert.Equal("0203a6e4da7d50ef8d9f4f59d9d9b8695f74660729c8b0f9dcebfc648f22f2b820e5", data.DelegatorIdentifier);
             Assert.Equal(0, data.DelegatorIdentifierTypeId);
-            Assert.Equal(21940UL, data.EraOfCreation);
+            Assert.Equal(23896UL, data.EraOfCreation);
             Assert.NotNull(data.Timestamp);
         }
 
         [Fact]
         public void UndelegationData_Deserializes_PurseDelegator()
         {
+            // Same wire shape as the captured row above, with the purse-withdrawal variant of
+            // withdrawal_type_id. Only the two varying values are synthesized; every KEY here is one
+            // the endpoint really emits.
             const string json = @"{
-                ""public_key"": null,
-                ""validator_public_key"": ""0106ca7c39cd272dbf21a86eeb3b36b7c26e2e9b94af64292419f7862936bca2ca"",
-                ""amount"": ""100000000000"",
+                ""amount"": 100000000000,
+                ""block_height"": 0,
                 ""bonding_purse"": ""uref-2372be06c70aa026df441b070cb8aaf91c6453e445d0ea2e31177ef5a05c2a53-007"",
-                ""delegator_identifier"": ""uref-fc3f0684d19865a5c020536e499dd3d9cf1c08201b85474762e86de7e85c0d34-007"",
-                ""delegator_identifier_type_id"": 1
+                ""deploy_hash"": null,
+                ""era_id"": 23896,
+                ""public_key"": null,
+                ""staker_identifier"": ""uref-fc3f0684d19865a5c020536e499dd3d9cf1c08201b85474762e86de7e85c0d34-007"",
+                ""validator_public_key"": ""01c377281132044bd3278b039925eeb3efdb9d99dd5f46d9ec6a764add34581af7"",
+                ""withdrawal_type_id"": 1
             }";
 
             var data = JsonConvert.DeserializeObject<UndelegationData>(json);
@@ -155,6 +186,31 @@ namespace CSPR.Cloud.Net.Tests
             Assert.Null(data.PublicKey);
             Assert.Equal(1, data.DelegatorIdentifierTypeId);
             Assert.StartsWith("uref-", data.DelegatorIdentifier);
+        }
+
+        [Fact]
+        public void ValidatorData_Deserializes_NestedAveragePerformanceScore()
+        {
+            // The blast radius of the average_score/score binding: ValidatorPerformanceData is also the
+            // declared type of ValidatorData.AveragePerformance, so every caller that asked for the
+            // average_performance includer got a null score too. Captured from
+            // GET /validators/{pk}?era_id=23900&includes=average_performance.
+            const string json = @"{
+                ""public_key"": ""011143c66e8e567bc46e7108736d363dfbbeeb8d0dfbd78aa9728646824999a5e5"",
+                ""era_id"": 23900,
+                ""rank"": 12,
+                ""fee"": 5,
+                ""average_performance"": {
+                    ""era_id"": 23899,
+                    ""public_key"": ""011143c66e8e567bc46e7108736d363dfbbeeb8d0dfbd78aa9728646824999a5e5"",
+                    ""score"": 99.96
+                }
+            }";
+
+            var data = JsonConvert.DeserializeObject<ValidatorData>(json);
+            Assert.NotNull(data);
+            Assert.NotNull(data.AveragePerformance);
+            Assert.Equal(99.96, data.AveragePerformance.AverageScore);
         }
 
         // =================================================================================
